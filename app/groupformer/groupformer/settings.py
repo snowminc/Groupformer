@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'form',
     'project_input_test.apps.ProjectInputTestConfig',
     'django.contrib.admin',
     'django.contrib.auth',
