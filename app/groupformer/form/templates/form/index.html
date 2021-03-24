@@ -7,6 +7,7 @@
 <body>
     <form>
         <p>I would like to work with:</p>
+        <!--TODO: @Min we'll want to move this dropdown to the ResponseScreen -Kristian-->
         <select name="participants" id="participants" multiple>
             {% for person in participants %}
             <option value="{{ forloop.counter }}">{{ person.name }}</option>
