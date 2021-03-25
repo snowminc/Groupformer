@@ -22,16 +22,19 @@
         <div class="container">
             <form>
                 {% for project in projects %}
-                <div class="form-group">
-                    <label for="project-name{{forloop.counter}}">Project Name</label>
-                    <input type="text" class="form-control col-md-2" id="project-name{{forloop.counter}}" placeholder="Name" value="{{project.name}}">
-                </div>
-                <div class="form-group">
-                    <label for="project-desc{{forloop.counter}}">Project Description</label>
-                    <textarea class="form-control" id="project-desc{{forloop.counter}}" rows="3" placeholder="Description">{{project.description}}</textarea>
+                <div class="container">
+                    <div class="form-group">
+                        <label for="project-name{{ forloop.counter }}">Project Name</label>
+                        <input type="text" class="form-control col-md-2" id="project-name{{ forloop.counter }}" placeholder="Name" value="{{ project.name }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="project-desc{{ forloop.counter }}">Project Description</label>
+                        <textarea class="form-control" id="project-desc{{ forloop.counter }}" rows="3" placeholder="Description">{{ project.description }}</textarea>
+                    </div>
+                    <a href="{% url 'setup_screen:remove_project' forloop.counter %}"></a>
                 </div>
                 {% endfor %}
-                <a href="{%url 'setup_screen:add_project'%}" class="btn btn-primary" id="add-project-btn">Add Project</a>
+                <a href="{% url 'setup_screen:add_project' %}" class="btn btn-primary" id="add-project-btn">Add Project</a>
             </form>
         </div>
         <!-- TODO: Attributes -->

@@ -57,6 +57,68 @@ class SetupScreenTests(TestCase):
         self.assertNotContains(response, f'project-name{3}')
         self.assertNotContains(response, f'project-desc{3}')
 
+    def test_cant_remove_single_project(self):
+        """
+        Ensure that the user cannot remove the last project in the list
+        """
+        response = self.client.get(reverse('setup_screen:remove_project', kwargs={"proj_id": 1}))
+        self.assertEqual(response.status_code, 302)  # assert redirecting
+        response = self.client.get(reverse('setup_screen:index'))
+
+        # assert 1 project expecting inputs
+        self.assertContains(response, f'project-name{1}')
+        self.assertContains(response, f'project-desc{1}')
+        self.assertNotContains(response, f'project-name{2}')
+        self.assertNotContains(response, f'project-desc{2}')
+
+    def test_add_then_remove_projects(self):
+        """
+        Ensure that the add and remove project endpoints both work as expected.
+        Test by adding 10 projects, then removing them... ensuring all the expected ones are in the resulting html
+        """
+        max = 10
+
+        # add projects
+        for i in range(1, max):
+            response = self.client.get(reverse('setup_screen:add_project'))
+
+            self.assertEqual(response.status_code, 302)  # assert redirecting
+            response = self.client.get(reverse('setup_screen:index'))
+
+            # first i project inputs are present
+            for j in range(1, i + 1):
+                self.assertContains(response, f'project-name{j}')
+                self.assertContains(response, f'project-desc{j}')
+
+            # remaining project inputs (i+1 through max) are NOT present
+            for j in range(i + 1, max + 1):
+                self.assertNotContains(response, f'project-name{j}')
+                self.assertNotContains(response, f'project-desc{j}')
+
+        # remove projects
+        for i in range(1, max):
+            response = self.client.get(reverse('setup_screen:remove_project'))
+
+            self.assertEqual(response.status_code, 302)  # assert redirecting
+            response = self.client.get(reverse('setup_screen:index'))
+
+            # first i project inputs are present
+            for j in range(1, i + 1):
+                self.assertContains(response, f'project-name{j}')
+                self.assertContains(response, f'project-desc{j}')
+
+            # remaining project inputs (i+1 through max) are NOT present
+            for j in range(i + 1, max+1):
+                self.assertNotContains(response, f'project-name{j}')
+                self.assertNotContains(response, f'project-desc{j}')
+
+        # assert 1 project expecting inputs
+        response = self.client.get(reverse('setup_screen:index'))
+        self.assertContains(response, f'project-name{1}')
+        self.assertContains(response, f'project-desc{1}')
+        self.assertNotContains(response, f'project-name{2}')
+        self.assertNotContains(response, f'project-desc{2}')
+
 # TODO: [SetupScreen] Test that the remove button only appears with > 1 project
 # TODO: [SetupScreen] Test that the add button adds new inputs for another project
 # TODO: [SetupScreen] Test that the remove button removes the inputs for the target project

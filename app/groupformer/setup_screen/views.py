@@ -58,3 +58,19 @@ def add_project(request):
     request.session['setup_project'] = project_list
 
     return redirect('setup_screen:index')
+
+
+def remove_project(request, proj_id):
+    """
+    Endpoint that adds another blank project to the session data then redirects to the index page
+    """
+    init(request)
+
+    project_list = request.session['setup_projects']
+    project_list.append({
+            "name": "",
+            "description": "",
+        },)
+    request.session['setup_project'] = project_list
+
+    return redirect('setup_screen:index')
