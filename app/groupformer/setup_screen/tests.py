@@ -79,7 +79,7 @@ class SetupScreenTests(TestCase):
         max = 10
 
         # add projects
-        for i in range(1, max):
+        for i in range(2, max):
             response = self.client.get(reverse('setup_screen:add_project'))
 
             self.assertEqual(response.status_code, 302)  # assert redirecting
@@ -95,20 +95,20 @@ class SetupScreenTests(TestCase):
                 self.assertNotContains(response, f'project-name{j}')
                 self.assertNotContains(response, f'project-desc{j}')
 
-        # remove projects
-        for i in range(1, max):
-            response = self.client.get(reverse('setup_screen:remove_project'))
+        # remove projects (iterate in reverse)
+        for i in range(max, 1, -1):
+            response = self.client.get(reverse('setup_screen:remove_project', kwargs={'proj_id': 1}))
 
             self.assertEqual(response.status_code, 302)  # assert redirecting
             response = self.client.get(reverse('setup_screen:index'))
 
-            # first i project inputs are present
-            for j in range(1, i + 1):
+            # first i-1 project inputs are present
+            for j in range(1, i-1):
                 self.assertContains(response, f'project-name{j}')
                 self.assertContains(response, f'project-desc{j}')
 
-            # remaining project inputs (i+1 through max) are NOT present
-            for j in range(i + 1, max+1):
+            # remaining project inputs (i through max) are NOT present
+            for j in range(i, max+1):
                 self.assertNotContains(response, f'project-name{j}')
                 self.assertNotContains(response, f'project-desc{j}')
 

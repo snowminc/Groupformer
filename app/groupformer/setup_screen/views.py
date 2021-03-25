@@ -67,10 +67,9 @@ def remove_project(request, proj_id):
     init(request)
 
     project_list = request.session['setup_projects']
-    project_list.append({
-            "name": "",
-            "description": "",
-        },)
-    request.session['setup_project'] = project_list
+
+    if 0 < proj_id <= len(project_list) and len(project_list) > 1:
+        del project_list[proj_id-1]
+        request.session['setup_project'] = project_list
 
     return redirect('setup_screen:index')
