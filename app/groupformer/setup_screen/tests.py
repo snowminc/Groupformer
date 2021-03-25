@@ -26,7 +26,36 @@ class SetupScreenTests(TestCase):
         self.assertNotContains(response, 'project-name2')
         self.assertNotContains(response, 'project-desc2')
 
+    def test_add_projects_inputs_exist(self):
+        """
+        Ensure that the add project endpoint adds a new project to the session to be displayed on the setup screen
+        """
+        for i in range(1, 10):
+            response = self.client.get(reverse('setup_screen:add_project'))
 
+            self.assertEqual(response.status_code, 302)  # assert redirecting
+            response = self.client.get(reverse('setup_screen:index'))
+
+            for j in range(1, i+1):
+                self.assertContains(response, f'project-name{j}')
+                self.assertContains(response, f'project-desc{j}')
+
+    def test_add_project_before_visit_index(self):
+        """
+        Regression Test: Ensure that going to the add project url is okay to do before going to the index.
+        i.e. the session should generate the first project in both places
+        """
+        response = self.client.get(reverse('setup_screen:add_project'))
+        self.assertEqual(response.status_code, 302)  # assert redirecting
+        response = self.client.get(reverse('setup_screen:index'))
+
+        # assert 2 projects are expecting inputs
+        self.assertContains(response, f'project-name{1}')
+        self.assertContains(response, f'project-desc{1}')
+        self.assertContains(response, f'project-name{2}')
+        self.assertContains(response, f'project-desc{2}')
+        self.assertNotContains(response, f'project-name{3}')
+        self.assertNotContains(response, f'project-desc{3}')
 
 # TODO: [SetupScreen] Test that the remove button only appears with > 1 project
 # TODO: [SetupScreen] Test that the add button adds new inputs for another project

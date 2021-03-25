@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
 
@@ -18,9 +18,11 @@ def dropdown_test(request):
     return render(request, "setup_screen/dropdown_test.html", context=context)
 
 
-def index(request):
-
-    if 'setup_projects' not in request.session: # doesn't exist, so add single blank project
+def init(request):
+    """
+    Initialize the session persistent data if it doesn't exist
+    """
+    if 'setup_projects' not in request.session:  # doesn't exist, so add single blank project
         request.session['setup_projects'] = [
             {
                 "name": "",
@@ -28,6 +30,12 @@ def index(request):
             },
         ]
 
+
+def index(request):
+    """
+    Setup screen index page. Passes the session data to the html template
+    """
+    init(request)
 
     context = {}
 
@@ -37,9 +45,16 @@ def index(request):
 
 
 def add_project(request):
-    request.session['setup_projects'].append({
-                "name": "",
-                "description": "",
-            },)
+    """
+    Endpoint that adds another blank project to the session data then redirects to the index page
+    """
+    init(request)
 
-    return setup_screen(request)
+    project_list = request.session['setup_projects']
+    project_list.append({
+            "name": "",
+            "description": "",
+        },)
+    request.session['setup_project'] = project_list
+
+    return redirect('setup_screen:index')
