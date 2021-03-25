@@ -119,7 +119,4 @@ class SetupScreenTests(TestCase):
         self.assertNotContains(response, f'project-name{2}')
         self.assertNotContains(response, f'project-desc{2}')
 
-# TODO: [SetupScreen] Test that the remove button only appears with > 1 project
-# TODO: [SetupScreen] Test that the add button adds new inputs for another project
 # TODO: [SetupScreen] Test that the remove button removes the inputs for the target project
-# TODO: [SetupScreen] Test fill out values and receive the submission

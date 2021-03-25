@@ -73,3 +73,5 @@ def remove_project(request, proj_id):
         request.session['setup_project'] = project_list
 
     return redirect('setup_screen:index')
+
+# TODO: need to save user edits to the session object!
