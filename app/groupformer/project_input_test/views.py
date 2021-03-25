@@ -7,7 +7,7 @@ from django.utils import timezone
 from .models import Project
 
 class IndexView(generic.ListView):
-    template_name = 'projects/index.html'
+    template_name = 'projects/dropdown_test.html'
     context_object_name = 'projects_list'
 
     def get_queryset(self):

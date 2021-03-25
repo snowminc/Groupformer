@@ -4,7 +4,7 @@ from django.shortcuts import render
 # Create your views here.
 
 
-def index(request):
+def dropdown_test(request):
     context = {}
 
     context["participants"] = [
@@ -15,10 +15,10 @@ def index(request):
         {"name": "Kristian Mischke"}
     ]
 
-    return render(request, "form/index.html", context=context)
+    return render(request, "setup_screen/dropdown_test.html", context=context)
 
 
-def setup_screen(request):
+def index(request):
 
     if 'setup_projects' not in request.session: # doesn't exist, so add single blank project
         request.session['setup_projects'] = [
@@ -33,4 +33,13 @@ def setup_screen(request):
 
     context["projects"] = request.session['setup_projects']
 
-    return render(request, "form/setup_screen.html", context=context)
+    return render(request, "setup_screen/setup_screen.html", context=context)
+
+
+def add_project(request):
+    request.session['setup_projects'].append({
+                "name": "",
+                "description": "",
+            },)
+
+    return setup_screen(request)
