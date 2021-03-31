@@ -46,6 +46,11 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         - Press the windows button and search 'advanced system settings'
         - Click 'Environment Variables'
         - Edit your User or System `PATH` variable adding the directory you chose
+
+    Further Note: Currently an issue with Chrome v89 that will be fixed in v90 but is currently in beta.
+    Selenium will spew some warning messages, but this doesn't effect the integration tests aside from
+    clogging the terminal output.
+    - https://stackoverflow.com/questions/65080685/usb-usb-device-handle-win-cc1020-failed-to-read-descriptor-from-node-connectio
     """
 
     @classmethod
