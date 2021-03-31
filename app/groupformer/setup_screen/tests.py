@@ -1,5 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, LiveServerTestCase
 from django.urls import reverse
+
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 
 class ParticipantDropdownViewTests(TestCase):
@@ -118,5 +121,31 @@ class SetupScreenTests(TestCase):
         self.assertContains(response, f'project-desc{1}')
         self.assertNotContains(response, f'project-name{2}')
         self.assertNotContains(response, f'project-desc{2}')
+
+
+class SetupScreenIntegrationTests(LiveServerTestCase):
+    """
+    NOTE for running tests:
+
+    You need to download the selenium webdriver and put it in your PATH variable.
+
+    - Download: https://chromedriver.chromium.org/downloads
+    - Update PATH Environment Variable:
+    - Windows:
+        - Save `chromedriver.exe` to a path such as `C:\Program Files\Selenium`
+        - Press the windows button and search 'advanced system settings'
+        - Click 'Environment Variables'
+        - Edit your User or System `PATH` variable adding the directory you chose
+    """
+
+    def test_selenium(self):
+        driver = webdriver.Chrome()
+        path = 'http://127.0.0.1:8000' + reverse('setup_screen:index')
+        driver.get(path)
+        self.assertTrue("GroupFormer" in driver.title)
+
+        self.assertIsNotNone(driver.find_element_by_id("project-name1"))
+        self.assertIsNotNone(driver.find_element_by_id("project-desc1"))
+        driver.close()
 
 # TODO: [SetupScreen] Test that the remove button removes the inputs for the target project
