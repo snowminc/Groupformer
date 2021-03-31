@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -65,19 +64,19 @@
                 project_elem.find(".close").on("click", () => remove_project(i));
 
                 // init project name input value and change callback
-                project_elem.find("#project-name label").attr("for", `project-name-${i}`);
+                project_elem.find("#project-name label").attr("for", `project-name${i}`);
                 let name_input = project_elem.find("#project-name input");
                 name_input.val(project_name);
-                name_input.change(() => local_projects[i].name = $(`#project-name-${i}`).val());
-                name_input.attr("id", `project-name-${i}`);
+                name_input.change(() => local_projects[i].name = $(`#project-name${i}`).val());
+                name_input.attr("id", `project-name${i}`);
                 project_elem.find("#project-name").removeAttr("id");
 
                 // init project description input value and change callback
-                project_elem.find("#project-desc label").attr("for", `project-desc-${i}`);
+                project_elem.find("#project-desc label").attr("for", `project-desc${i}`);
                 let desc_textarea = project_elem.find("#project-desc textarea");
                 desc_textarea.val(project_desc);
-                desc_textarea.change(() => local_projects[i].description = $(`#project-desc-${i}`).val());
-                desc_textarea.attr("id", `project-desc-${i}`);
+                desc_textarea.change(() => local_projects[i].description = $(`#project-desc${i}`).val());
+                desc_textarea.attr("id", `project-desc${i}`);
                 project_elem.find("#project-desc").removeAttr("id");
             }
         }
