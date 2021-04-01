@@ -50,14 +50,14 @@ class attribute_selection(models.Model):
     value = models.IntegerField()
     
     def __str__(self):
-        return self.participant + '-' + self.attribute
+        return str(self.participant) + '-' + str(self.attribute)
 
 class project_selection(models.Model):
     participant = models.ForeignKey(Participant, on_delete = models.CASCADE)
     project = models.ForeignKey(Project, on_delete = models.CASCADE)
     value = models.FloatField()
     def __str__(self):
-        return self.participant + '-' + self.project
+        return str(self.participant) + '-' + str(self.project)
 
 # Helper functions
 
