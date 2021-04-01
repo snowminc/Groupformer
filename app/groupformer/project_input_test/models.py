@@ -8,7 +8,7 @@ class GroupFormer(models.Model):
     class_section = models.CharField(max_length=100)
     
     def __str__(self):
-        return self.class_section + ' ' + self.prof_name 
+        return self.prof_name + ' ' + self.class_section 
 
 class Project(models.Model):
     # Required to test relation involving it
@@ -16,6 +16,9 @@ class Project(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     project_name = models.CharField(max_length=200)
     project_description = models.CharField(max_length=1000)
+    
+    def __str__(self):
+        return self.project_name + '(' + self.group_former + ')'
 
 class Attribute(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -24,7 +27,7 @@ class Attribute(models.Model):
     is_continuous = models.BooleanField()
     
     def __str__(self):
-        return self.attr_name
+        return self.attr_name + '(' + self.group_former + ')'
     
 
 class Participant(models.Model):
@@ -37,7 +40,7 @@ class Participant(models.Model):
     projects = models.ManyToManyField(Project,through='project_selection')
     
     def __str__(self):
-        return self.part_name
+        return self.part_name + '(' + self.group_former + ')'
 
 # Relationships
 
@@ -45,17 +48,25 @@ class attribute_selection(models.Model):
     participant = models.ForeignKey(Participant, on_delete = models.CASCADE)
     attribute = models.ForeignKey(Attribute, on_delete = models.CASCADE)
     value = models.IntegerField()
+    
+    def __str__(self):
+        return self.participant + '-' + self.attribute
 
 class project_selection(models.Model):
     participant = models.ForeignKey(Participant, on_delete = models.CASCADE)
     project = models.ForeignKey(Project, on_delete = models.CASCADE)
     value = models.FloatField()
+    def __str__(self):
+        return self.participant + '-' + self.project
 
 # Helper functions
 
 def addRoster(gf, roster):
     #roster In the form [[name : email] ...]
-    pass
+    ps = []
+    for (name,email) in roster:
+        ps = ps + [addParticipant(gf.pk,name,email)]
+    return ps
 
 def addGroupFormer(name,email,section):
     p = GroupFormer(name, email, section)
