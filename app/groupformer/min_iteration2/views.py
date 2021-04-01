@@ -8,12 +8,12 @@ def response_screen(request):
     # Create arbitrary sample projects and attributes for testing the front-end
     projects = []
     project = {
-        "name": "Something",
+        "name": "SomethingProject",
         "description": "Some description about something that has some substance about some of what something entails"
     }
     projects.append(project)
     project = {
-        "name": "Other thing",
+        "name": "OtherProject",
         "description": "Some description about something that has some substance about some of what something entails"
     }
     projects.append(project)
