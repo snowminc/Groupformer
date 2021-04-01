@@ -7,7 +7,12 @@ class Project(models.Model):
 
     # model function to add a project name and project description
     def add_project(name, description):
+        """
+        :param name, description:
+        :return: the project object that has been added to the database
+        """
         proj = Project(project_name = name, project_description = description)
         proj.save()
+        return proj
 
 

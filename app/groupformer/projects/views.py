@@ -7,13 +7,18 @@ from .models import Project
 
 # view to render/display the form
 def project_index(request):
+    """
+
+    :param request:
+    :return: render will re-display the form to submit another project and description
+    """
     return render(request, "projects/projects.html")
 
 # view where the form sends the data, accepts the project names and descriptions
 def project_create_view(request):
     """
     :param request:
-    :return:
+    :return: returns a HttpResponseRedirect after posting the data to prevent the data being stored two times
     """
     # assuming the front_end is saving what the users enters as project_name and project_description
     Project.add_project(request.POST["project_name"], request.POST["project_description"])
