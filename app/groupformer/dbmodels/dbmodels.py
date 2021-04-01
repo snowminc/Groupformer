@@ -15,6 +15,9 @@ class GroupFormer(models.Model):
     
     def __str__(self):
         return class_section + ' ' + prof_name 
+    
+    class Meta:
+        app_label = 'groupformer_GroupFormer'
 
 class Project(models.Model):
     # Required to test relation involving it
@@ -22,6 +25,9 @@ class Project(models.Model):
     gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     name = models.CharField(max_length=200)
     desc = models.CharField(max_length=1000)
+    
+    class Meta:
+        app_label = 'groupformer_Project'
 
 class Attribute(models.Model):
     gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -32,6 +38,9 @@ class Attribute(models.Model):
     def __str__(self):
         return name
     
+    class Meta:
+        app_label = 'groupformer_Attribute'
+    
 
 class Participant(models.Model):
     gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -40,6 +49,9 @@ class Participant(models.Model):
     
     def __str__(self):
         return name
+    
+    class Meta:
+        app_label = 'groupformer_Participant'
 
 # Relationships
 
@@ -47,13 +59,22 @@ class attribute_selection(models.Model):
     participant = models.ForeignKey(Participant, on_delete = models.CASCADE)
     attribute = models.ForeignKey(Attribute, on_delete = models.CASCADE)
     value = models.IntegerField()
+    
+    class Meta:
+        app_label = 'groupformer_attribute_selection'
 
 class project_selection(models.Model):
     participant = models.ForeignKey(Participant, on_delete = models.CASCADE)
     project = models.ForeignKey(Project, on_delete = models.CASCADE)
     value = models.FloatField()
+    
+    class Meta:
+        app_label = 'groupformer_project_selection'
 
 class desired_partner(models.Model):
     wisher = models.ForeignKey(Participant, on_delete = models.CASCADE)
     wishee = models.ForeignKey(Participant, on_delete = models.CASCADE)
+    
+    class Meta:
+        app_label = 'groupformer_desired_partner'
 
