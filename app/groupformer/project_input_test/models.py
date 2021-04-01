@@ -18,7 +18,7 @@ class Project(models.Model):
     project_description = models.CharField(max_length=1000)
     
     def __str__(self):
-        return self.project_name + '(' + self.group_former + ')'
+        return self.project_name + ' (' + str(self.group_former) + ')'
 
 class Attribute(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -27,7 +27,7 @@ class Attribute(models.Model):
     is_continuous = models.BooleanField()
     
     def __str__(self):
-        return self.attr_name + '(' + self.group_former + ')'
+        return self.attr_name + ' (' + str(self.group_former) + ')'
     
 
 class Participant(models.Model):
@@ -40,7 +40,7 @@ class Participant(models.Model):
     projects = models.ManyToManyField(Project,through='project_selection')
     
     def __str__(self):
-        return self.part_name + '(' + self.group_former + ')'
+        return self.part_name + ' (' + str(self.group_former) + ')'
 
 # Relationships
 
