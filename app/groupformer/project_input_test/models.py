@@ -51,3 +51,28 @@ class project_selection(models.Model):
     project = models.ForeignKey(Project, on_delete = models.CASCADE)
     value = models.FloatField()
 
+# Helper functions
+
+def addRoster(gf, roster):
+    #roster In the form [[name : email] ...]
+    pass
+
+def addGroupFormer(name,email,section):
+    p = GroupFormer(name, email, section)
+    p.save()
+    return p
+
+def addAttribute(gf, name, is_homogenous, is_continuous):
+    p = Attribute(gf.pk, name, is_homogenous, is_continuous)
+    p.save()
+    return p
+
+def addProject(gf, name, description):
+    p = Project(gf.pk, name, description)
+    p.save()
+    return p
+
+def addParticipant(gf, name, email):
+    p = Participant(gf.pk,name,email)
+    p.save()
+    return p
