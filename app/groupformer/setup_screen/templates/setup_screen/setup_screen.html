@@ -87,16 +87,34 @@
     <div class="container">
         <h1>Welcome to GroupFormer!</h1>
         <p>This is the Setup Screen, where you as an instructor/facilitator will be able to set up a form for participants to fill out and be assigned to groups</p>
+
+        <h2>Info</h2>
+        <div class="container">
+            <div class="form-group">
+                <label for="instructor-name">Your Name</label>
+                <input id="instructor-name" type="text" class="form-control col-md-2" placeholder="Jules Johnson">
+            </div>
+            <div class="form-group">
+                <label for="instructor-email">Your Email</label>
+                <input id="instructor-email" type="text" class="form-control col-md-2" placeholder="jules@jules.jules">
+            </div>
+            <div class="form-group">
+                <label for="custom-name">Class/Section or Custom Name</label>
+                <input id="custom-name" type="text" class="form-control col-md-2" placeholder="CMSC 447 - Section 03">
+            </div>
+        </div>
+
         <h2>Projects</h2>
+        <div class="container">
+            <div class="container" id="projects-container"></div>
+            <a onclick="add_project()" class="btn btn-primary" id="add-project-btn">Add Project</a>
+        </div>
 
-        <!--TODO: Professor Name/Email inputs-->
-        <!--TODO: Class/Section/Custom name input-->
-
-        <div class="container" id="projects-container"></div>
-        <a onclick="add_project()" class="btn btn-primary" id="add-project-btn">Add Project</a>
-
-        <div class="container" id="attributes-container"></div>
-        <a class="btn btn-primary" id="add-attribute-btn">Add Attribute</a> <!--TODO: add_attribute js functionality-->
+        <h2>Attributes</h2>
+        <div class="container">
+            <div class="container" id="attributes-container"></div>
+            <a class="btn btn-primary" id="add-attribute-btn">Add Attribute</a> <!--TODO: add_attribute js functionality-->
+        </div>
 
         <br>
         <a class="btn btn-success" id="submit-btn">Create GroupFormer</a> <!--TODO: Submit Endpoint-->

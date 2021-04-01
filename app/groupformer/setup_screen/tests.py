@@ -198,3 +198,4 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'project-name1')
 
 # TODO: [SetupScreen] Test that the remove button removes the inputs for the target project
+#       i.e. need to input data and make sure the removed one is the expected removed one
