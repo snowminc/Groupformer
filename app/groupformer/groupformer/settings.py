@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'form.apps.FormConfig',
     'project_input_test.apps.ProjectInputTestConfig',
+    'dbtools.apps.DbtoolsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
