@@ -22,21 +22,6 @@ class MinIteration2ResponseScreenTests(TestCase):
         self.assertContains(response, "How comfortable are you with front-end?")
         self.assertContains(response, "How comfortable are you with back-end?")
 
-    def test_displays_all_groups(self):
-        """
-        If the page shows all of the arbitrary group inputs (with a temporary "backend") from views.py, then it passes
-        """
-        response = self.client.get(reverse('min_iteration2:groupformer_list'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Section W")
-        self.assertContains(response, "A, B, C")
-        self.assertContains(response, "1, 2, 3")
-        self.assertContains(response, "X, Y, Z")
-        self.assertContains(response, "Section A")
-        self.assertContains(response, "Q, A, Z")
-        self.assertContains(response, "G, M, E")
-        self.assertContains(response, "A, S, D, F")
-
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
