@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'setup_screen.apps.FormConfig',
+    'projects.apps.ProjectsConfig',
+    'form.apps.FormConfig',
     'project_input_test.apps.ProjectInputTestConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
 ]
 
 MIDDLEWARE = [
