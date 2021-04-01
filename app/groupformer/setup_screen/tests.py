@@ -77,9 +77,10 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         """
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, 'add-project-btn'))).click()
 
-    def click_remove_project(self, index):
+    def click_remove_project(self, index: int):
         """
-        Helper function to click the remove project button
+        Helper function to click the remove project button of given index
+        :param index:index of the project to remove
         """
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-{index} .close')))
         self.driver.execute_script(f'$("#project-{index} .close").click()')
@@ -90,9 +91,10 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         """
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, 'add-attribute-btn'))).click()
 
-    def click_remove_attribute(self, index):
+    def click_remove_attribute(self, index: int):
         """
         Helper function to click the remove attribute button
+        :param index:index of the attribute to remove
         """
         WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, f'#attribute-{index} .close')))
