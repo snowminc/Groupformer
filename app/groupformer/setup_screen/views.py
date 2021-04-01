@@ -1,3 +1,5 @@
+import json
+
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
@@ -27,4 +29,28 @@ def index(request):
 
     return render(request, "setup_screen/setup_screen.html", context=context)
 
-# TODO: submit groupformer endpoint to commit projects/attributes to database
+
+def submit_groupformer(request):
+    if request.is_ajax():
+        if request.method == 'POST':
+            print('Raw Data: "%s"' % request.body)
+            payload = json.load(request.body)
+
+            # TODO: create a new groupformer instance
+            instructor_name = payload["instructor_name"]
+            instructor_email = payload["instructor_email"]
+            custom_name = payload["custom_name"]
+
+            for project_data in payload["projects"]:
+                project_name = project_data["name"]
+                project_description = project_data["description"]
+                # TODO: create new project instance in database
+                # TODO: link to groupformer instance
+
+            for attribute_data in payload["attribtues"]:
+                attribute_name = attribute_data["name"]
+                attribute_homogenous = attribute_data["is_homogenous"]
+                # TODO: create new attribute instance in database
+                # TODO: link to groupformer instance
+
+    return HttpResponse("OK")

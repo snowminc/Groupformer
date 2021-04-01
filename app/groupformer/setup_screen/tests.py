@@ -343,3 +343,5 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # check that index 0 is the original index 2
         self.assertEqual(attribute_2_homogenous, self.driver.find_element_by_id(f'attribute-homogenous0').is_selected())
         self.assertEqual(attribute_2_name, self.driver.find_element_by_id(f'attribute-name0').get_attribute("value"))
+
+# TODO: Integration test that fills out the project/attribute fields, then submits and checks the database for the changes

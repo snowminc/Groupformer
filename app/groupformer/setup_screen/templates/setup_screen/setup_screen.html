@@ -138,6 +138,35 @@
                 attribute_elem.find("#attribute-homogenous").removeAttr("id");
             }
         }
+
+        function submit_groupformer()
+        {
+            let instructor_name = $("#instructor-name").val()
+            let instructor_email = $("#instructor-email").val()
+            let custom_name = $("#custom-name").val()
+
+            let payload = {
+                instructor_name: instructor_name,
+                instructor_email: instructor_email,
+                custom_name: custom_name,
+                projects: local_projects,
+                attributes: local_attributes
+            }
+
+            $.ajax({
+                url: '{% url "setup_screen:submit_groupformer" %}',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(payload),
+                dataType: 'text',
+                headers: {
+                    "X-CSRFToken": csrftoken
+                },
+                success: function (result) {
+                    alert(result.Result);
+                },
+            });
+        }
     </script>
 </head>
 <body>
@@ -175,7 +204,7 @@
         </div>
 
         <br>
-        <a class="btn btn-success" id="submit-btn">Create GroupFormer</a> <!--TODO: Submit Endpoint-->
+        <a onclick="submit_groupformer()" class="btn btn-success" id="submit-btn">Create GroupFormer</a>
     </div>
 
     <div id="dom-templates" style="display: none;">
@@ -223,5 +252,10 @@
         </div>
 
     </div>
+
+    {% csrf_token %}
+    <script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    </script>
 </body>
 </html>
