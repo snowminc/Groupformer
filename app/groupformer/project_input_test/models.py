@@ -13,12 +13,12 @@ class GroupFormer(models.Model):
 class Project(models.Model):
     # Required to test relation involving it
     # To be replaced by Sarah's
-    gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
+    group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     project_name = models.CharField(max_length=200)
     project_description = models.CharField(max_length=1000)
 
 class Attribute(models.Model):
-    gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
+    group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     name = models.CharField(max_length=100)
     is_homogenous = models.BooleanField()
     is_continuous = models.BooleanField()
@@ -28,7 +28,7 @@ class Attribute(models.Model):
     
 
 class Participant(models.Model):
-    gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
+    group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     part_email = models.CharField(max_length=200)
     part_name = models.CharField(max_length=200)
     
