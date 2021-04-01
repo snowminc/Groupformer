@@ -32,6 +32,8 @@ class Participant(models.Model):
     part_email = models.CharField(max_length=200)
     part_name = models.CharField(max_length=200)
     
+    desired_partner = models.ManyToManyField('self')
+    
     def __str__(self):
         return name
 
@@ -46,9 +48,4 @@ class project_selection(models.Model):
     participant = models.ForeignKey(Participant, on_delete = models.CASCADE)
     project = models.ForeignKey(Project, on_delete = models.CASCADE)
     value = models.FloatField()
-
-class desired_partner(models.Model):
-    wisher = models.ForeignKey(Participant, on_delete = models.CASCADE)
-    wishee = models.ForeignKey(Participant, on_delete = models.CASCADE)
-
 
