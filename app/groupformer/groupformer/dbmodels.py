@@ -4,7 +4,7 @@
 # Use the following to import this file
 # from groupformer import dbmodels
 
-from django.db import Model
+from django.db import models
 
 #Entities
 
