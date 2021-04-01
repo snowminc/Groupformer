@@ -15,9 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-
 urlpatterns = [
     path('temp_form/', include('form.urls')),
     path('min_iteration2/', include('min_iteration2.urls')),
     path('admin/', admin.site.urls),
+    path('projects/', include('projects.urls'))
 ]
