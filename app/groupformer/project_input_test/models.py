@@ -88,15 +88,15 @@ def addParticipant(gf, name, email):
     p.save()
     return p
 
-def participantAttributeChoice(participant,attribute,value)
+def participantAttributeChoice(participant,attribute,value):
     if not attribute.is_continuous:
         if value != int(value):
-            raise ValueError('value of '+str(attribute)+' must be discrete');
+            raise ValueError('value of '+str(attribute)+' must be discrete')
     p = attribute_selection(participant.pk,attribute.pk,value)
     p.save();
     return p
 
-def participantProjectChoice(participant,project,value)
+def participantProjectChoice(participant,project,value):
     p = project_selection(participant.pk,project.pk,value)
     p.save()
     return p
