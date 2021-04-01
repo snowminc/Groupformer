@@ -31,8 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'setup_screen.apps.FormConfig',
     'projects.apps.ProjectsConfig',
-    'form.apps.FormConfig',
     'min_iteration2.apps.MinIteration2Config',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -122,3 +122,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# CSRF Security
+CSRF_USE_SESSIONS = True
