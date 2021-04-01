@@ -2,7 +2,7 @@
 # different apps for setup and response screens, so this is generalized
 
 # Use the following to import this file
-# from .. import dbmodels
+# from groupformer import dbmodels
 
 from django.db import Model
 
@@ -21,7 +21,7 @@ class Project(models.Model):
     # To be replaced by Sarah's
     gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     name = models.CharField(max_length=200)
-    desc = models.CharField(max_length=400)
+    desc = models.CharField(max_length=1000)
 
 class Attribute(models.Model):
     gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -39,7 +39,7 @@ class Participant(models.Model):
     part_name = models.CharField(max_length=200)
     
     def __str__(self):
-    return name
+        return name
 
 # Relationships
 
