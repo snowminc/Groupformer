@@ -14,7 +14,15 @@ class AttributeAdmin(admin.ModelAdmin):
 class ParticipantAdmin(admin.ModelAdmin):
     pass
 
+class AttrChoiceAdmin(admin.ModelAdmin):
+    pass
+
+class ProjChoiceAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(GroupFormer, GroupFormerAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Attribute, AttributeAdmin)
 admin.site.register(Participant, ParticipantAdmin)
+admin.site.register(attribute_selection, AttrChoiceAdmin)
+admin.site.register(project_selection, ProjChoiceAdmin)
