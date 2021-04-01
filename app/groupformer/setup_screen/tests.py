@@ -84,6 +84,20 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-{index} .close')))
         self.driver.execute_script(f'$("#project-{index} .close").click()')
 
+    def click_add_attribute(self):
+        """
+        Helper function to click the add attribute button
+        """
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, 'add-attribute-btn'))).click()
+
+    def click_remove_attribute(self, index):
+        """
+        Helper function to click the remove attribute button
+        """
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#attribute-{index} .close')))
+        self.driver.execute_script(f'$("#attribute-{index} .close").click()')
+
     def test_single_project_inputs_exist(self):
         """
         Ensure that only a single project input exists when first loading the setup screen page
@@ -199,7 +213,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'project-desc1')
         self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'project-name1')
 
-    def test_remove_correct_indices(self):
+    def test_remove_correct_project_indices(self):
         """
         Ensure that the remove project button removes the correct project indices
         """
@@ -227,7 +241,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.driver.find_element_by_id(f'project-name2').send_keys(project_2_name)
         self.driver.find_element_by_id(f'project-desc2').send_keys(project_2_desc)
 
-        self.driver.find_element_by_id(f'project-desc2').send_keys(Keys.TAB)  # TAB to commit that input
+        self.driver.find_element_by_id(f'project-desc2').send_keys(Keys.TAB)  # TAB to commit that last input
 
         self.click_remove_project(0)
 
@@ -242,3 +256,90 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # check that index 0 is the original index 2
         self.assertEqual(project_2_desc, self.driver.find_element_by_id(f'project-desc0').get_attribute("value"))
         self.assertEqual(project_2_name, self.driver.find_element_by_id(f'project-name0').get_attribute("value"))
+
+    def test_attributes_cumulative(self):
+        """
+        Test similar to the project tests that combines more than one together and tests:
+        - Adding
+        - Removing
+        - Removing when 1 left
+        """
+        self.goto_index()
+
+        # add two attributes for a total of 3
+        self.click_add_attribute()
+        self.click_add_attribute()
+
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#attribute-2 .close')))
+
+        # ensure the added attributes are present (indices 0-2)
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-name0'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-homogenous0'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-name1'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-homogenous1'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-name2'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-homogenous2'))
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'attribute-name3')
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'attribute-homogenous3')
+
+        attribute_0_name = "Do you like memes?"
+        attribute_0_homogenous = True
+        attribute_1_name = "Rate your slug farming skills"
+        attribute_1_homogenous = False
+        attribute_2_name = "Would you rather pick a high or a low number?"
+        attribute_2_homogenous = True
+
+        # assign data to the inputs
+        self.driver.find_element_by_id(f'attribute-name0').send_keys(attribute_0_name)
+        if attribute_0_homogenous:
+            self.driver.find_element_by_id(f'attribute-homogenous0').click()
+        self.driver.find_element_by_id(f'attribute-name1').send_keys(attribute_1_name)
+        if attribute_1_homogenous:
+            self.driver.find_element_by_id(f'attribute-homogenous1').click()
+        self.driver.find_element_by_id(f'attribute-name2').send_keys(attribute_2_name)
+        if attribute_2_homogenous:
+            self.driver.find_element_by_id(f'attribute-homogenous2').click()
+
+        self.driver.find_element_by_id(f'attribute-homogenous2').send_keys(Keys.TAB)  # TAB to commit that last input
+
+        self.click_remove_attribute(0) # remove index 0
+
+        # check that indices 0 & 1 exist, and index 2 does not
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-name0'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-homogenous0'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-name1'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-homogenous1'))
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'attribute-name2')
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'attribute-homogenous2')
+
+        # check that indices 0 and 1 correspond to the prior 1 and 2 values
+        self.assertEqual(attribute_1_name, self.driver.find_element_by_id(f'attribute-name0').get_attribute("value"))
+        self.assertEqual(attribute_1_homogenous, self.driver.find_element_by_id(f'attribute-homogenous0').is_selected())
+        self.assertEqual(attribute_2_name, self.driver.find_element_by_id(f'attribute-name1').get_attribute("value"))
+        self.assertEqual(attribute_2_homogenous, self.driver.find_element_by_id(f'attribute-homogenous1').is_selected())
+
+        self.click_remove_attribute(0)
+
+        # check that ONLY index 0 remains
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-name0'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-homogenous0'))
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'attribute-name1')
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'attribute-homogenous1')
+
+        # check that index 0 is the original index 2
+        self.assertEqual(attribute_2_homogenous, self.driver.find_element_by_id(f'attribute-homogenous0').is_selected())
+        self.assertEqual(attribute_2_name, self.driver.find_element_by_id(f'attribute-name0').get_attribute("value"))
+
+        # try remove when only one item left
+        self.click_remove_attribute(0)
+
+        # same element 0 remains
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-name0'))
+        self.assertIsNotNone(self.driver.find_element_by_id(f'attribute-homogenous0'))
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'attribute-name1')
+        self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'attribute-homogenous1')
+
+        # check that index 0 is the original index 2
+        self.assertEqual(attribute_2_homogenous, self.driver.find_element_by_id(f'attribute-homogenous0').is_selected())
+        self.assertEqual(attribute_2_name, self.driver.find_element_by_id(f'attribute-name0').get_attribute("value"))

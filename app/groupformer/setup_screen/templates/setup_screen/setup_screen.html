@@ -16,15 +16,21 @@
     <script>
 
         local_projects = [];
+        local_attributes = [];
 
         $(document).ready(function()
         {
             add_project();
+            add_attribute();
         })
 
         function new_local_project_object()
         {
             return {name: "", description: ""};
+        }
+        function new_local_attribute_object()
+        {
+            return {name: "", is_homogenous: false};
         }
 
         function add_project()
@@ -32,13 +38,26 @@
             local_projects.push(new_local_project_object());
             update_projects_container();
         }
-
         function remove_project(index)
         {
             if(local_projects.length > 1)
             {
                 local_projects.splice(index, 1);
                 update_projects_container();
+            }
+        }
+
+        function add_attribute()
+        {
+            local_attributes.push(new_local_attribute_object());
+            update_attributes_container();
+        }
+        function remove_attribute(index)
+        {
+            if(local_attributes.length > 1)
+            {
+                local_attributes.splice(index, 1);
+                update_attributes_container();
             }
         }
 
@@ -80,6 +99,45 @@
                 project_elem.find("#project-desc").removeAttr("id");
             }
         }
+
+        function update_attributes_container()
+        {
+            // clear the container
+            let attributes_container = $('#attributes-container');
+            attributes_container.children().remove();
+
+            // add each of the attribute items to the container
+            for(let i = 0; i < local_attributes.length; i++)
+            {
+                // get the values from the local list
+                let attribute_name = local_attributes[i].name;
+                let attribute_homogenous = local_attributes[i].is_homogenous;
+
+                // clone the template element
+                let attribute_elem = $("#dom-templates #attribute-template").clone();
+                attributes_container.append(attribute_elem);
+                attribute_elem.attr("id", `attribute-${i}`);
+
+                // assign close callback
+                attribute_elem.find(".close").on("click", () => remove_attribute(i));
+
+                // init attribute name input value and change callback
+                attribute_elem.find("#attribute-name label").attr("for", `attribute-name${i}`);
+                let name_input = attribute_elem.find("#attribute-name input");
+                name_input.val(attribute_name);
+                name_input.change(() => local_attributes[i].name = $(`#attribute-name${i}`).val());
+                name_input.attr("id", `attribute-name${i}`);
+                attribute_elem.find("#attribute-name").removeAttr("id");
+
+                // init attribute homogenous input value and change callback
+                attribute_elem.find("#attribute-homogenous label").attr("for", `attribute-homogenous${i}`);
+                let homogenous_checkbox = attribute_elem.find("#attribute-homogenous input");
+                homogenous_checkbox.prop("checked", attribute_homogenous);
+                homogenous_checkbox.change(() => local_attributes[i].is_homogenous = $(`#attribute-homogenous${i}`).is(":checked"));
+                homogenous_checkbox.attr("id", `attribute-homogenous${i}`);
+                attribute_elem.find("#attribute-homogenous").removeAttr("id");
+            }
+        }
     </script>
 </head>
 <body>
@@ -113,7 +171,7 @@
         <h2>Attributes</h2>
         <div class="container">
             <div class="container" id="attributes-container"></div>
-            <a class="btn btn-primary" id="add-attribute-btn">Add Attribute</a> <!--TODO: add_attribute js functionality-->
+            <a onclick="add_attribute()" class="btn btn-primary" id="add-attribute-btn">Add Attribute</a>
         </div>
 
         <br>
@@ -138,6 +196,27 @@
                     <div class="form-group" id="project-desc">
                         <label>Project Description</label>
                         <textarea class="form-control" rows="3" placeholder="Description"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attribute Template -->
+        <div class="card row" id="attribute-template">
+            <div class="card-body">
+                <div class="col-md-1">
+                    <a class="close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </a>
+                </div>
+                <div class="col-md-11">
+                    <div class="form-group" id="attribute-name">
+                        <label>Attribute</label>
+                        <input type="text" class="form-control col-md-2" placeholder="Enter Attribute/Question">
+                    </div>
+                    <div class="form-group" id="attribute-homogenous">
+                        <label>Group Similar Responses Together</label>
+                        <input type="checkbox">
                     </div>
                 </div>
             </div>
