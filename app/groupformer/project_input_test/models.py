@@ -33,6 +33,8 @@ class Participant(models.Model):
     part_name = models.CharField(max_length=200)
     
     desired_partner = models.ManyToManyField('self')
+    attributes = models.ManyToManyField(Attribute,through='attribute_selection')
+    projects = models.ManyToManyField(Project,through='project_selection')
     
     def __str__(self):
         return name
