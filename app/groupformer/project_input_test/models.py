@@ -19,12 +19,12 @@ class Project(models.Model):
 
 class Attribute(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
-    name = models.CharField(max_length=100)
+    attr_name = models.CharField(max_length=100)
     is_homogenous = models.BooleanField()
     is_continuous = models.BooleanField()
     
     def __str__(self):
-        return self.name
+        return self.attr_name
     
 
 class Participant(models.Model):
@@ -32,12 +32,12 @@ class Participant(models.Model):
     part_email = models.CharField(max_length=200)
     part_name = models.CharField(max_length=200)
     
-    desired_partner = models.ManyToManyField('self')
+    desired_partner = models.ManyToManyField('self',blank=True)
     attributes = models.ManyToManyField(Attribute,through='attribute_selection')
     projects = models.ManyToManyField(Project,through='project_selection')
     
     def __str__(self):
-        return self.name
+        return self.part_name
 
 # Relationships
 
