@@ -2,7 +2,7 @@
 # different apps for setup and response screens, so this is generalized
 
 # Use the following to import this file
-# from groupformer import dbmodels
+# from dbmodels import dbmodels
 
 from django.db import models
 
