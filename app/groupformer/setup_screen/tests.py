@@ -1,6 +1,8 @@
 from django.test import TestCase, LiveServerTestCase
 from django.urls import reverse
 
+import time
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -197,5 +199,46 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'project-desc1')
         self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'project-name1')
 
-# TODO: [SetupScreen] Test that the remove button removes the inputs for the target project
-#       i.e. need to input data and make sure the removed one is the expected removed one
+    def test_remove_correct_indices(self):
+        """
+        Ensure that the remove project button removes the correct project indices
+        """
+        self.goto_index()
+
+        # add two projects for a total of 3
+        self.click_add_project()
+        self.click_add_project()
+
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-2 .close')))
+
+        project_0_name = "Project 0 - Jules has Hope"
+        project_0_desc = "In a Cat Galaxy far far away..."
+        project_1_name = "Project 1 - He Claws Back"
+        project_1_desc = "Dun Dun Dunnnn"
+        project_2_name = "Project 2 - Return of the Jules"
+        project_2_desc = "Victory!"
+
+        # assign data to the inputs
+        self.driver.find_element_by_id(f'project-name0').send_keys(project_0_name)
+        self.driver.find_element_by_id(f'project-desc0').send_keys(project_0_desc)
+        self.driver.find_element_by_id(f'project-name1').send_keys(project_1_name)
+        self.driver.find_element_by_id(f'project-desc1').send_keys(project_1_desc)
+        self.driver.find_element_by_id(f'project-name2').send_keys(project_2_name)
+        self.driver.find_element_by_id(f'project-desc2').send_keys(project_2_desc)
+
+        self.driver.find_element_by_id(f'project-desc2').send_keys(Keys.TAB)  # TAB to commit that input
+
+        self.click_remove_project(0)
+
+        # check that indices 0 and 1 correspond to the prior 1 and 2
+        self.assertEqual(project_1_name, self.driver.find_element_by_id(f'project-name0').get_attribute("value"))
+        self.assertEqual(project_1_desc, self.driver.find_element_by_id(f'project-desc0').get_attribute("value"))
+        self.assertEqual(project_2_name, self.driver.find_element_by_id(f'project-name1').get_attribute("value"))
+        self.assertEqual(project_2_desc, self.driver.find_element_by_id(f'project-desc1').get_attribute("value"))
+
+        self.click_remove_project(0)
+
+        # check that index 0 is the original index 2
+        self.assertEqual(project_2_desc, self.driver.find_element_by_id(f'project-desc0').get_attribute("value"))
+        self.assertEqual(project_2_name, self.driver.find_element_by_id(f'project-name0').get_attribute("value"))
