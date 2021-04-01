@@ -1,5 +1,9 @@
 from django.db import models
 
+# Use 
+# from dbtools.models import *
+# To import database
+
 #Entities
 
 class GroupFormer(models.Model):
