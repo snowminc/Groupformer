@@ -8,7 +8,7 @@ class GroupFormer(models.Model):
     class_section = models.CharField(max_length=100)
     
     def __str__(self):
-        return class_section + ' ' + prof_name 
+        return self.class_section + ' ' + self.prof_name 
 
 class Project(models.Model):
     # Required to test relation involving it
@@ -24,7 +24,7 @@ class Attribute(models.Model):
     is_continuous = models.BooleanField()
     
     def __str__(self):
-        return name
+        return self.name
     
 
 class Participant(models.Model):
@@ -37,7 +37,7 @@ class Participant(models.Model):
     projects = models.ManyToManyField(Project,through='project_selection')
     
     def __str__(self):
-        return name
+        return self.name
 
 # Relationships
 

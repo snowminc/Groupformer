@@ -1,14 +1,20 @@
 from django.contrib import admin
 
-from .models import Project
+from .models import *
+
+class GroupFormerAdmin(admin.ModelAdmin):
+    search_fields = ['class_section']
 
 class ProjectAdmin(admin.ModelAdmin):
-    fieldsets = [
-        ('Projects', {'fields': ['project_name', 'project_description']}),
-    ]
-    inlines = []
-    list_display = ('project_name', 'project_description')
-    list_filter = []
     search_fields = ['project_name']
 
+class AttributeAdmin(admin.ModelAdmin):
+    pass
+
+class ParticipantAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(GroupFormer, GroupFormerAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(Attribute, AttributeAdmin)
+admin.site.register(Participant, ParticipantAdmin)
