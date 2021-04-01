@@ -18,16 +18,18 @@ class GroupFormer(models.Model):
     
     class Meta:
         app_label = 'groupformer_GroupFormer'
+        db_table = 'GroupFormer'
 
 class Project(models.Model):
     # Required to test relation involving it
     # To be replaced by Sarah's
     gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
-    name = models.CharField(max_length=200)
-    desc = models.CharField(max_length=1000)
+    project_name = models.CharField(max_length=200)
+    project_description = models.CharField(max_length=1000)
     
     class Meta:
         app_label = 'groupformer_Project'
+        db_table = 'Project'
 
 class Attribute(models.Model):
     gf = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -40,6 +42,7 @@ class Attribute(models.Model):
     
     class Meta:
         app_label = 'groupformer_Attribute'
+        db_table = 'Attribute'
     
 
 class Participant(models.Model):
