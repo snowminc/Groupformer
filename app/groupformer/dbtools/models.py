@@ -36,8 +36,8 @@ class Attribute(models.Model):
 
 class Participant(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
-    part_email = models.CharField(max_length=200)
     part_name = models.CharField(max_length=200)
+    part_email = models.CharField(max_length=200)
     
     desired_partner = models.ManyToManyField('self',blank=True,symmetrical=False)
     attributes = models.ManyToManyField(Attribute,through='attribute_selection')
