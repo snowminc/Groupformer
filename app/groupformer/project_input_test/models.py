@@ -32,7 +32,7 @@ class Participant(models.Model):
     part_email = models.CharField(max_length=200)
     part_name = models.CharField(max_length=200)
     
-    desired_partner = models.ManyToManyField('self',blank=True)
+    desired_partner = models.ManyToManyField('self',blank=True,symmetrical=False)
     attributes = models.ManyToManyField(Attribute,through='attribute_selection')
     projects = models.ManyToManyField(Project,through='project_selection')
     
