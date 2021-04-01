@@ -16,8 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 urlpatterns = [
-    path('project_input_test/', include('project_input_test.urls')),
     path('setup_screen/', include('setup_screen.urls')),
+    path('min_iteration2/', include('min_iteration2.urls')),
     path('admin/', admin.site.urls),
     path('projects/', include('projects.urls'))
 ]

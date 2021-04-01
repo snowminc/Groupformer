@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'setup_screen.apps.FormConfig',
     'projects.apps.ProjectsConfig',
     'form.apps.FormConfig',
-    'project_input_test.apps.ProjectInputTestConfig',
+    'min_iteration2.apps.MinIteration2Config',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
