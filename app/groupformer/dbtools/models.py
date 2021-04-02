@@ -38,7 +38,7 @@ class Project(models.Model):
     # To be replaced by Sarah's
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     project_name = models.CharField(max_length=200)
-    project_description = models.CharField(max_length=1000)
+    project_description = models.TextField()
     
     def __str__(self):
         return self.project_name + ' (' + str(self.group_former) + ')'
