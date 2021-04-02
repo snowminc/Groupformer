@@ -2,9 +2,11 @@ from django.db import models
 
 # Use 
 # from dbtools.models import *
-# To import database
+# To import database models, functions
 
 #Entities
+
+# See the E-R diagram
 
 class GroupFormer(models.Model):
     prof_name = models.CharField(max_length=200)
@@ -66,11 +68,21 @@ class project_selection(models.Model):
 # Helper functions
 
 def addRoster(gf, roster):
-    #roster In the form [[name : email] ...]
+    """
+        Adds an entire roster to the Participants of a GroupFormer
+       :param roster: In the form [[name : email] ...]
+       :return: an array of Participant that were added
+    """
     ps = []
     for (name,email) in roster:
         ps = ps + [addParticipant(gf.pk,name,email)]
     return ps
+
+""" 
+    Each of the following takes the required attributes
+    Of their associated model, and returns an instance of that model
+    after adding it to the database
+"""
 
 def addGroupFormer(name,email,section):
     p = GroupFormer(name, email, section)
@@ -93,6 +105,8 @@ def addParticipant(gf, name, email):
     return p
 
 def participantAttributeChoice(participant,attribute,value):
+    # Required checks - that they both are in the same GroupFormer
+    # and that if the Attribute is discrete, it contains an integer value
     if participant.group_former != attribute.group_former:
         raise ValueError(str(participant)+" and "+str(attribute)+" are not part of the same GroupFormer")
     if not attribute.is_continuous:
@@ -103,6 +117,7 @@ def participantAttributeChoice(participant,attribute,value):
     return p
 
 def participantProjectChoice(participant,project,value):
+    # Required that both participant and project be in the same GroupFormer
     if participant.group_former != project.group_former:
         raise ValueError(str(participant)+" and "+str(project)+" are not part of the same GroupFormer")
     p = project_selection(participant,project,value)
