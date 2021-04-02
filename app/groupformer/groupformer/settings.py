@@ -31,15 +31,17 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'form.apps.FormConfig',
-    'project_input_test.apps.ProjectInputTestConfig',
     'dbtools.apps.DbtoolsConfig',
+    'setup_screen.apps.FormConfig',
+    'projects.apps.ProjectsConfig',
+    'min_iteration2.apps.MinIteration2Config',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
 ]
 
 MIDDLEWARE = [
@@ -121,3 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# CSRF Security
+CSRF_USE_SESSIONS = True
