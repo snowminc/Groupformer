@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'dbtools.apps.DbtoolsConfig',
     'setup_screen.apps.FormConfig',
     'projects.apps.ProjectsConfig',
     'min_iteration2.apps.MinIteration2Config',
