@@ -159,7 +159,7 @@ def participantAttributeChoice(participant,attribute,value):
     p = attribute_selection.objects.create(participant=participant,
                                            attribute=attribute,
                                            value=value)
-    
+    participant.attributes.add(attribute,through_defaults={'value':value})
     p.save();
     return p
 
@@ -171,7 +171,7 @@ def participantProjectChoice(participant,project,value):
     p = project_selection.objects.create(participant=participant,
                                          project=project,
                                          value=value)
-    
+    participant.projects.add(project,through_defaults={'value':value})
     p.save()
     return p
 

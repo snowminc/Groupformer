@@ -8,6 +8,7 @@ class DatabaseTests(TestCase):
     def test_basic(self):
         #Setup a basic set of each
         
+        # Manual addition
         print("Adding database elements manually (.objects.create() and .save())")
         gf = GroupFormer.objects.create(prof_name="Test Prof",prof_email="test@uni.edu",class_section="DEPT101")
         gf.save()
@@ -18,6 +19,7 @@ class DatabaseTests(TestCase):
         part = Participant.objects.create(group_former=gf,part_name="Participant Name",part_email="joe@umbc.edu")
         part.save()
         
+        # Standalone Helper function addition
         print("Adding with helper functions (add...(gf,))")
         gf2 = addGroupFormer("Petra","pnadir@umbc.edu","Grass watching")
         attr2 = addAttribute(gf2,"An Attribute",False,False)
@@ -32,6 +34,7 @@ class DatabaseTests(TestCase):
         participantDesiredPartner(part2,part22)
         participantProjectChoice(part2,proj2,3)
         
+        # Class Helper function addition
         print("Adding with class helper functions (gf.add...())")
         gf.addProject("Project 2","A description!")
         attr12=gf.addAttribute("Amount of cheese",True,False)
@@ -40,11 +43,29 @@ class DatabaseTests(TestCase):
         part12.projectChoice(proj,1)
         part12.desires(part)
         
-        print("Printing database")
+        # Database printing
+        print("Printing database\n")
         gfset = GroupFormer.objects.all()
-        for gf in gfset:
-            print(gf)
-        print()
+        for gfi in gfset:
+            print(gfi)
+            for proji in Project.objects.filter(group_former=gfi):
+                print(proji)
+            print()
+            for attri in Attribute.objects.filter(group_former=gfi):
+                print(attri)
+            print()
+            for parti in Participant.objects.filter(group_former=gfi):
+                print(parti)
+            print('--------')
+        
+        # Database Checking
         print("Check correctness")
         gfs = gfset.filter(prof_name="Petra")
         self.assertEqual(len(gfs),1)
+        #Desired Partner
+        self.assertIn(part,part12.desired_partner.all()) 
+        #Project Selection
+        self.assertEqual(len(project_selection.objects.filter(participant=part2)),1)
+        self.assertEqual(project_selection.objects.filter(participant=part2)[0].value,3)
+        #Attribute Selection
+        self.assertEqual(attribute_selection.objects.filter(participant=part2,attribute=attr2)[0].value,5)
