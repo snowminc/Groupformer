@@ -2,8 +2,6 @@ from django.test import TestCase
 
 from dbtools.models import *
 
-# Create your tests here.
-
 class DatabaseTests(TestCase):
     def test_basic(self):
         #Setup a basic set of each
@@ -16,7 +14,7 @@ class DatabaseTests(TestCase):
         attr.save()
         proj = Project.objects.create(group_former=gf,project_name="Project One",project_description="A description!")
         proj.save()
-        part = Participant.objects.create(group_former=gf,part_name="Participant Name",part_email="joe@umbc.edu")
+        part = Participant.objects.create(group_former=gf,part_name="Participant One",part_email="joe@umbc.edu")
         part.save()
         
         # Standalone Helper function addition
@@ -34,6 +32,8 @@ class DatabaseTests(TestCase):
         participantDesiredPartner(part2,part22)
         participantProjectChoice(part2,proj2,3)
         
+        addRoster(gf2,[["Alfred Person","e@mail.com"],["Ta Person","two@names.info"]])
+        
         # Class Helper function addition
         print("Adding with class helper functions (gf.add...())")
         gf.addProject("Project 2","A description!")
@@ -43,8 +43,19 @@ class DatabaseTests(TestCase):
         part12.projectChoice(proj,1)
         part12.desires(part)
         
+        gf2.addRoster([["Morrison Person","np@person.com"],["Eve Person","jp@upl.edu"]])
+        gf.addParticipant("Alicia V","avan@umbc.edu")
+        Participant.objects.filter(part_name="Eve Person")[0].desires(part22)
+        Participant.objects.filter(part_name="Eve Person")[0].desires(part2)
+        Participant.objects.filter(part_name="Eve Person")[0].desires(
+            Participant.objects.filter(part_name="Morrison Person")[0])
+        with self.assertRaises(ValueError):
+            #Incorrect GroupFormer
+            Participant.objects.filter(part_name="Eve Person")[0].desires(
+                Participant.objects.filter(part_name="Alicia V",group_former=gf)[0])
+        
         # Database printing
-        print("Printing database\n")
+        print("Printing database\n-----------------")
         gfset = GroupFormer.objects.all()
         for gfi in gfset:
             print(gfi)
@@ -63,7 +74,10 @@ class DatabaseTests(TestCase):
         gfs = gfset.filter(prof_name="Petra")
         self.assertEqual(len(gfs),1)
         #Desired Partner
-        self.assertIn(part,part12.desired_partner.all()) 
+        self.assertIn(part,part12.desired_partner.all())
+        part23 = Participant.objects.filter(part_name="Eve Person")[0]
+        self.assertIn(part22,part23.desired_partner.all())
+        print(part23.desired_partner.all())
         #Project Selection
         self.assertEqual(len(project_selection.objects.filter(participant=part2)),1)
         self.assertEqual(project_selection.objects.filter(participant=part2)[0].value,3)

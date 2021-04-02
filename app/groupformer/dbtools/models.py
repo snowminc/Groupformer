@@ -29,6 +29,9 @@ class GroupFormer(models.Model):
     
     def addParticipant(self, name, email):
         return addParticipant(self, name, email)
+    
+    def addRoster(self, roster):
+        return addRoster(self, roster)
 
 class Project(models.Model):
     # Required to test relation involving it
@@ -74,7 +77,7 @@ class Participant(models.Model):
         return participantProjectChoice(self,project,value)
     
     def desires(self, p):
-        participantDesiredPartner(self,p)
+        return participantDesiredPartner(self,p)
 
 # Relationships
 
@@ -103,7 +106,7 @@ def addRoster(gf, roster):
     """
     ps = []
     for (name,email) in roster:
-        ps = ps + [addParticipant(gf.pk,name,email)]
+        ps = ps + [addParticipant(gf,name,email)]
     return ps
 
 """ 
@@ -179,7 +182,7 @@ def participantProjectChoice(participant,project,value):
     Adds an instance of the desired partner relation
     :param wanter: the Participant who wishes to work with the wantee
     :param wantee: the Participant who is wished to be worked with
-    :return: Nothing, as the relationship is internal to the Participant model
+    :return: the list of desired partners of wanter
 """
 def participantDesiredPartner(wanter,wantee):
     #Required that both participants are in the same GroupFormer
@@ -187,3 +190,5 @@ def participantDesiredPartner(wanter,wantee):
         raise ValueError(str(wanter)+" and "+str(wantee)+" are not part of the same GroupFormer")
     
     wanter.desired_partner.add(wantee)
+    
+    return wanter.desired_partner
