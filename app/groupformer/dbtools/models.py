@@ -93,14 +93,18 @@ def addParticipant(gf, name, email):
     return p
 
 def participantAttributeChoice(participant,attribute,value):
+    if participant.group_former != attribute.group_former:
+        raise ValueError(str(participant)+" and "+str(attribute)+" are not part of the same GroupFormer")
     if not attribute.is_continuous:
         if value != int(value):
             raise ValueError('value of '+str(attribute)+' must be discrete')
-    p = attribute_selection(participant.pk,attribute.pk,value)
+    p = attribute_selection(participant,attribute,value)
     p.save();
     return p
 
 def participantProjectChoice(participant,project,value):
-    p = project_selection(participant.pk,project.pk,value)
+    if participant.group_former != project.group_former:
+        raise ValueError(str(participant)+" and "+str(project)+" are not part of the same GroupFormer")
+    p = project_selection(participant,project,value)
     p.save()
     return p
