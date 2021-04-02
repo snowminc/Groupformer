@@ -15,6 +15,20 @@ class GroupFormer(models.Model):
     
     def __str__(self):
         return self.prof_name + ' ' + self.class_section 
+    
+    """
+        Wrappers of the helper functions at the bottom of the file
+        for extra ease of use and OO design
+    """
+    
+    def addAttribute(name, is_homogenous, is_continuous):
+        return addAttribute(self, name, is_homogenous, is_continuous)
+    
+    def addProject(name, description):
+        return addProject(self,name,description)
+    
+    def addParticipant(name, email):
+        return addParticipant(self, name, email)
 
 class Project(models.Model):
     # Required to test relation involving it
@@ -47,6 +61,20 @@ class Participant(models.Model):
     
     def __str__(self):
         return self.part_name + ' (' + str(self.group_former) + ')'
+    
+    """
+        Wrappers of the relationship helper functions
+        for ease of use and more OO design
+    """
+    
+    def attributeChoice(attribute,value):
+        return participantAttributeChoice(self,attribute,value)
+    
+    def projectChoice(project,value):
+        return participantProjectChoice(self,project,value)
+    
+    def desires(p):
+        participantDesiredPartner(self,p)
 
 # Relationships
 
@@ -85,24 +113,39 @@ def addRoster(gf, roster):
 """
 
 def addGroupFormer(name,email,section):
-    p = GroupFormer(name, email, section)
+    p = GroupFormer.objects.create(prof_name=name,
+                                   prof_email=email,
+                                   class_section=section)
     p.save()
     return p
 
 def addAttribute(gf, name, is_homogenous, is_continuous):
-    p = Attribute(gf.pk, name, is_homogenous, is_continuous)
+    p = Attribute.objects.create(group_former=gf,
+                                 attr_name=name,
+                                 is_homogenous=is_homogenous,
+                                 is_continuous=is_continuous)
     p.save()
     return p
 
 def addProject(gf, name, description):
-    p = Project(gf.pk, name, description)
+    p = Project.objects.create(group_former=gf,
+                               project_name=name,
+                               project_description=description)
     p.save()
     return p
 
 def addParticipant(gf, name, email):
-    p = Participant(gf.pk,name,email)
+    p = Participant.objects.create(group_former=gf,
+                                   part_name=name,
+                                   part_email=email)
     p.save()
     return p
+
+"""
+    Each of the following adds an instance of the relationships
+    They take in the attributes required of that relationship,
+    add it to the database, and return on object of the relationship
+"""
 
 def participantAttributeChoice(participant,attribute,value):
     # Required checks - that they both are in the same GroupFormer
@@ -112,7 +155,11 @@ def participantAttributeChoice(participant,attribute,value):
     if not attribute.is_continuous:
         if value != int(value):
             raise ValueError('value of '+str(attribute)+' must be discrete')
-    p = attribute_selection(participant,attribute,value)
+    
+    p = attribute_selection.objects.create(participant=participant,
+                                           attribute=attribute,
+                                           value=value)
+    
     p.save();
     return p
 
@@ -120,6 +167,23 @@ def participantProjectChoice(participant,project,value):
     # Required that both participant and project be in the same GroupFormer
     if participant.group_former != project.group_former:
         raise ValueError(str(participant)+" and "+str(project)+" are not part of the same GroupFormer")
-    p = project_selection(participant,project,value)
+    
+    p = project_selection.objects.create(participant=participant,
+                                         project=project,
+                                         value=value)
+    
     p.save()
     return p
+
+"""
+    Adds an instance of the desired partner relation
+    :param wanter: the Participant who wishes to work with the wantee
+    :param wantee: the Participant who is wished to be worked with
+    :return: Nothing, as the relationship is internal to the Participant model
+"""
+def participantDesiredPartner(wanter,wantee):
+    #Required that both participants are in the same GroupFormer
+    if wanter.group_former != wantee:
+        raise ValueError(str(wanter)+" and "+str(wantee)+" are not part of the same GroupFormer")
+    
+    wanter.desired_partner.add(wantee)
