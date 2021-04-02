@@ -7,6 +7,7 @@ from dbtools.models import *
 class DatabaseTests(TestCase):
     def test_basic(self):
         #Setup a basic set of each
+        
         print("Adding database elements manually (.objects.create() and .save())")
         gf = GroupFormer.objects.create(prof_name="Test Prof",prof_email="test@uni.edu",class_section="DEPT101")
         gf.save()
@@ -17,19 +18,33 @@ class DatabaseTests(TestCase):
         part = Participant.objects.create(group_former=gf,part_name="Participant Name",part_email="joe@umbc.edu")
         part.save()
         
-        print("Adding with helper functions")
+        print("Adding with helper functions (add...(gf,))")
         gf2 = addGroupFormer("Petra","pnadir@umbc.edu","Grass watching")
+        attr2 = addAttribute(gf2,"An Attribute",False,False)
+        proj2 = addProject(gf2,"On top of the hill","This grass needs to be watched")
+        part2 = addParticipant(gf2,"In dividual","one@unl.edu")
+        part22= addParticipant(gf2,"Alicia V","avan@umbc.edu")
+        participantAttributeChoice(part2,attr2,5)
+        with self.assertRaises(ValueError) as cm:
+            participantProjectChoice(part,proj2,2)
+        print(cm.exception)
+        print("Exception succeeded")
+        participantDesiredPartner(part2,part22)
+        participantProjectChoice(part2,proj2,3)
         
+        print("Adding with class helper functions (gf.add...())")
+        gf.addProject("Project 2","A description!")
+        attr12=gf.addAttribute("Amount of cheese",True,False)
+        part12=gf.addParticipant("Morgan","mv@george.biz")
+        part12.attributeChoice(attr12,5)
+        part12.projectChoice(proj,1)
+        part12.desires(part)
         
-    
-    def test_adding(self):
-        #Add various additional entities and relationships
-        pass
-    
-    def test_removing(self):
-        #Remove different elements and test their outputs
-        pass
-    
-    def test_cleanup(self):
-        #Clear database by removing GroupFormers
-        pass
+        print("Printing database")
+        gfset = GroupFormer.objects.all()
+        for gf in gfset:
+            print(gf)
+        print()
+        print("Check correctness")
+        gfs = gfset.filter(prof_name="Petra")
+        self.assertEqual(len(gfs),1)

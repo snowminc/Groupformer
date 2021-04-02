@@ -14,20 +14,20 @@ class GroupFormer(models.Model):
     class_section = models.CharField(max_length=100)
     
     def __str__(self):
-        return self.prof_name + ' ' + self.class_section 
+        return self.prof_name + ' : ' + self.class_section 
     
     """
         Wrappers of the helper functions at the bottom of the file
         for extra ease of use and OO design
     """
     
-    def addAttribute(name, is_homogenous, is_continuous):
+    def addAttribute(self, name, is_homogenous, is_continuous):
         return addAttribute(self, name, is_homogenous, is_continuous)
     
-    def addProject(name, description):
+    def addProject(self, name, description):
         return addProject(self,name,description)
     
-    def addParticipant(name, email):
+    def addParticipant(self, name, email):
         return addParticipant(self, name, email)
 
 class Project(models.Model):
@@ -67,13 +67,13 @@ class Participant(models.Model):
         for ease of use and more OO design
     """
     
-    def attributeChoice(attribute,value):
+    def attributeChoice(self, attribute, value):
         return participantAttributeChoice(self,attribute,value)
     
-    def projectChoice(project,value):
+    def projectChoice(self, project, value):
         return participantProjectChoice(self,project,value)
     
-    def desires(p):
+    def desires(self, p):
         participantDesiredPartner(self,p)
 
 # Relationships
@@ -183,7 +183,7 @@ def participantProjectChoice(participant,project,value):
 """
 def participantDesiredPartner(wanter,wantee):
     #Required that both participants are in the same GroupFormer
-    if wanter.group_former != wantee:
+    if wanter.group_former != wantee.group_former:
         raise ValueError(str(wanter)+" and "+str(wantee)+" are not part of the same GroupFormer")
     
     wanter.desired_partner.add(wantee)
