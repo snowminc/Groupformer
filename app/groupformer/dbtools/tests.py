@@ -73,6 +73,13 @@ class DatabaseTests(TestCase):
         print("Check correctness")
         gfs = gfset.filter(prof_name="Petra")
         self.assertEqual(len(gfs),1)
+        #GroupFormer Getter checks
+        self.assertEqual(gf2.getProject("On top of the hill"),proj2)
+        self.assertEqual(gf2.getProject("This doesn't exist!"),None)
+        self.assertEqual(gf.getAttribute("Attr Name 1"), attr)
+        self.assertEqual(gf2.getParticipant("Alicia V"),part22)
+        self.assertNotEqual(gf.getParticipant("Alicia V"),None)
+        self.assertNotEqual(gf.getParticipant("Alicia V"),part22)
         #Desired Partner
         self.assertIn(part,part12.desired_partner.all())
         part23 = Participant.objects.filter(part_name="Eve Person")[0]
@@ -81,5 +88,7 @@ class DatabaseTests(TestCase):
         #Project Selection
         self.assertEqual(len(project_selection.objects.filter(participant=part2)),1)
         self.assertEqual(project_selection.objects.filter(participant=part2)[0].value,3)
+        self.assertEqual(part2.getProjectChoice(proj2).value,3)
         #Attribute Selection
         self.assertEqual(attribute_selection.objects.filter(participant=part2,attribute=attr2)[0].value,5)
+        self.assertEqual(part2.getAttributeChoice(attr2).value,5)
