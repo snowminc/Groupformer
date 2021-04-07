@@ -255,3 +255,14 @@ def participantDesiredPartner(wanter,wantee):
     
     return wanter.desired_partner
 
+"""
+    Allows for getting a GroupFormer from the instructor's name and the section
+"""
+def getGroupFormer(name, section):
+    selection = GroupFormer.objects.filter(prof_name=name,class_section=section)
+    if len(selection) > 1:
+        raise ValueError("There are more than one GroupFormer under "+name+" called "+section)
+    if len(selection) == 1:
+        return selection[0]
+    else:
+        return None

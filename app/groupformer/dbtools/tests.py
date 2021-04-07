@@ -74,6 +74,7 @@ class DatabaseTests(TestCase):
         gfs = gfset.filter(prof_name="Petra")
         self.assertEqual(len(gfs),1)
         #GroupFormer Getter checks
+        self.assertEqual(getGroupFormer("Petra","Grass watching"),gf2)
         self.assertEqual(gf2.getProject("On top of the hill"),proj2)
         self.assertEqual(gf2.getProject("This doesn't exist!"),None)
         self.assertEqual(gf.getAttribute("Attr Name 1"), attr)
