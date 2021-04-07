@@ -32,6 +32,40 @@ class GroupFormer(models.Model):
     
     def addRoster(self, roster):
         return addRoster(self, roster)
+    
+    """
+        Getters of different parts of the GroupFormer
+        :param name: the corresponding name
+        :return: Either the corresponding project, attribute, or participant, or None
+        :error: TypeError if there are more than one corresponding model
+    """
+    
+    def getProject(self, name):
+        recieved = Project.objects.filter(group_former=self,project_name=name)
+        if len(recieved) > 1:
+            raise TypeError('There are more than one '+name+' in '+str(self))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
+    
+    def getAttribute(self, name):
+        recieved = Attribute.objects.filter(group_former=self,attr_name=name)
+        if len(recieved) > 1:
+            raise TypeError('There are more than one '+name+' in '+str(self))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
+    
+    def getParticipant(self, name):
+        recieved = Participant.objects.filter(group_former=self,part_name=name)
+        if len(recieved) > 1:
+            raise TypeError('There are more than one '+name+' in '+str(self))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
 
 class Project(models.Model):
     # Required to test relation involving it
