@@ -89,6 +89,8 @@ class DatabaseTests(TestCase):
         self.assertEqual(len(project_selection.objects.filter(participant=part2)),1)
         self.assertEqual(project_selection.objects.filter(participant=part2)[0].value,3)
         self.assertEqual(part2.getProjectChoice(proj2).value,3)
+        self.assertEqual(proj2.getParticipantChoice(part2).value,3)
         #Attribute Selection
         self.assertEqual(attribute_selection.objects.filter(participant=part2,attribute=attr2)[0].value,5)
         self.assertEqual(part2.getAttributeChoice(attr2).value,5)
+        self.assertEqual(attr2.getParticipantChoice(part2).value,5)

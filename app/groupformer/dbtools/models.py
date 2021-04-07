@@ -76,6 +76,10 @@ class Project(models.Model):
     
     def __str__(self):
         return self.project_name + ' (' + str(self.group_former) + ')'
+    
+    
+    def getParticipantChoice(self, participant):
+        return participant.getProjectChoice(self)
 
 class Attribute(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -86,6 +90,8 @@ class Attribute(models.Model):
     def __str__(self):
         return self.attr_name + ' (' + str(self.group_former) + ')'
     
+    def getParticipantChoice(self, participant):
+        return participant.getAttributeChoice(self)
 
 class Participant(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -248,3 +254,4 @@ def participantDesiredPartner(wanter,wantee):
     wanter.desired_partner.add(wantee)
     
     return wanter.desired_partner
+
