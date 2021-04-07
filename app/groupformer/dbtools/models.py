@@ -112,6 +112,28 @@ class Participant(models.Model):
     
     def desires(self, p):
         return participantDesiredPartner(self,p)
+    
+    """
+        Helper functions to get selections
+    """
+    
+    def getAttributeChoice(self, attribute):
+        recieved = attribute_selection.objects.filter(participant=self,attribute=attribute)
+        if len(recieved) > 1:
+            raise TypeError(str(self)+" has more than one selection for "+str(attribute))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
+    
+    def getProjectChoice(self, project):
+        recieved = project_selection.objects.filter(participant=self,project=project)
+        if len(recieved) > 1:
+            raise TypeError(str(self)+" has more than one selection for "+str(project))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
 
 # Relationships
 
