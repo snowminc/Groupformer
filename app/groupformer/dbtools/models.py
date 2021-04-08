@@ -43,7 +43,7 @@ class GroupFormer(models.Model):
     def getProject(self, name):
         recieved = Project.objects.filter(group_former=self,project_name=name)
         if len(recieved) > 1:
-            raise TypeError('There are more than one '+name+' in '+str(self))
+            raise ValueError('There are more than one '+name+' in '+str(self))
         if len(recieved) == 1:
             return recieved[0]
         else:
@@ -52,7 +52,7 @@ class GroupFormer(models.Model):
     def getAttribute(self, name):
         recieved = Attribute.objects.filter(group_former=self,attr_name=name)
         if len(recieved) > 1:
-            raise TypeError('There are more than one '+name+' in '+str(self))
+            raise ValueError('There are more than one '+name+' in '+str(self))
         if len(recieved) == 1:
             return recieved[0]
         else:
@@ -61,7 +61,7 @@ class GroupFormer(models.Model):
     def getParticipantByName(self, name):
         recieved = Participant.objects.filter(group_former=self,part_name=name)
         if len(recieved) > 1:
-            raise TypeError('There are more than one '+name+' in '+str(self))
+            raise ValueError('There are more than one '+name+' in '+str(self))
         if len(recieved) == 1:
             return recieved[0]
         else:
@@ -70,7 +70,7 @@ class GroupFormer(models.Model):
     def getParticipantByEmail(self, email):
         recieved = Participant.objects.filter(group_former=self,part_email=email)
         if len(recieved) > 1:
-            raise TypeError('There are more than one '+email+' in '+str(self))
+            raise ValueError('There are more than one '+email+' in '+str(self))
         if len(recieved) == 1:
             return recieved[0]
         else:
@@ -192,7 +192,7 @@ def addRoster(gf, roster):
 
 def addGroupFormer(name,email,section):
     if getGroupFormer(name,section) != None:
-        raise ValueError("GroupFormer "+name+" already exists")
+        raise ValueError("GroupFormer with name "+name+" and section "+section+" already exists")
     p = GroupFormer.objects.create(prof_name=name,
                                    prof_email=email,
                                    class_section=section)

@@ -107,3 +107,42 @@ class DatabaseTests(TestCase):
         self.assertEqual(attribute_selection.objects.filter(participant=part2,attribute=attr2)[0].value,5)
         self.assertEqual(part2.getAttributeChoice(attr2).value,5)
         self.assertEqual(attr2.getParticipantChoice(part2).value,5)
+
+    def test_duplicates(self):
+        #This test is of a database that has been manually put into duplication
+        #Expects many many errors
+        GroupFormer.objects.create(prof_name="Ben Johnson",prof_email="bjohn@umbc.edu",class_section="CMSC 447-01")
+        with self.assertRaises(ValueError):
+            addGroupFormer("Ben Johnson","bjohn@umbc.edu","CMSC 447-01")
+        p2 = GroupFormer.objects.create(prof_name="Ben Johnson",prof_email="bjohn@umbc.edu",class_section="CMSC 447-01")
+        with self.assertRaises(ValueError):
+            getGroupFormer("Ben Johnson","CMSC 447-01")
+        p2.delete()
+        
+        gf = getGroupFormer("Ben Johnson","CMSC 447-01")
+        gf.addAttribute("Attribute",True,True)
+        with self.assertRaises(ValueError):
+            gf.addAttribute("Attribute",True,False)
+        a2 = Attribute.objects.create(group_former=gf,attr_name="Attribute",is_homogenous=True,is_continuous=False)
+        with self.assertRaises(ValueError):
+            gf.addAttribute("Attribute",False,False)
+        with self.assertRaises(ValueError):
+            gf.getAttribute("Attribute")
+        gf.delete()
+        self.assertEqual(len(Attribute.objects.all()),0)
+        gf = addGroupFormer("Professor","prof@e.mail","Section 1")
+        a2 = gf.addAttribute("Attributes",True,True)
+        gf.addParticipant("Party Cipant","pcpant@uwm.edu")
+        p2 = Participant.objects.create(group_former=gf,part_name="Party Cipant",part_email="pcpant@uwm.edu")
+        with self.assertRaises(ValueError):
+            gf.getParticipantByName("Party Cipant")
+        with self.assertRaises(ValueError):
+            gf.getParticipantByEmail("pcpant@uwm.edu")
+        with self.assertRaises(ValueError):
+            gf.addParticipant("Party Cipant","party@yahoo.biz")
+        with self.assertRaises(ValueError):
+            gf.addParticipant("Parles C. Pant","pcpant@uwm.edu")
+        p2.delete()
+        gf.getParticipantByName("Party Cipant").attributeChoice(a2,3)
+        with self.assertRaises(ValueError):
+            gf.getParticipantByName("Party Cipant").attributeChoice(a2,1)
