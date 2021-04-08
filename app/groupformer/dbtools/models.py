@@ -58,10 +58,19 @@ class GroupFormer(models.Model):
         else:
             return None
     
-    def getParticipant(self, name):
+    def getParticipantByName(self, name):
         recieved = Participant.objects.filter(group_former=self,part_name=name)
         if len(recieved) > 1:
             raise TypeError('There are more than one '+name+' in '+str(self))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
+
+    def getParticipantByEmail(self, email):
+        recieved = Participant.objects.filter(group_former=self,part_email=email)
+        if len(recieved) > 1:
+            raise TypeError('There are more than one '+email+' in '+str(self))
         if len(recieved) == 1:
             return recieved[0]
         else:
@@ -76,7 +85,6 @@ class Project(models.Model):
     
     def __str__(self):
         return self.project_name + ' (' + str(self.group_former) + ')'
-    
     
     def getParticipantChoice(self, participant):
         return participant.getProjectChoice(self)
@@ -165,10 +173,15 @@ def addRoster(gf, roster):
         Adds an entire roster to the Participants of a GroupFormer
        :param roster: In the form [[name : email] ...]
        :return: an array of Participant that were added
+       WARNING: If a duplicate name or email is found, will silently not add, since atm no logging system exists!
     """
     ps = []
     for (name,email) in roster:
-        ps = ps + [addParticipant(gf,name,email)]
+        try:
+            ps = ps + [addParticipant(gf,name,email)]
+        except ValueError:
+            pass
+            #Raise a warning to the proper channels
     return ps
 
 """ 
@@ -178,32 +191,36 @@ def addRoster(gf, roster):
 """
 
 def addGroupFormer(name,email,section):
+    if getGroupFormer(name,section) != None:
+        raise ValueError("GroupFormer "+name+" already exists")
     p = GroupFormer.objects.create(prof_name=name,
                                    prof_email=email,
                                    class_section=section)
-    p.save()
     return p
 
 def addAttribute(gf, name, is_homogenous, is_continuous):
+    if gf.getAttribute(name) != None:
+        raise ValueError("Attribute "+name+" already exists in "+str(gf))
     p = Attribute.objects.create(group_former=gf,
                                  attr_name=name,
                                  is_homogenous=is_homogenous,
                                  is_continuous=is_continuous)
-    p.save()
     return p
 
 def addProject(gf, name, description):
+    if gf.getProject(name):
+        raise ValueError("Project "+name+" already exists in "+str(gf))
     p = Project.objects.create(group_former=gf,
                                project_name=name,
                                project_description=description)
-    p.save()
     return p
 
 def addParticipant(gf, name, email):
+    if gf.getParticipantByName(name) != None or gf.getParticipantByEmail(email) != None:
+        raise ValueError("Participant "+name+" or email "+email+" already exists in "+str(gf))
     p = Participant.objects.create(group_former=gf,
                                    part_name=name,
                                    part_email=email)
-    p.save()
     return p
 
 """
@@ -220,24 +237,26 @@ def participantAttributeChoice(participant,attribute,value):
     if not attribute.is_continuous:
         if value != int(value):
             raise ValueError('value of '+str(attribute)+' must be discrete')
+    if participant.getAttributeChoice(attribute) != None:
+        raise ValueError(str(participant)+" has already selected a value for "+str(attribute))
     
     p = attribute_selection.objects.create(participant=participant,
                                            attribute=attribute,
                                            value=value)
     participant.attributes.add(attribute,through_defaults={'value':value})
-    p.save();
     return p
 
 def participantProjectChoice(participant,project,value):
     # Required that both participant and project be in the same GroupFormer
     if participant.group_former != project.group_former:
         raise ValueError(str(participant)+" and "+str(project)+" are not part of the same GroupFormer")
-    
+    if participant.getProjectChoice(project) != None:
+        raise ValueError(str(participant)+" has already selected a value for "+str(project))
+        
     p = project_selection.objects.create(participant=participant,
                                          project=project,
                                          value=value)
     participant.projects.add(project,through_defaults={'value':value})
-    p.save()
     return p
 
 """

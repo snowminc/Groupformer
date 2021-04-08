@@ -7,15 +7,11 @@ class DatabaseTests(TestCase):
         #Setup a basic set of each
         
         # Manual addition
-        print("Adding database elements manually (.objects.create() and .save())")
+        print("Adding database elements manually (.objects.create())")
         gf = GroupFormer.objects.create(prof_name="Test Prof",prof_email="test@uni.edu",class_section="DEPT101")
-        gf.save()
         attr = Attribute.objects.create(group_former=gf,attr_name="Attr Name 1",is_homogenous=False,is_continuous=True)
-        attr.save()
         proj = Project.objects.create(group_former=gf,project_name="Project One",project_description="A description!")
-        proj.save()
         part = Participant.objects.create(group_former=gf,part_name="Participant One",part_email="joe@umbc.edu")
-        part.save()
         
         # Standalone Helper function addition
         print("Adding with helper functions (add...(gf,))")
@@ -43,7 +39,23 @@ class DatabaseTests(TestCase):
         part12.projectChoice(proj,1)
         part12.desires(part)
         
+            #Adding duplicates
+        with self.assertRaises(ValueError):
+            gf2.addProject("On top of the hill","Shouldn't matter")
+        with self.assertRaises(ValueError):
+            gf.addAttribute("Amount of cheese",True,False)
+        with self.assertRaises(ValueError):
+            gf.addParticipant("Morgan","different@em.ail")
+        with self.assertRaises(ValueError):
+            gf.addParticipant("Different Name","mv@george.biz")
+        with self.assertRaises(ValueError):
+            part12.attributeChoice(attr12,2)
+        with self.assertRaises(ValueError):
+            part12.projectChoice(proj,2)
+            
+        gf2.addParticipant("Morrison Person","np@person.com")
         gf2.addRoster([["Morrison Person","np@person.com"],["Eve Person","jp@upl.edu"]])
+            #WARNING - until logging system is added, failure to add Morrison again is silent
         gf.addParticipant("Alicia V","avan@umbc.edu")
         Participant.objects.filter(part_name="Eve Person")[0].desires(part22)
         Participant.objects.filter(part_name="Eve Person")[0].desires(part2)
@@ -78,9 +90,9 @@ class DatabaseTests(TestCase):
         self.assertEqual(gf2.getProject("On top of the hill"),proj2)
         self.assertEqual(gf2.getProject("This doesn't exist!"),None)
         self.assertEqual(gf.getAttribute("Attr Name 1"), attr)
-        self.assertEqual(gf2.getParticipant("Alicia V"),part22)
-        self.assertNotEqual(gf.getParticipant("Alicia V"),None)
-        self.assertNotEqual(gf.getParticipant("Alicia V"),part22)
+        self.assertEqual(gf2.getParticipantByName("Alicia V"),part22)
+        self.assertNotEqual(gf.getParticipantByName("Alicia V"),None)
+        self.assertNotEqual(gf.getParticipantByName("Alicia V"),part22)
         #Desired Partner
         self.assertIn(part,part12.desired_partner.all())
         part23 = Participant.objects.filter(part_name="Eve Person")[0]
