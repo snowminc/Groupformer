@@ -23,17 +23,6 @@ class ParticipantDropdownViewTests(TestCase):
         self.assertContains(response, 'Min Chon')
 
 
-class SetupScreenTests(TestCase):
-
-    def test_single_project_inputs_exist(self):
-        """
-        Ensure that a single project input exists when first loading the setup screen page
-        """
-        #response = self.client.get(reverse('setup_screen:index'))
-        #self.assertContains(response, 'project-name1')
-        pass
-
-
 class SetupScreenIntegrationTests(LiveServerTestCase):
     """
     NOTE for running tests:

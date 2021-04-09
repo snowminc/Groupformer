@@ -144,11 +144,13 @@
             let instructor_name = $("#instructor-name").val()
             let instructor_email = $("#instructor-email").val()
             let custom_name = $("#custom-name").val()
+            let people_per_group = $("#people-per-group").val()
 
             let payload = {
                 instructor_name: instructor_name,
                 instructor_email: instructor_email,
                 custom_name: custom_name,
+                people_per_group: people_per_group,
                 projects: local_projects,
                 attributes: local_attributes
             }
@@ -163,7 +165,7 @@
                     "X-CSRFToken": csrftoken
                 },
                 success: function (result) {
-                    alert(result.Result);
+                    alert(result);
                 },
             });
         }
@@ -188,6 +190,20 @@
             <div class="form-group">
                 <label for="custom-name">Class/Section or Custom Name</label>
                 <input id="custom-name" type="text" class="form-control col-md-2" placeholder="CMSC 447 - Section 03">
+            </div>
+            <div class="form-group">
+                <label for="people-per-group">People Per Group</label>
+                <input id="people-per-group" type="number" class="form-control col-md-2">
+            </div>
+        </div>
+
+        <h2>Roster</h2>
+        <div class="container">
+            <div class="form-group">
+                <label for="roster-input">Comma-Separated Participant Roster & Email</label>
+                <textarea id="roster-input" class="form-control col-md-2" rows="4" placeholder="Jules Johnson,jules@jules.jules
+Jane Doe,jane@doe.person
+Would You Rather,wyr@yes.com"></textarea>
             </div>
         </div>
 

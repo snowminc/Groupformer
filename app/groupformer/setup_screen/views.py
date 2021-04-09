@@ -34,7 +34,7 @@ def submit_groupformer(request):
     if request.is_ajax():
         if request.method == 'POST':
             print('Raw Data: "%s"' % request.body)
-            payload = json.load(request.body)
+            payload = json.loads(request.body)
 
             # TODO: create a new groupformer instance
             instructor_name = payload["instructor_name"]
@@ -47,10 +47,9 @@ def submit_groupformer(request):
                 # TODO: create new project instance in database
                 # TODO: link to groupformer instance
 
-            for attribute_data in payload["attribtues"]:
+            for attribute_data in payload["attributes"]:
                 attribute_name = attribute_data["name"]
                 attribute_homogenous = attribute_data["is_homogenous"]
                 # TODO: create new attribute instance in database
                 # TODO: link to groupformer instance
-
     return HttpResponse("OK")
