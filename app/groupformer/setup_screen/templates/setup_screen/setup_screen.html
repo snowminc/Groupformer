@@ -193,12 +193,12 @@
             {
                 if(local_projects[i].name === null || local_projects[i].name === "")
                 {
-                    $(`#project-name${i}`).removeClass("hide");
+                    $(`#project-name${i}-error`).removeClass("hide");
                     is_valid = false;
                 }
                 if(local_projects[i].description === null || local_projects[i].description === "")
                 {
-                    $(`#project-desc${i}`).removeClass("hide");
+                    $(`#project-desc${i}-error`).removeClass("hide");
                     is_valid = false;
                 }
             }
@@ -206,7 +206,7 @@
             {
                 if(local_attributes[i].name === null || local_attributes[i].name === "")
                 {
-                    $(`#attribute-name${i}`).removeClass("hide");
+                    $(`#attribute-name${i}-error`).removeClass("hide");
                     is_valid = false;
                 }
             }
