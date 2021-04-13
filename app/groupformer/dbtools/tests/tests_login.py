@@ -54,7 +54,7 @@ class DBToolsModelTest(TestCase):
     def test_no_email_given(self):
         gfobj = GroupFormer.objects.all()[0]
         response = self.client.get(reverse('verify_participant', kwargs={"group_former_id":gfobj.pk}))
-        # response code for redirecting is 200
+        # response code for rendering directly is 200
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Permission Denied")
 
