@@ -1,7 +1,7 @@
 from django.test import TestCase, LiveServerTestCase
 from django.urls import reverse
 
-import time
+from dbtools.models import *
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -399,30 +399,113 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
 
         self.driver.find_element_by_id(f'attribute-homogenous1').send_keys(Keys.TAB)  # TAB to commit that last input
 
+    def check_nothing_in_databse_helper(self):
+        self.assertEqual(0, len(GroupFormer.objects.all()))
+        self.assertEqual(0, len(Project.objects.all()))
+        self.assertEqual(0, len(Attribute.objects.all()))
+        self.assertEqual(0, len(Participant.objects.all()))
+        self.assertEqual(0, len(attribute_selection.objects.all()))
+        self.assertEqual(0, len(project_selection.objects.all()))
+
     def test_empty_input_invalid_message(self):
-        pass
+        """
+        Test that nothing is entered in the database when a field is left blank
+        Also test that invalid message is not hidden in the view
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # clear an input in the form
+        self.driver.find_element_by_id(f'project-desc0').clear()
+        self.assertEqual("", self.driver.find_element_by_id(f'project-desc0').get_attribute("value"))
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+        # TODO: check invalid
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
 
     def test_invalid_email_format_instructor(self):
-        pass
+        """
+        Test that nothing is entered in the database when the instructor email field is invalid
+        Also test that invalid message is not hidden in the view
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+        # TODO: check invalid
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
 
     def test_too_few_columns_roster(self):
-        pass
+        """
+        Test that nothing is entered in the database when the roster column input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+        # TODO: check invalid
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
 
     def test_too_many_columns_roster(self):
-        pass
+        """
+        Test that nothing is entered in the database when the roster column input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+        # TODO: check invalid
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
 
     def test_invalid_email_format_roster(self):
-        pass
+        """
+        Test that nothing is entered in the database when the roster email input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+        # TODO: check invalid
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
 
     def test_fill_and_submit_form_to_database(self):
         """
         Integration test that fills out the entire form and submits it to the backend
         TODO: for GitHub issue #57 need to assert that the database contains the new groupformer data after submit occurs
         """
+        # check empty database and fill the form
+        self.check_nothing_in_databse_helper()
         self.fill_complete_form_helper_method()
 
-        # TODO: ensure DB doesn't have anything in it
-
+        # submit form
         self.driver.find_element_by_id('submit-btn').click()
 
         # TODO: check DB for all this info
