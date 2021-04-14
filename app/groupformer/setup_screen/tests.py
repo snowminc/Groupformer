@@ -214,6 +214,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.click_add_project()
         self.click_add_project()
 
+        # ensure element located on screen before proceeding
         WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-2 .close')))
 
@@ -335,4 +336,93 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertEqual(attribute_2_homogenous, self.driver.find_element_by_id(f'attribute-homogenous0').is_selected())
         self.assertEqual(attribute_2_name, self.driver.find_element_by_id(f'attribute-name0').get_attribute("value"))
 
-# TODO: Integration test that fills out the project/attribute fields, then submits and checks the database for the changes
+    def fill_complete_form_helper_method(self):
+        """
+        Helper method for navigating filling out the entire setup_screen form with:
+        - Instructor / Groupformer info
+        - roster
+        - two projects
+        - two attributes
+        :return:
+        """
+        self.goto_index()
+
+        instructor_name = "Ben Johnson"
+        instructor_email = "benj1@umbc.edu"
+        custom_name = "CMSC 447 Section 3"
+        people_per_group = "5"
+        roster_input = "Min Chon,minc1@umbc.edu\n" \
+                       "Kristian Mischke,mischke1@umbc.edu\n" \
+                       "Kyle Morgan,gs49698@umbc.edu\n" \
+                       "Sarah Nakhon,snakhon1@umbc.edu\n" \
+                       "Morgan Vanderhei,morganv2@umbc.edu\n"
+
+        self.driver.find_element_by_id(f'instructor-name').send_keys(instructor_name)
+        self.driver.find_element_by_id(f'instructor-email').send_keys(instructor_email)
+        self.driver.find_element_by_id(f'custom-name').send_keys(custom_name)
+        self.driver.find_element_by_id(f'people-per-group').send_keys(people_per_group)
+        self.driver.find_element_by_id(f'roster-input').send_keys(roster_input)
+
+        # add an attribute and a project for a total of 2 each
+        self.click_add_attribute()
+        self.click_add_project()
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-1 .close')))
+
+        project_0_name = "Group forming tool"
+        project_0_desc = "A tool to form 447 groups that isn't a lousy Google Form. Users will be able to form groups based on project interest, team role, skill set, etc. CEO: Ben Johnson"
+        project_1_name = "Open Piazza"
+        project_1_desc = "An app that provides similar functionality to Piazza, but can be more greatly customized and individually managed. CEO: Frank Ferraro (Assistant Professor)"
+
+        # assign data to the project inputs
+        self.driver.find_element_by_id(f'project-name0').send_keys(project_0_name)
+        self.driver.find_element_by_id(f'project-desc0').send_keys(project_0_desc)
+        self.driver.find_element_by_id(f'project-name1').send_keys(project_1_name)
+        self.driver.find_element_by_id(f'project-desc1').send_keys(project_1_desc)
+
+        self.driver.find_element_by_id(f'project-desc1').send_keys(Keys.TAB)  # TAB to commit that last input
+
+        attribute_0_name = "Do you like to punish people with puns?"
+        attribute_0_homogenous = True
+        attribute_1_name = "How familiar are you with Front-End development?"
+        attribute_1_homogenous = False
+
+        # assign data to the attribute inputs
+        self.driver.find_element_by_id(f'attribute-name0').send_keys(attribute_0_name)
+        if attribute_0_homogenous:
+            self.driver.find_element_by_id(f'attribute-homogenous0').click()
+        self.driver.find_element_by_id(f'attribute-name1').send_keys(attribute_1_name)
+        if attribute_1_homogenous:
+            self.driver.find_element_by_id(f'attribute-homogenous1').click()
+
+        self.driver.find_element_by_id(f'attribute-homogenous1').send_keys(Keys.TAB)  # TAB to commit that last input
+
+    def test_empty_input_invalid_message(self):
+        pass
+
+    def test_invalid_email_format_instructor(self):
+        pass
+
+    def test_too_few_columns_roster(self):
+        pass
+
+    def test_too_many_columns_roster(self):
+        pass
+
+    def test_invalid_email_format_roster(self):
+        pass
+
+    def test_fill_and_submit_form_to_database(self):
+        """
+        Integration test that fills out the entire form and submits it to the backend
+        TODO: for GitHub issue #57 need to assert that the database contains the new groupformer data after submit occurs
+        """
+        self.fill_complete_form_helper_method()
+
+        # TODO: ensure DB doesn't have anything in it
+
+        self.driver.find_element_by_id('submit-btn').click()
+
+        # TODO: check DB for all this info
