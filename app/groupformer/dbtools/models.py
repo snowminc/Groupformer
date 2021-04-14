@@ -77,8 +77,6 @@ class GroupFormer(models.Model):
             return None
 
 class Project(models.Model):
-    # Required to test relation involving it
-    # To be replaced by Sarah's
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     project_name = models.CharField(max_length=240, blank=False, null=False)
     project_description = models.TextField(blank=False, null=False)
