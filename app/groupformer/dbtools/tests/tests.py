@@ -146,3 +146,17 @@ class DatabaseTests(TestCase):
         gf.getParticipantByName("Party Cipant").attributeChoice(a2,3)
         with self.assertRaises(ValueError):
             gf.getParticipantByName("Party Cipant").attributeChoice(a2,1)
+            
+    #Migrated from projects/
+    def test_project_saved(self):
+        project_objects_dict = {"project_name": "Test 1", "project_description": "Test Description"}
+        gfobj = addGroupFormer("Dr. Benjamin Johnson","bj@umbc.edu","CMSC341")
+        response = self.client.post('/dbtools/'+str(gfobj.pk)+'/add_project', project_objects_dict)
+        
+        # response code for redirecting is 302
+        self.assertEqual(response.status_code, 302)
+        #checking the first project object
+        project_obj = Project.objects.all()[0]
+        self.assertEqual(project_obj.project_name, "Test 1")
+
+
