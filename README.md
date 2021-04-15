@@ -6,8 +6,7 @@ A tool to make forming groups based on preference more efficient.
    - `pip install -r requirments.txt` to install the requirments needed to run our application. 
 
 3. To run the following tests: 
-- `cd \app\GroupFormer`
- - `python manage.py test projects` will run tests on the projects Django app.
+ - `cd \app\GroupFormer`
  - `python manage.py test setup_screen`
  NOTE for running tests: You need to download the selenium webdriver and put it in your PATH variable.
 
@@ -23,16 +22,23 @@ A tool to make forming groups based on preference more efficient.
  Selenium will spew some warning messages, but this doesn't effect the integration tests aside from
  clogging the terminal output.
  https://stackoverflow.com/questions/65080685/usb-usb-device-handle-win-cc1020-failed-to-read-descriptor-from-node-connectio
-
+ 
+ The requirements.txt reflects the Selenium version used to test the AJAX interaction within groupformer_list, and the form submission interaction within response_screen.
  The WebDriver used for the Selenium test is geckodriver, a Firefox webdriver.
- Tester must have Firefox installed and install the geckodriver executable and include its path on the system PATH to test.
+ Tester must have Firefox installed and install the geckodriver executable and include its path on the system PATH to test the following:
+
  To test the response_screen endpoint:
- - `python manage.py test min_iteration2.tests.MinIteration2ResponseScreenTests`
+ (Displaying the GroupFormer projects, attributes and participants)
+ - `python manage.py test min_iteration3.tests.MinIteration3ResponseScreenTests`
+ (Testing form submission, input omission, form data receival validation)
+ - `python manage.py test min_iteration3.tests.SeleniumResponseScreen`
  To test the groupformer_list endpoint:
- - `python manage.py test min_iteration2.tests.SeleniumGroupformerList`
+ - `python manage.py test min_iteration3.tests.SeleniumGroupformerList`
+
  https://github.com/mozilla/geckodriver/releases
  
- - `python manage.py test dbtools` will test the database. 
-
+ - `python manage.py test dbtools` will test the database and verify a user's email is an instance of the groupformer. 
+ - `python manage.py test min_iteration2.tests.LoginScreenTest` - Login Screen testing, requires Selenium 
+ 
 4. After running  you can look at the output in localhost:8000 in your browser by running the following commands 
  - `python manage.py runserver` will run the server on localhost at port 8000.
