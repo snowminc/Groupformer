@@ -250,6 +250,13 @@
                     participant_roster.push([name, email]);
                 }
 
+                if(participant_roster.length === 0)
+                {
+                    $("#roster-input-error").removeClass("hide");
+                    $("#roster-input-error").html(`Please enter a roster of participants`);
+                    is_valid = false;
+                }
+
                 if (!is_valid) {
                     return false;
                 }

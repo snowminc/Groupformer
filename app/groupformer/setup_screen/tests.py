@@ -470,6 +470,38 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
 
+    def test_empty_roster(self):
+        """
+        Test that nothing is entered in the database when the roster column input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # set roster to empty
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        self.assertEqual("", roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Please enter a roster of participants" in self.driver.find_element_by_id('roster-input-error').get_attribute("innerHTML"))
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
     def test_too_few_columns_roster(self):
         """
         Test that nothing is entered in the database when the roster column input is invalid
