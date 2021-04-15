@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 
-from .models import *
+from dbtools.models import *
 
 def response_screen(request, groupformer_id):
     # Check if the groupformer page exists before accessing

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from min_iteration3.models import *
+from dbtools.models import *
 
 
 def create_sample_groupformer():
