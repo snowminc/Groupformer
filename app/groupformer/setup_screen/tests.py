@@ -421,9 +421,16 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.driver.find_element_by_id(f'project-desc0').clear()
         self.assertEqual("", self.driver.find_element_by_id(f'project-desc0').get_attribute("value"))
 
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('project-desc0-error').is_displayed())
+
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
-        # TODO: check invalid
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-desc0-error')))
+        self.assertTrue('hide' not in self.driver.find_element_by_id('project-desc0-error').get_attribute('class').split())  # error displayed
+        self.assertTrue(self.driver.find_element_by_id('project-desc0-error').is_displayed())  # error displayed
 
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
