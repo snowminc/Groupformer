@@ -3,9 +3,10 @@ specific questions"""
 
 from .models import Project, Participant, Attribute, attribute_selection
 from django.db import models
+import random
 
 #calculate the priority for a group
-def calc_project_priority(project, participant_list, attribute_list):
+def calc_project_priority(project):
     """Calculates a projects priority.
     @Params: attribute_list is a list of attribute_selection
              participant_list is a list of Participant
@@ -29,6 +30,7 @@ def calc_project_priority(project, participant_list, attribute_list):
         # to get the outliers of the answers
         max_num = 0
         min_num = 5
+        val = 0
         #find if we need to change the max/min values
         for part in participant_list:
             val = part.getAttributeChoice(att).value
@@ -54,22 +56,33 @@ def calc_project_priority(project, participant_list, attribute_list):
         
         return tot_score
 
-def calc_global_score(group_former):
+# for this function, we need to handle keeping track of the minimum score
+# in each of the projects and add to the master_score
+def calc_global_score(project_list):
+    master_score = 0
+    min_proj = 99999
+    for project in project_list:
+        val = calc_project_priority(project)
+        if val < min_proj:
+            min_proj = val
+        master_score += val
+
+    master_score += min_proj
+    return master_score
+
+def shuffle_particpants(group_former):
     roster = group_former.getRoster().copy()
-    for projects in Project.objects.all():
-        
-        
+    random.shuffle(roster)
+    return roster
 
-def calc_optimal_groups(gf, epoch=50):
-    pass
-
-def get_random_participant_list(roster, max_count):
-    """This method is where a project will randomly pull a
-        participant from the roster"""
-        candidatelist = []
-        for i in range(max_count) and len(roster) > 0:
-            random.shuffle(roster)
-            participant = roster.pop()
-            candidate_list.append(participant)
-
-        return candidate_list
+def calc_optimal_groups(gf, epoch=50, max_parts=4):
+    """Uses random hill climbing algorithm to determine
+    the "best" grouping of participants"""
+    best_group_value = 0
+    for i in range(epoch):
+        roster = shuffle_particpants(gf)
+        candidate_list = []
+        for j in range(max_parts):
+            candidate_list.append(roster.pop())
+    #
+    return best_group_value, best_group
