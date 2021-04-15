@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
+from django.shortcuts import redirect
 
 from dbtools.models import *
 
@@ -64,7 +65,7 @@ def login_group(request, groupformer_id):
         parts = gf.getParticipantByEmail(request.POST["email"])
         if parts == None:
             return render(request, 'main/login.html', {"groupformer" : gf, 'error' : True})
-        return render(request,'main/response_screen.html') #Temporary until proper one added
+        return redirect('../../response_screen/') #Temporary until proper one added
         
     # Log into the groupformer for the first time
     return render(request, 'main/login.html', {"groupformer" : gf})

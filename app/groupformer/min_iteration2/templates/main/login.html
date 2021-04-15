@@ -25,7 +25,7 @@
       <div class="row">
         <main role="main" class="col-8 mx-auto px-4">
         {% if error %}
-          <div class="alert alert-danger" role="alert" visibility=hidden>Email not connected to this section</div>
+          <div class="alert alert-danger" id="bad-email" role="alert" visibility=hidden>Email not connected to this section</div>
         {% endif %}
           <form class="needs-validation" action='login' method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
@@ -37,7 +37,7 @@
                 </div>
             </div>
             <br>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" id="login-submit" class="btn btn-primary">Submit</button>
           </form>
         </main>
       </div>

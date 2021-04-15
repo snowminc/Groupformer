@@ -22,9 +22,48 @@ class MinIteration2ResponseScreenTests(TestCase):
         self.assertContains(response, "How comfortable are you with front-end?")
         self.assertContains(response, "How comfortable are you with back-end?")
 
-
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.common.exceptions import NoSuchElementException
+from dbtools.models import *
+
+class LoginScreenTest(StaticLiveServerTestCase):
+    @classmethod
+    def setUp(cls):
+        gf = addGroupFormer("Ben Johnson","bjohn@umbc.edu","CMSC 447-01")
+        gf.addParticipant("John Beachy","johnny@niu.edu")
+        
+        super().setUpClass()
+        cls.selenium = WebDriver()
+        cls.selenium.implicitly_wait(0.5)
+    
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
+        super().tearDownClass()
+    
+    def test_login(self):
+        self.selenium.get('%s%s' % (self.live_server_url, '/min_iteration2/response_screen/1/login'))
+        
+        #No alert on first look
+        with self.assertRaises(NoSuchElementException):
+            alert = self.selenium.find_element_by_id('bad-email')
+        
+        email = self.selenium.find_element_by_name('email')
+        email.send_keys("nonsense@non.sense")
+        submit = self.selenium.find_element_by_id('login-submit')
+        submit.click()
+        #Once an incorrect email is entered, an alert is shown
+        alert = self.selenium.find_element_by_id('bad-email')
+        
+        email = self.selenium.find_element_by_name('email')
+        email.send_keys("johnny@niu.edu")
+        submit = self.selenium.find_element_by_id('login-submit')
+        submit.click()
+        
+        #Should be redirected to response screen
+        self.assertTrue(self.selenium.current_url.endswith("/min_iteration2/response_screen/"))
+        
 
 class SeleniumGroupformerList(StaticLiveServerTestCase):
 
