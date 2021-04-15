@@ -57,7 +57,7 @@ class GroupFormerTest(TestCase):
     def test_get_participant(self):
         pass
 
-    def test_get_rostesr(self):
+    def test_get_roster(self):
         pass
 
     def test_get_project_list(self):
@@ -78,4 +78,5 @@ class GroupFormerTest(TestCase):
     def test_optimal_particpant_score(self):
         pass
 
-    def test_
+    def test_add_project_with_questions(self):
+        pass
