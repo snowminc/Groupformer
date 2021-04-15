@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 
+from dbtools.models import *
+
 def response_screen(request):
     # Create arbitrary sample projects and attributes for testing the front-end
     projects = []
@@ -50,6 +52,15 @@ def groupformer_list(request):
         "section": "Section A"
     })
     return render(request, 'main/groupformer_list.html', {"groupformers": groupformers})
+
+def login_group(request, groupformer_id):
+    # Log into the groupformer
+    gfs = GroupFormer.objects.filter(pk=groupformer_id)
+    if len(gfs) == 0:
+        return render(request, 'main/loginerror.html')
+    gf = gfs[0]
+    print(repr(gf))
+    return render(request, 'main/login.html', {"groupformer" : gf})
 
 def sample_groups(request, groupformer_id):
     # Create arbitrary sample groups for testing the front-end
