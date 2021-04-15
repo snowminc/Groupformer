@@ -3,6 +3,9 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
+from django.shortcuts import redirect
+
+from dbtools.models import *
 
 def response_screen(request):
     # Create arbitrary sample projects and attributes for testing the front-end
@@ -50,6 +53,22 @@ def groupformer_list(request):
         "section": "Section A"
     })
     return render(request, 'main/groupformer_list.html', {"groupformers": groupformers})
+
+def login_group(request, groupformer_id):
+    gfs = GroupFormer.objects.filter(pk=groupformer_id)
+    if len(gfs) == 0:
+        return render(request, 'main/loginerror.html')
+    gf = gfs[0]
+    
+    if request.POST.get("email"):
+        # Validate the login
+        parts = gf.getParticipantByEmail(request.POST["email"])
+        if parts == None:
+            return render(request, 'main/login.html', {"groupformer" : gf, 'error' : True})
+        return redirect('../../response_screen/') #Temporary until proper one added
+        
+    # Log into the groupformer for the first time
+    return render(request, 'main/login.html', {"groupformer" : gf})
 
 def sample_groups(request, groupformer_id):
     # Create arbitrary sample groups for testing the front-end
