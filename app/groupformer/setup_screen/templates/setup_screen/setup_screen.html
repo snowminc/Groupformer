@@ -151,129 +151,137 @@
             return re.test(String(email).toLowerCase());
         }
 
-        function submit_groupformer()
-        {
-            let instructor_name = $("#instructor-name").val();
-            let instructor_email = $("#instructor-email").val();
-            let custom_name = $("#custom-name").val();
-            let people_per_group = $("#people-per-group").val();
-            let roster_input = $("#roster-input").val();
+        $(document).ready(function () {
+            $("form").submit(function (e) {
+                e.preventDefault();
 
-            $(".invalid-feedback").addClass("hide"); // hide errors
+                let instructor_name = $("#instructor-name").val();
+                let instructor_email = $("#instructor-email").val();
+                let custom_name = $("#custom-name").val();
+                let people_per_group = $("#people-per-group").val();
+                let roster_input = $("#roster-input").val();
 
-            //
-            // Validate the input
-            //
-            let is_valid = true;
+                $(".invalid-feedback").addClass("hide"); // hide errors
 
-            // validate basic inputs have content
-            if(instructor_name === null || instructor_name === '')
-            {
-                $("#instructor-name-error").removeClass("hide");
-                is_valid = false;
-            }
-            if(instructor_email === null || instructor_email === '')
-            {
-                $("#instructor-email-error").removeClass("hide");
-                is_valid = false;
-            }
-            if(custom_name === null || custom_name === '')
-            {
-                $("#custom-name-error").removeClass("hide");
-                is_valid = false;
-            }
-            if(people_per_group === null || people_per_group === '')
-            {
-                $("#people-per-group-error").removeClass("hide");
-                is_valid = false;
-            }
+                //
+                // Validate the input
+                //
+                let is_valid = true;
 
-            // validate projects and attributes have required content
-            for(let i = 0; i < local_projects.length; i++)
-            {
-                if(local_projects[i].name === null || local_projects[i].name === "")
-                {
-                    $(`#project-name${i}-error`).removeClass("hide");
+                // validate basic inputs have content
+                if (instructor_name === null || instructor_name === '') {
+                    $("#instructor-name-error").removeClass("hide");
+                    $("#instructor-name-error").html("Please enter your name");
                     is_valid = false;
                 }
-                if(local_projects[i].description === null || local_projects[i].description === "")
-                {
-                    $(`#project-desc${i}-error`).removeClass("hide");
+                if (instructor_email === null || instructor_email === '') {
+                    $("#instructor-email-error").removeClass("hide");
                     is_valid = false;
                 }
-            }
-            for(let i = 0; i < local_attributes.length; i++)
-            {
-                if(local_attributes[i].name === null || local_attributes[i].name === "")
-                {
-                    $(`#attribute-name${i}-error`).removeClass("hide");
+                if (custom_name === null || custom_name === '') {
+                    $("#custom-name-error").removeClass("hide");
                     is_valid = false;
                 }
-            }
-
-            // validate roster format
-            let participant_roster = [];
-            let rows = roster_input.split('\n');
-            for(let i = 0; i < rows.length; i++)
-            {
-                let cols = rows[i].split(',');
-                if(cols.length === 0) continue;
-
-                if(cols.length !== 2)
-                {
-                    $("#roster-input-error").removeClass("hide");
-                    $("#roster-input-error").html(`Row ${i+1} has wrong number of columns (found ${cols.length}, expected 2): <br> ${rows[i]}`);
+                if (people_per_group === null || people_per_group === '') {
+                    $("#people-per-group-error").removeClass("hide");
                     is_valid = false;
-                    break;
                 }
 
-                let name = cols[0].trim();
-                let email = cols[1].trim();
-
-                if(!validateEmail(email))
-                {
-                    $("#roster-input-error").removeClass("hide");
-                    $("#roster-input-error").html(`Row ${i+1} contains invalid email address: <br> ${email}`);
+                // validate instructor email valid
+                if (!validateEmail(instructor_email)) {
+                    $("#instructor-email-error").removeClass("hide");
+                    $("#instructor-email-error").html("Invalid email address!");
                     is_valid = false;
-                    break;
                 }
 
-                participant_roster.append({"name": name, "email": email});
-            }
+                // validate projects and attributes have required content
+                for (let i = 0; i < local_projects.length; i++) {
+                    if (local_projects[i].name === null || local_projects[i].name === "") {
+                        $(`#project-name${i}-error`).removeClass("hide");
+                        is_valid = false;
+                    }
+                    if (local_projects[i].description === null || local_projects[i].description === "") {
+                        $(`#project-desc${i}-error`).removeClass("hide");
+                        is_valid = false;
+                    }
+                }
+                for (let i = 0; i < local_attributes.length; i++) {
+                    if (local_attributes[i].name === null || local_attributes[i].name === "") {
+                        $(`#attribute-name${i}-error`).removeClass("hide");
+                        is_valid = false;
+                    }
+                }
 
-            if(!is_valid) {
+                // validate roster format
+                let participant_roster = [];
+                let rows = roster_input.split('\n');
+                for (let i = 0; i < rows.length; i++) {
+                    let cols = rows[i].split(',');
+
+                    // empty row, so continue
+                    if (cols.length === 0) continue;
+                    if (cols.length === 1 && cols[0].trim() === '') continue;
+
+                    if (cols.length !== 2) {
+                        $("#roster-input-error").removeClass("hide");
+                        $("#roster-input-error").html(`Row ${i + 1} has wrong number of columns (found ${cols.length}, expected 2): <br> ${rows[i]}`);
+                        is_valid = false;
+                        break;
+                    }
+
+                    let name = cols[0].trim();
+                    let email = cols[1].trim();
+
+                    if (!validateEmail(email)) {
+                        $("#roster-input-error").removeClass("hide");
+                        $("#roster-input-error").html(`Row ${i + 1} contains invalid email address: <br> ${email}`);
+                        is_valid = false;
+                        break;
+                    }
+
+                    participant_roster.push([name, email]);
+                }
+
+                if (!is_valid) {
+                    return false;
+                }
+
+                let payload = {
+                    instructor_name: instructor_name,
+                    instructor_email: instructor_email,
+                    custom_name: custom_name,
+                    people_per_group: people_per_group,
+                    participant_roster: participant_roster,
+                    projects: local_projects,
+                    attributes: local_attributes
+                }
+
+                $.ajax({
+                    url: '{% url "setup_screen:submit_groupformer" %}',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(payload),
+                    dataType: 'text',
+                    headers: {
+                        "X-CSRFToken": csrftoken
+                    },
+                    success: function (result) {
+                        alert(result);
+                    },
+                    error: function (e) {
+                        console.log(e);
+                        alert("Error: " + e);
+                    },
+                });
+
                 return false;
-            }
-
-            let payload = {
-                instructor_name: instructor_name,
-                instructor_email: instructor_email,
-                custom_name: custom_name,
-                people_per_group: people_per_group,
-                participant_roster: participant_roster,
-                projects: local_projects,
-                attributes: local_attributes
-            }
-
-            $.ajax({
-                url: '{% url "setup_screen:submit_groupformer" %}',
-                type: 'POST',
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(payload),
-                dataType: 'text',
-                headers: {
-                    "X-CSRFToken": csrftoken
-                },
-                success: function (result) {
-                    alert(result);
-                },
             });
-        }
+        });
     </script>
 </head>
 <body>
 
-    <form onsubmit="return submit_groupformer()" novalidate>
+    <form action="" novalidate>
         <div class="container">
             <h1>Welcome to GroupFormer!</h1>
             <p>This is the Setup Screen, where you as an instructor/facilitator will be able to set up a form for participants to fill out and be assigned to groups</p>
@@ -283,7 +291,7 @@
                 <div class="form-group">
                     <label for="instructor-name">Your Name</label>
                     <input id="instructor-name" type="text" class="form-control col-md-2" placeholder="Jules Johnson" required>
-                    <div id="instructor-name-error" class="hide text-danger invalid-feedback">Please enter your name.</div>
+                    <div id="instructor-name-error" class="hide text-danger invalid-feedback">ERROR.</div>
                 </div>
                 <div class="form-group">
                     <label for="instructor-email">Your Email</label>

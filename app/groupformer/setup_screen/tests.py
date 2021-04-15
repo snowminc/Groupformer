@@ -433,7 +433,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
 
         # ensure contents generated before proceeding
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-desc0-error')))
-        self.assertTrue('hide' not in self.driver.find_element_by_id('project-desc0-error').get_attribute('class').split())  # error displayed
         self.assertTrue(self.driver.find_element_by_id('project-desc0-error').is_displayed())  # error displayed
 
         # submit shouldn't have gone through, so nothing should remain in DB
@@ -449,9 +448,24 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.check_nothing_in_databse_helper()
         self.fill_complete_form_helper_method()
 
+        # set instructor email to invalid
+        instructor_email_input = self.driver.find_element_by_id(f'instructor-email')
+        instructor_email_input.clear()
+        instructor_email_input.send_keys("invalidemail")
+        self.assertEqual("invalidemail", instructor_email_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('instructor-email-error').is_displayed())
+
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
-        # TODO: check invalid
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#instructor-email-error')))
+        self.assertTrue(self.driver.find_element_by_id('instructor-email-error').is_displayed())  # error displayed
+        self.assertTrue("Invalid email address" in self.driver.find_element_by_id('instructor-email-error').get_attribute("innerHTML"))
 
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
@@ -466,9 +480,25 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.check_nothing_in_databse_helper()
         self.fill_complete_form_helper_method()
 
+        # set one participant to invalid
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        roster_input.send_keys("Person One,person1@gmail.com\nuh oh\nPerson Two,person2@gmail.com")
+        self.assertEqual("Person One,person1@gmail.com\nuh oh\nPerson Two,person2@gmail.com", roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
-        # TODO: check invalid
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Row 2 has wrong number of columns (found 1, expected 2)" in self.driver.find_element_by_id('roster-input-error').get_attribute("innerHTML"))
 
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
@@ -483,9 +513,26 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.check_nothing_in_databse_helper()
         self.fill_complete_form_helper_method()
 
+        # set one participant to invalid
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        roster_input.send_keys("Person One,person1@gmail.com\nPerson Two,person2@gmail.com,oops too many columns")
+        self.assertEqual("Person One,person1@gmail.com\nPerson Two,person2@gmail.com,oops too many columns", roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
-        # TODO: check invalid
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Row 2 has wrong number of columns (found 3, expected 2)" in self.driver.find_element_by_id(
+            'roster-input-error').get_attribute("innerHTML"))
 
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
@@ -500,9 +547,27 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.check_nothing_in_databse_helper()
         self.fill_complete_form_helper_method()
 
+        # set one participant to invalid
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        roster_input.send_keys("Person One,person1@gmail.com\nPerson Two,person2.com")
+        self.assertEqual("Person One,person1@gmail.com\nPerson Two,person2.com",
+                         roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
-        # TODO: check invalid
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Row 2 contains invalid email address" in self.driver.find_element_by_id(
+            'roster-input-error').get_attribute("innerHTML"))
 
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
@@ -518,7 +583,9 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
 
-        sleep(2)
+        # click OK on the alert that pops up. NOTE: in the future we will probably remove this default alert
+        WebDriverWait(self.driver, 10).until(EC.alert_is_present())
+        self.driver.switch_to.alert.accept()
 
         # simple: assert by counting
         self.assertEqual(1, len(GroupFormer.objects.all()))
@@ -563,7 +630,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
 
         proj_piazza = gf.getProject("Open Piazza")
         self.assertIsNotNone(proj_piazza)
-        self.assertEqual("An app that provides similar functionality to Piazza, but can be more greatly customized and individually managed. CEO: Frank Ferraro (Assistant Professor)", proj_piazza.project_name)
+        self.assertEqual("An app that provides similar functionality to Piazza, but can be more greatly customized and individually managed. CEO: Frank Ferraro (Assistant Professor)", proj_piazza.project_description)
 
         # ensure attributes are properly added to groupformer
         attr_puns = gf.getAttribute("Do you like to punish people with puns?")

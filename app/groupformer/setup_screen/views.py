@@ -3,7 +3,7 @@ import json
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-# Create your views here.
+from dbtools.models import *
 
 
 def dropdown_test(request):
@@ -36,20 +36,26 @@ def submit_groupformer(request):
             print('Raw Data: "%s"' % request.body)
             payload = json.loads(request.body)
 
-            # TODO: create a new groupformer instance
+            # Create a new groupformer instance
             instructor_name = payload["instructor_name"]
             instructor_email = payload["instructor_email"]
             custom_name = payload["custom_name"]
+            people_per_group = payload["people_per_group"]  # TODO: people_per_group
+            gf = addGroupFormer(instructor_name, instructor_email, custom_name)
 
+            # add participants to the groupformer
+            addRoster(gf, payload["participant_roster"])
+
+            # add projects
             for project_data in payload["projects"]:
                 project_name = project_data["name"]
                 project_description = project_data["description"]
-                # TODO: create new project instance in database
-                # TODO: link to groupformer instance
+                addProject(gf, project_name, project_description)
 
+            # add attributes
             for attribute_data in payload["attributes"]:
                 attribute_name = attribute_data["name"]
                 attribute_homogenous = attribute_data["is_homogenous"]
-                # TODO: create new attribute instance in database
-                # TODO: link to groupformer instance
+                addAttribute(gf, attribute_name, attribute_homogenous, False)
+
     return HttpResponse("OK")
