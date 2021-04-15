@@ -186,6 +186,21 @@ class SeleniumGroupformerList(StaticLiveServerTestCase):
         self.assertTrue("A, S, D, F" in second_groups.get_attribute("innerHTML"))
 
 
+
+class SeleniumResponseScreen(StaticLiveServerTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.selenium = WebDriver()
+        cls.selenium.implicitly_wait(10)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
+        super().tearDownClass()
+
+
     def test_missing_projects_preference(self):
         """
         Test if the error message shows if user does not input a preference for a project.
