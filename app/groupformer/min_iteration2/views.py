@@ -68,7 +68,10 @@ def validate_login(request, groupformer_id):
     if len(gfs) == 0:
         return render(request, 'main/loginerror.html')
     gf = gfs[0]
-    
+    parts = gf.getParticipantByEmail(request.POST["email"])
+    if parts == None:
+        return render(request, 'main/login.html', {"groupformer" : gf, 'error' : True})
+    return render(request,'main/response_screen.html') #Temporary until proper one added
     
 
 def sample_groups(request, groupformer_id):
