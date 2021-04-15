@@ -32,16 +32,60 @@ class GroupFormer(models.Model):
     
     def addRoster(self, roster):
         return addRoster(self, roster)
+    
+    """
+        Getters of different parts of the GroupFormer
+        :param name: the corresponding name
+        :return: Either the corresponding project, attribute, or participant, or None
+        :error: TypeError if there are more than one corresponding model
+    """
+    
+    def getProject(self, name):
+        recieved = Project.objects.filter(group_former=self,project_name=name)
+        if len(recieved) > 1:
+            raise ValueError('There are more than one '+name+' in '+str(self))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
+    
+    def getAttribute(self, name):
+        recieved = Attribute.objects.filter(group_former=self,attr_name=name)
+        if len(recieved) > 1:
+            raise ValueError('There are more than one '+name+' in '+str(self))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
+    
+    def getParticipantByName(self, name):
+        recieved = Participant.objects.filter(group_former=self,part_name=name)
+        if len(recieved) > 1:
+            raise ValueError('There are more than one '+name+' in '+str(self))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
+
+    def getParticipantByEmail(self, email):
+        recieved = Participant.objects.filter(group_former=self,part_email=email)
+        if len(recieved) > 1:
+            raise ValueError('There are more than one '+email+' in '+str(self))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
 
 class Project(models.Model):
-    # Required to test relation involving it
-    # To be replaced by Sarah's
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
-    project_name = models.CharField(max_length=200)
-    project_description = models.TextField()
+    project_name = models.CharField(max_length=240, blank=False, null=False)
+    project_description = models.TextField(blank=False, null=False)
     
     def __str__(self):
         return self.project_name + ' (' + str(self.group_former) + ')'
+    
+    def getParticipantChoice(self, participant):
+        return participant.getProjectChoice(self)
 
 class Attribute(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -52,6 +96,8 @@ class Attribute(models.Model):
     def __str__(self):
         return self.attr_name + ' (' + str(self.group_former) + ')'
     
+    def getParticipantChoice(self, participant):
+        return participant.getAttributeChoice(self)
 
 class Participant(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
@@ -78,6 +124,28 @@ class Participant(models.Model):
     
     def desires(self, p):
         return participantDesiredPartner(self,p)
+    
+    """
+        Helper functions to get selections
+    """
+    
+    def getAttributeChoice(self, attribute):
+        recieved = attribute_selection.objects.filter(participant=self,attribute=attribute)
+        if len(recieved) > 1:
+            raise TypeError(str(self)+" has more than one selection for "+str(attribute))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
+    
+    def getProjectChoice(self, project):
+        recieved = project_selection.objects.filter(participant=self,project=project)
+        if len(recieved) > 1:
+            raise TypeError(str(self)+" has more than one selection for "+str(project))
+        if len(recieved) == 1:
+            return recieved[0]
+        else:
+            return None
 
 # Relationships
 
@@ -103,10 +171,15 @@ def addRoster(gf, roster):
         Adds an entire roster to the Participants of a GroupFormer
        :param roster: In the form [[name : email] ...]
        :return: an array of Participant that were added
+       WARNING: If a duplicate name or email is found, will silently not add, since atm no logging system exists!
     """
     ps = []
     for (name,email) in roster:
-        ps = ps + [addParticipant(gf,name,email)]
+        try:
+            ps = ps + [addParticipant(gf,name,email)]
+        except ValueError:
+            pass
+            #Raise a warning to the proper channels
     return ps
 
 """ 
@@ -116,32 +189,36 @@ def addRoster(gf, roster):
 """
 
 def addGroupFormer(name,email,section):
+    if getGroupFormer(name,section) != None:
+        raise ValueError("GroupFormer with name "+name+" and section "+section+" already exists")
     p = GroupFormer.objects.create(prof_name=name,
                                    prof_email=email,
                                    class_section=section)
-    p.save()
     return p
 
 def addAttribute(gf, name, is_homogenous, is_continuous):
+    if gf.getAttribute(name) != None:
+        raise ValueError("Attribute "+name+" already exists in "+str(gf))
     p = Attribute.objects.create(group_former=gf,
                                  attr_name=name,
                                  is_homogenous=is_homogenous,
                                  is_continuous=is_continuous)
-    p.save()
     return p
 
 def addProject(gf, name, description):
+    if gf.getProject(name):
+        raise ValueError("Project "+name+" already exists in "+str(gf))
     p = Project.objects.create(group_former=gf,
                                project_name=name,
                                project_description=description)
-    p.save()
     return p
 
 def addParticipant(gf, name, email):
+    if gf.getParticipantByName(name) != None or gf.getParticipantByEmail(email) != None:
+        raise ValueError("Participant "+name+" or email "+email+" already exists in "+str(gf))
     p = Participant.objects.create(group_former=gf,
                                    part_name=name,
                                    part_email=email)
-    p.save()
     return p
 
 """
@@ -158,24 +235,26 @@ def participantAttributeChoice(participant,attribute,value):
     if not attribute.is_continuous:
         if value != int(value):
             raise ValueError('value of '+str(attribute)+' must be discrete')
+    if participant.getAttributeChoice(attribute) != None:
+        raise ValueError(str(participant)+" has already selected a value for "+str(attribute))
     
     p = attribute_selection.objects.create(participant=participant,
                                            attribute=attribute,
                                            value=value)
     participant.attributes.add(attribute,through_defaults={'value':value})
-    p.save();
     return p
 
 def participantProjectChoice(participant,project,value):
     # Required that both participant and project be in the same GroupFormer
     if participant.group_former != project.group_former:
         raise ValueError(str(participant)+" and "+str(project)+" are not part of the same GroupFormer")
-    
+    if participant.getProjectChoice(project) != None:
+        raise ValueError(str(participant)+" has already selected a value for "+str(project))
+        
     p = project_selection.objects.create(participant=participant,
                                          project=project,
                                          value=value)
     participant.projects.add(project,through_defaults={'value':value})
-    p.save()
     return p
 
 """
@@ -192,3 +271,15 @@ def participantDesiredPartner(wanter,wantee):
     wanter.desired_partner.add(wantee)
     
     return wanter.desired_partner
+
+"""
+    Allows for getting a GroupFormer from the instructor's name and the section
+"""
+def getGroupFormer(name, section):
+    selection = GroupFormer.objects.filter(prof_name=name,class_section=section)
+    if len(selection) > 1:
+        raise ValueError("There are more than one GroupFormer under "+name+" called "+section)
+    if len(selection) == 1:
+        return selection[0]
+    else:
+        return None

@@ -33,8 +33,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'dbtools.apps.DbtoolsConfig',
     'setup_screen.apps.FormConfig',
-    'projects.apps.ProjectsConfig',
     'min_iteration2.apps.MinIteration2Config',
+    'min_iteration3.apps.MinIteration3Config',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

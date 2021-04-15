@@ -18,6 +18,7 @@ from django.urls import include, path
 urlpatterns = [
     path('setup_screen/', include('setup_screen.urls')),
     path('min_iteration2/', include('min_iteration2.urls')),
+    path('min_iteration3/', include('min_iteration3.urls')),
     path('admin/', admin.site.urls),
-    path('projects/', include('projects.urls'))
+    path('dbtools/', include('dbtools.urls')),
 ]
