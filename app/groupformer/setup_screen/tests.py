@@ -1,7 +1,9 @@
 from django.test import TestCase, LiveServerTestCase
 from django.urls import reverse
 
-import time
+from time import sleep
+
+from dbtools.models import *
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -21,17 +23,6 @@ class ParticipantDropdownViewTests(TestCase):
         response = self.client.get(reverse('setup_screen:dropdown_test'))
         self.assertContains(response, '<select name="participants"')
         self.assertContains(response, 'Min Chon')
-
-
-class SetupScreenTests(TestCase):
-
-    def test_single_project_inputs_exist(self):
-        """
-        Ensure that a single project input exists when first loading the setup screen page
-        """
-        #response = self.client.get(reverse('setup_screen:index'))
-        #self.assertContains(response, 'project-name1')
-        pass
 
 
 class SetupScreenIntegrationTests(LiveServerTestCase):
@@ -225,6 +216,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.click_add_project()
         self.click_add_project()
 
+        # ensure element located on screen before proceeding
         WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-2 .close')))
 
@@ -346,4 +338,372 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertEqual(attribute_2_homogenous, self.driver.find_element_by_id(f'attribute-homogenous0').is_selected())
         self.assertEqual(attribute_2_name, self.driver.find_element_by_id(f'attribute-name0').get_attribute("value"))
 
-# TODO: Integration test that fills out the project/attribute fields, then submits and checks the database for the changes
+    def fill_complete_form_helper_method(self):
+        """
+        Helper method for navigating filling out the entire setup_screen form with:
+        - Instructor / Groupformer info
+        - roster
+        - two projects
+        - two attributes
+        :return:
+        """
+        self.goto_index()
+
+        instructor_name = "Ben Johnson"
+        instructor_email = "benj1@umbc.edu"
+        custom_name = "CMSC 447 Section 3"
+        people_per_group = "5"
+        roster_input = "Min Chon,minc1@umbc.edu\n" \
+                       "Kristian Mischke,mischke1@umbc.edu\n" \
+                       "Kyle Morgan,gs49698@umbc.edu\n" \
+                       "Sarah Nakhon,snakhon1@umbc.edu\n" \
+                       "Morgan Vanderhei,morganv2@umbc.edu\n"
+
+        self.driver.find_element_by_id(f'instructor-name').send_keys(instructor_name)
+        self.driver.find_element_by_id(f'instructor-email').send_keys(instructor_email)
+        self.driver.find_element_by_id(f'custom-name').send_keys(custom_name)
+        self.driver.find_element_by_id(f'people-per-group').send_keys(people_per_group)
+        self.driver.find_element_by_id(f'roster-input').send_keys(roster_input)
+
+        # add an attribute and a project for a total of 2 each
+        self.click_add_attribute()
+        self.click_add_project()
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-1 .close')))
+
+        project_0_name = "Group forming tool"
+        project_0_desc = "A tool to form 447 groups that isn't a lousy Google Form. Users will be able to form groups based on project interest, team role, skill set, etc. CEO: Ben Johnson"
+        project_1_name = "Open Piazza"
+        project_1_desc = "An app that provides similar functionality to Piazza, but can be more greatly customized and individually managed. CEO: Frank Ferraro (Assistant Professor)"
+
+        # assign data to the project inputs
+        self.driver.find_element_by_id(f'project-name0').send_keys(project_0_name)
+        self.driver.find_element_by_id(f'project-desc0').send_keys(project_0_desc)
+        self.driver.find_element_by_id(f'project-name1').send_keys(project_1_name)
+        self.driver.find_element_by_id(f'project-desc1').send_keys(project_1_desc)
+
+        self.driver.find_element_by_id(f'project-desc1').send_keys(Keys.TAB)  # TAB to commit that last input
+
+        attribute_0_name = "Do you like to punish people with puns?"
+        attribute_0_homogenous = True
+        attribute_1_name = "How familiar are you with Front-End development?"
+        attribute_1_homogenous = False
+
+        # assign data to the attribute inputs
+        self.driver.find_element_by_id(f'attribute-name0').send_keys(attribute_0_name)
+        if attribute_0_homogenous:
+            self.driver.find_element_by_id(f'attribute-homogenous0').click()
+        self.driver.find_element_by_id(f'attribute-name1').send_keys(attribute_1_name)
+        if attribute_1_homogenous:
+            self.driver.find_element_by_id(f'attribute-homogenous1').click()
+
+        self.driver.find_element_by_id(f'attribute-homogenous1').send_keys(Keys.TAB)  # TAB to commit that last input
+
+    def check_nothing_in_databse_helper(self):
+        self.assertEqual(0, len(GroupFormer.objects.all()))
+        self.assertEqual(0, len(Project.objects.all()))
+        self.assertEqual(0, len(Attribute.objects.all()))
+        self.assertEqual(0, len(Participant.objects.all()))
+        self.assertEqual(0, len(attribute_selection.objects.all()))
+        self.assertEqual(0, len(project_selection.objects.all()))
+
+    def test_empty_input_invalid_message(self):
+        """
+        Test that nothing is entered in the database when a field is left blank
+        Also test that invalid message is not hidden in the view
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # clear an input in the form
+        self.driver.find_element_by_id(f'project-desc0').clear()
+        self.assertEqual("", self.driver.find_element_by_id(f'project-desc0').get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('project-desc0-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-desc0-error')))
+        self.assertTrue(self.driver.find_element_by_id('project-desc0-error').is_displayed())  # error displayed
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
+    def test_invalid_email_format_instructor(self):
+        """
+        Test that nothing is entered in the database when the instructor email field is invalid
+        Also test that invalid message is not hidden in the view
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # set instructor email to invalid
+        instructor_email_input = self.driver.find_element_by_id(f'instructor-email')
+        instructor_email_input.clear()
+        instructor_email_input.send_keys("invalidemail")
+        self.assertEqual("invalidemail", instructor_email_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('instructor-email-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#instructor-email-error')))
+        self.assertTrue(self.driver.find_element_by_id('instructor-email-error').is_displayed())  # error displayed
+        self.assertTrue("Invalid email address" in self.driver.find_element_by_id('instructor-email-error').get_attribute("innerHTML"))
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
+    def test_empty_roster(self):
+        """
+        Test that nothing is entered in the database when the roster column input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # set roster to empty
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        self.assertEqual("", roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Please enter a roster of participants" in self.driver.find_element_by_id('roster-input-error').get_attribute("innerHTML"))
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
+    def test_too_few_columns_roster(self):
+        """
+        Test that nothing is entered in the database when the roster column input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # set one participant to invalid
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        roster_input.send_keys("Person One,person1@gmail.com\nuh oh\nPerson Two,person2@gmail.com")
+        self.assertEqual("Person One,person1@gmail.com\nuh oh\nPerson Two,person2@gmail.com", roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Row 2 has wrong number of columns (found 1, expected 2)" in self.driver.find_element_by_id('roster-input-error').get_attribute("innerHTML"))
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
+    def test_too_many_columns_roster(self):
+        """
+        Test that nothing is entered in the database when the roster column input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # set one participant to invalid
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        roster_input.send_keys("Person One,person1@gmail.com\nPerson Two,person2@gmail.com,oops too many columns")
+        self.assertEqual("Person One,person1@gmail.com\nPerson Two,person2@gmail.com,oops too many columns", roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Row 2 has wrong number of columns (found 3, expected 2)" in self.driver.find_element_by_id(
+            'roster-input-error').get_attribute("innerHTML"))
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
+    def test_invalid_email_format_roster(self):
+        """
+        Test that nothing is entered in the database when the roster email input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # set one participant to invalid
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        roster_input.send_keys("Person One,person1@gmail.com\nPerson Two,person2.com")
+        self.assertEqual("Person One,person1@gmail.com\nPerson Two,person2.com",
+                         roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Row 2 contains invalid email address" in self.driver.find_element_by_id(
+            'roster-input-error').get_attribute("innerHTML"))
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
+    def test_empty_name_roster(self):
+        """
+        Test that nothing is entered in the database when the roster email input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # set one participant to invalid
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        roster_input.send_keys("Person One,person1@gmail.com\n,person@gmail.com")
+        self.assertEqual("Person One,person1@gmail.com\n,person@gmail.com", roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Row 2 contains has empty name" in self.driver.find_element_by_id(
+            'roster-input-error').get_attribute("innerHTML"))
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
+    def test_fill_and_submit_form_to_database(self):
+        """
+        Integration test that fills out the entire form and submits it to the backend
+        """
+        # check empty database and fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        # click OK on the alert that pops up. NOTE: in the future we will probably remove this default alert
+        WebDriverWait(self.driver, 10).until(EC.alert_is_present())
+        self.driver.switch_to.alert.accept()
+
+        # simple: assert by counting
+        self.assertEqual(1, len(GroupFormer.objects.all()))
+        self.assertEqual(2, len(Project.objects.all()))
+        self.assertEqual(2, len(Attribute.objects.all()))
+        self.assertEqual(5, len(Participant.objects.all()))
+        self.assertEqual(0, len(attribute_selection.objects.all()))
+        self.assertEqual(0, len(project_selection.objects.all()))
+
+        # ensure groupformer was properly added
+        gf = GroupFormer.objects.all()[0]
+        self.assertEqual("Ben Johnson", gf.prof_name)
+        self.assertEqual("benj1@umbc.edu", gf.prof_email)
+        self.assertEqual("CMSC 447 Section 3", gf.class_section)
+        # TODO: self.assertEqual(5, gf.people_per_group)
+
+        # ensure participants were properly added to the groupformer
+        part_min = gf.getParticipantByEmail("minc1@umbc.edu")
+        self.assertIsNotNone(part_min)
+        self.assertEqual("Min Chon", part_min.part_name)
+
+        part_kristian = gf.getParticipantByEmail("mischke1@umbc.edu")
+        self.assertIsNotNone(part_kristian)
+        self.assertEqual("Kristian Mischke", part_kristian.part_name)
+
+        part_klye = gf.getParticipantByEmail("gs49698@umbc.edu")
+        self.assertIsNotNone(part_klye)
+        self.assertEqual("Kyle Morgan", part_klye.part_name)
+
+        part_sarah = gf.getParticipantByEmail("snakhon1@umbc.edu")
+        self.assertIsNotNone(part_sarah)
+        self.assertEqual("Sarah Nakhon", part_sarah.part_name)
+
+        part_morgan = gf.getParticipantByEmail("morganv2@umbc.edu")
+        self.assertIsNotNone(part_morgan)
+        self.assertEqual("Morgan Vanderhei", part_morgan.part_name)
+
+        # ensure projects are properly added to groupformer
+        proj_group = gf.getProject("Group forming tool")
+        self.assertIsNotNone(proj_group)
+        self.assertEqual("A tool to form 447 groups that isn't a lousy Google Form. Users will be able to form groups based on project interest, team role, skill set, etc. CEO: Ben Johnson", proj_group.project_description)
+
+        proj_piazza = gf.getProject("Open Piazza")
+        self.assertIsNotNone(proj_piazza)
+        self.assertEqual("An app that provides similar functionality to Piazza, but can be more greatly customized and individually managed. CEO: Frank Ferraro (Assistant Professor)", proj_piazza.project_description)
+
+        # ensure attributes are properly added to groupformer
+        attr_puns = gf.getAttribute("Do you like to punish people with puns?")
+        self.assertIsNotNone(attr_puns)
+        self.assertTrue(attr_puns.is_homogenous)
+
+        attr_front_end = gf.getAttribute("How familiar are you with Front-End development?")
+        self.assertIsNotNone(attr_front_end)
+        self.assertFalse(attr_front_end.is_homogenous)
+
