@@ -20,9 +20,15 @@
       
       <div class="spacer"></div>
       
+      
+      
       <div class="row">
         <main role="main" class="col-8 mx-auto px-4">
-          <form class="needs-validation" action='' method="post" enctype="multipart/form-data"  id="login" novalidate>
+        {% if error %}
+          <div class="alert alert-primary" role="alert" visibility=hidden>Email not connected to this section</div>
+        {% endif %}
+          <form class="needs-validation" action='validate_login' method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
             <div class="custom-form-box">
               <label for="email">Email</label>
               <input type="text" class="form-control" id="email" required>

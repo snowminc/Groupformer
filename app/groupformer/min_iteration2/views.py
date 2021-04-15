@@ -62,6 +62,15 @@ def login_group(request, groupformer_id):
     print(repr(gf))
     return render(request, 'main/login.html', {"groupformer" : gf})
 
+def validate_login(request, groupformer_id):
+    #Validate the login
+    gfs = GroupFormer.objects.filter(pk=groupformer_id)
+    if len(gfs) == 0:
+        return render(request, 'main/loginerror.html')
+    gf = gfs[0]
+    
+    
+
 def sample_groups(request, groupformer_id):
     # Create arbitrary sample groups for testing the front-end
     sections = {}
