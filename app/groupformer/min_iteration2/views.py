@@ -54,25 +54,20 @@ def groupformer_list(request):
     return render(request, 'main/groupformer_list.html', {"groupformers": groupformers})
 
 def login_group(request, groupformer_id):
-    # Log into the groupformer
     gfs = GroupFormer.objects.filter(pk=groupformer_id)
     if len(gfs) == 0:
         return render(request, 'main/loginerror.html')
     gf = gfs[0]
-    print(repr(gf))
-    return render(request, 'main/login.html', {"groupformer" : gf})
-
-def validate_login(request, groupformer_id):
-    #Validate the login
-    gfs = GroupFormer.objects.filter(pk=groupformer_id)
-    if len(gfs) == 0:
-        return render(request, 'main/loginerror.html')
-    gf = gfs[0]
-    parts = gf.getParticipantByEmail(request.POST["email"])
-    if parts == None:
-        return render(request, 'main/login.html', {"groupformer" : gf, 'error' : True})
-    return render(request,'main/response_screen.html') #Temporary until proper one added
     
+    if request.POST.get("email"):
+        # Validate the login
+        parts = gf.getParticipantByEmail(request.POST["email"])
+        if parts == None:
+            return render(request, 'main/login.html', {"groupformer" : gf, 'error' : True})
+        return render(request,'main/response_screen.html') #Temporary until proper one added
+        
+    # Log into the groupformer for the first time
+    return render(request, 'main/login.html', {"groupformer" : gf})
 
 def sample_groups(request, groupformer_id):
     # Create arbitrary sample groups for testing the front-end
