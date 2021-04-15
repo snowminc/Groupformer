@@ -572,6 +572,40 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
 
+    def test_empty_name_roster(self):
+        """
+        Test that nothing is entered in the database when the roster email input is invalid
+        Also test for invalid message for roster input validation
+        :return:
+        """
+        # check nothing in DB & fill the form
+        self.check_nothing_in_databse_helper()
+        self.fill_complete_form_helper_method()
+
+        # set one participant to invalid
+        roster_input = self.driver.find_element_by_id(f'roster-input')
+        roster_input.clear()
+        roster_input.send_keys("Person One,person1@gmail.com\n,person@gmail.com")
+        self.assertEqual("Person One,person1@gmail.com\n,person@gmail.com", roster_input.get_attribute("value"))
+
+        # check error not displayed
+        self.assertFalse(self.driver.find_element_by_id('roster-input-error').is_displayed())
+
+        # submit form
+        self.driver.find_element_by_id('submit-btn').click()
+
+        sleep(1)
+
+        # ensure contents generated before proceeding
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'#roster-input-error')))
+        self.assertTrue(self.driver.find_element_by_id('roster-input-error').is_displayed())  # error displayed
+        self.assertTrue("Row 2 contains has empty name" in self.driver.find_element_by_id(
+            'roster-input-error').get_attribute("innerHTML"))
+
+        # submit shouldn't have gone through, so nothing should remain in DB
+        self.check_nothing_in_databse_helper()
+
     def test_fill_and_submit_form_to_database(self):
         """
         Integration test that fills out the entire form and submits it to the backend

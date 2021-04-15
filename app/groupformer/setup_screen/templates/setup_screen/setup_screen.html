@@ -232,6 +232,14 @@
                     let name = cols[0].trim();
                     let email = cols[1].trim();
 
+                    if(name === null || name === '')
+                    {
+                        $("#roster-input-error").removeClass("hide");
+                        $("#roster-input-error").html(`Row ${i + 1} contains has empty name`);
+                        is_valid = false;
+                        break;
+                    }
+
                     if (!validateEmail(email)) {
                         $("#roster-input-error").removeClass("hide");
                         $("#roster-input-error").html(`Row ${i + 1} contains invalid email address: <br> ${email}`);
