@@ -1,6 +1,8 @@
 from django.test import TestCase, LiveServerTestCase
 from django.urls import reverse
 
+from time import sleep
+
 from dbtools.models import *
 
 from selenium import webdriver
@@ -427,6 +429,8 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
 
+        sleep(1)
+
         # ensure contents generated before proceeding
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-desc0-error')))
         self.assertTrue('hide' not in self.driver.find_element_by_id('project-desc0-error').get_attribute('class').split())  # error displayed
@@ -506,7 +510,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
     def test_fill_and_submit_form_to_database(self):
         """
         Integration test that fills out the entire form and submits it to the backend
-        TODO: for GitHub issue #57 need to assert that the database contains the new groupformer data after submit occurs
         """
         # check empty database and fill the form
         self.check_nothing_in_databse_helper()
@@ -515,4 +518,59 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
 
-        # TODO: check DB for all this info
+        sleep(2)
+
+        # simple: assert by counting
+        self.assertEqual(1, len(GroupFormer.objects.all()))
+        self.assertEqual(2, len(Project.objects.all()))
+        self.assertEqual(2, len(Attribute.objects.all()))
+        self.assertEqual(5, len(Participant.objects.all()))
+        self.assertEqual(0, len(attribute_selection.objects.all()))
+        self.assertEqual(0, len(project_selection.objects.all()))
+
+        # ensure groupformer was properly added
+        gf = GroupFormer.objects.all()[0]
+        self.assertEqual("Ben Johnson", gf.prof_name)
+        self.assertEqual("benj1@umbc.edu", gf.prof_email)
+        self.assertEqual("CMSC 447 Section 3", gf.class_section)
+        # TODO: self.assertEqual(5, gf.people_per_group)
+
+        # ensure participants were properly added to the groupformer
+        part_min = gf.getParticipantByEmail("minc1@umbc.edu")
+        self.assertIsNotNone(part_min)
+        self.assertEqual("Min Chon", part_min.part_name)
+
+        part_kristian = gf.getParticipantByEmail("mischke1@umbc.edu")
+        self.assertIsNotNone(part_kristian)
+        self.assertEqual("Kristian Mischke", part_kristian.part_name)
+
+        part_klye = gf.getParticipantByEmail("gs49698@umbc.edu")
+        self.assertIsNotNone(part_klye)
+        self.assertEqual("Kyle Morgan", part_klye.part_name)
+
+        part_sarah = gf.getParticipantByEmail("snakhon1@umbc.edu")
+        self.assertIsNotNone(part_sarah)
+        self.assertEqual("Sarah Nakhon", part_sarah.part_name)
+
+        part_morgan = gf.getParticipantByEmail("morganv2@umbc.edu")
+        self.assertIsNotNone(part_morgan)
+        self.assertEqual("Morgan Vanderhei", part_morgan.part_name)
+
+        # ensure projects are properly added to groupformer
+        proj_group = gf.getProject("Group forming tool")
+        self.assertIsNotNone(proj_group)
+        self.assertEqual("A tool to form 447 groups that isn't a lousy Google Form. Users will be able to form groups based on project interest, team role, skill set, etc. CEO: Ben Johnson", proj_group.project_description)
+
+        proj_piazza = gf.getProject("Open Piazza")
+        self.assertIsNotNone(proj_piazza)
+        self.assertEqual("An app that provides similar functionality to Piazza, but can be more greatly customized and individually managed. CEO: Frank Ferraro (Assistant Professor)", proj_piazza.project_name)
+
+        # ensure attributes are properly added to groupformer
+        attr_puns = gf.getAttribute("Do you like to punish people with puns?")
+        self.assertIsNotNone(attr_puns)
+        self.assertTrue(attr_puns.is_homogenous)
+
+        attr_front_end = gf.getAttribute("How familiar are you with Front-End development?")
+        self.assertIsNotNone(attr_front_end)
+        self.assertFalse(attr_front_end.is_homogenous)
+
