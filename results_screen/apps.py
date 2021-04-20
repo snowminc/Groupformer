@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class MinIteration2Config(AppConfig):
+class ResultsScreenConfig(AppConfig):
     name = 'results_screen'

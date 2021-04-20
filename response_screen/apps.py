@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class MinIteration3Config(AppConfig):
+class ResponseScreenConfig(AppConfig):
     name = 'response_screen'
