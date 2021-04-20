@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'dbtools.apps.DbtoolsConfig',
     'setup_screen.apps.FormConfig',
     'min_iteration2.apps.MinIteration2Config',
-    'min_iteration3.apps.MinIteration3Config',
+    'response_screen.apps.MinIteration3Config',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

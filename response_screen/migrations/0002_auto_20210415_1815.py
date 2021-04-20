@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('min_iteration3', '0001_initial'),
+        ('response_screen', '0001_initial'),
     ]
 
     operations = [
