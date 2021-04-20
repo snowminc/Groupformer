@@ -15,7 +15,7 @@ def verify_participant(request, group_former_id):
         #return code is 200 - since the view is rendered directly
         return render(request, 'dbtools/pdenied.html')
     # return code will be 302 since doing a redirect to the response screen
-    return HttpResponseRedirect(reverse('min_iteration2:response_screen'))
+    return HttpResponseRedirect(reverse('results_screen:response_screen'))
 
 # Migrated from projects/
 

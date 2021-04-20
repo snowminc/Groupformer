@@ -146,45 +146,6 @@ class MinIteration3ResponseScreenTests(TestCase):
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-class SeleniumGroupformerList(StaticLiveServerTestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(10)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super().tearDownClass()
-
-    def test_get_group(self):
-        """
-        Test that the now non-arbitrary groups still display on the list.
-        "Formed groups" are still arbitrary, and act as if retrieved from the back-end group forming algorithm
-        """
-        gfs = create_all_samples()
-        # ID is necessary because each Selenium test does not create its own isolated DB for models
-        gfs1 = gfs[1]['gf'].id
-        gfs2 = gfs[2]['gf'].id
-
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/groupformer_list'))
-        first_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs1))
-        second_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs2))
-        first_groupformer.click()
-        second_groupformer.click()
-        first_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(gfs1))
-        second_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(gfs2))
-
-        self.assertTrue("A, B, C" in first_groups.get_attribute("innerHTML"))
-        self.assertTrue("1, 2, 3" in first_groups.get_attribute("innerHTML"))
-        self.assertTrue("X, Y, Z" in first_groups.get_attribute("innerHTML"))
-
-        self.assertTrue("Q, A, Z" in second_groups.get_attribute("innerHTML"))
-        self.assertTrue("G, M, E" in second_groups.get_attribute("innerHTML"))
-        self.assertTrue("A, S, D, F" in second_groups.get_attribute("innerHTML"))
-
 
 
 class SeleniumResponseScreen(StaticLiveServerTestCase):
