@@ -49,13 +49,13 @@ class MinIteration3ResponseScreenTests(TestCase):
         Check if the projects created appear on the form
         """
         create_all_samples()
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(1,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Groupformer Tool")
         self.assertContains(response, "Robot that pees beer")
         self.assertContains(response, "Create a tool that creates groups!")
         self.assertContains(response, "Create a modification on a very expensive robot dog!")
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(2,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(2,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Literally Something")
         self.assertContains(response, "What")
@@ -69,13 +69,13 @@ class MinIteration3ResponseScreenTests(TestCase):
         gfs = create_sample_groupformer()
         create_sample_projects(gfs)
         create_sample_participants(gfs)
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(1,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Groupformer Tool")
         self.assertContains(response, "Robot that pees beer")
         self.assertContains(response, "Create a tool that creates groups!")
         self.assertContains(response, "Create a modification on a very expensive robot dog!")
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(2,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(2,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Literally Something")
         self.assertContains(response, "What")
@@ -87,13 +87,13 @@ class MinIteration3ResponseScreenTests(TestCase):
         Check if all attributes appear on the form
         """
         create_all_samples()
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(1,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Back-End")
         self.assertContains(response, "Front-End")
         self.assertContains(response, "Dog Lover")
         # The second GroupFormer intentionally does not have any attributes
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(2,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(2,)))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Back-End")
         self.assertNotContains(response, "Front-End")
@@ -106,13 +106,13 @@ class MinIteration3ResponseScreenTests(TestCase):
         gfs = create_sample_groupformer()
         create_sample_attributes(gfs)
         create_sample_participants(gfs)
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(1,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Back-End")
         self.assertContains(response, "Front-End")
         self.assertContains(response, "Dog Lover")
         # The second GroupFormer intentionally does not have any attributes
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(2,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(2,)))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Back-End")
         self.assertNotContains(response, "Front-End")
@@ -124,7 +124,7 @@ class MinIteration3ResponseScreenTests(TestCase):
         """
         gfs = create_sample_groupformer()
         create_sample_participants(gfs)
-        response = self.client.get(reverse('min_iteration3:response_screen', args=(1,)))
+        response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Name")
         self.assertContains(response, "E-mail")
@@ -135,8 +135,8 @@ class MinIteration3ResponseScreenTests(TestCase):
         """
         gfs = create_sample_groupformer()
         names = create_sample_participants(gfs)
-        response1 = self.client.get(reverse('min_iteration3:response_screen', args=(1,)))
-        response2 = self.client.get(reverse('min_iteration3:response_screen', args=(2,)))
+        response1 = self.client.get(reverse('response_screen:response_screen', args=(1,)))
+        response2 = self.client.get(reverse('response_screen:response_screen', args=(2,)))
         for i in range(len(names)):
             self.assertContains(response1, names[i])
             self.assertContains(response2, names[i])
@@ -145,45 +145,6 @@ class MinIteration3ResponseScreenTests(TestCase):
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
-
-class SeleniumGroupformerList(StaticLiveServerTestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(10)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super().tearDownClass()
-
-    def test_get_group(self):
-        """
-        Test that the now non-arbitrary groups still display on the list.
-        "Formed groups" are still arbitrary, and act as if retrieved from the back-end group forming algorithm
-        """
-        gfs = create_all_samples()
-        # ID is necessary because each Selenium test does not create its own isolated DB for models
-        gfs1 = gfs[1]['gf'].id
-        gfs2 = gfs[2]['gf'].id
-
-        self.selenium.get('%s%s' % (self.live_server_url, '/min_iteration3/groupformer_list'))
-        first_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs1))
-        second_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs2))
-        first_groupformer.click()
-        second_groupformer.click()
-        first_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(gfs1))
-        second_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(gfs2))
-
-        self.assertTrue("A, B, C" in first_groups.get_attribute("innerHTML"))
-        self.assertTrue("1, 2, 3" in first_groups.get_attribute("innerHTML"))
-        self.assertTrue("X, Y, Z" in first_groups.get_attribute("innerHTML"))
-
-        self.assertTrue("Q, A, Z" in second_groups.get_attribute("innerHTML"))
-        self.assertTrue("G, M, E" in second_groups.get_attribute("innerHTML"))
-        self.assertTrue("A, S, D, F" in second_groups.get_attribute("innerHTML"))
 
 
 
@@ -210,7 +171,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/min_iteration3/response_screen/{}'.format(gfs1)))
+        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
@@ -246,7 +207,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/min_iteration3/response_screen/{}'.format(gfs1)))
+        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
@@ -282,7 +243,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/min_iteration3/response_screen/{}'.format(gfs1)))
+        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
         # Name and Email
 
         # Remove user info to test missing error
@@ -323,7 +284,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         #########################################
         # Test for the first groupformer object #
         #########################################
-        self.selenium.get('%s%s' % (self.live_server_url, '/min_iteration3/response_screen/{}'.format(gfs1)))
+        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
@@ -376,7 +337,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         ##########################################
         # Test for the second groupformer object #
         ##########################################
-        self.selenium.get('%s%s' % (self.live_server_url, '/min_iteration3/response_screen/{}'.format(gfs2)))
+        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs2)))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Bobby Bobberson")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("bobbybob@umbc.edu")
@@ -412,3 +373,47 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         self.assertTrue(('participantForm_preference', 'Sarah') in params)
         self.assertTrue(('participantForm_preference', 'Kyle') in params)
         self.assertTrue(('participantForm_preference', 'Morgan') in params)
+
+
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.common.exceptions import NoSuchElementException
+from dbtools.models import *
+
+
+class LoginScreenTest(StaticLiveServerTestCase):
+    @classmethod
+    def setUp(cls):
+        gf = addGroupFormer("Ben Johnson", "bjohn@umbc.edu", "CMSC 447-01")
+        gf.addParticipant("John Beachy", "johnny@niu.edu")
+
+        super().setUpClass()
+        cls.selenium = WebDriver()
+        cls.selenium.implicitly_wait(0.5)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
+        super().tearDownClass()
+
+    def test_login(self):
+        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/1/login'))
+
+        # No alert on first look
+        with self.assertRaises(NoSuchElementException):
+            alert = self.selenium.find_element_by_id('bad-email')
+
+        email = self.selenium.find_element_by_name('email')
+        email.send_keys("nonsense@non.sense")
+        submit = self.selenium.find_element_by_id('login-submit')
+        submit.click()
+        # Once an incorrect email is entered, an alert is shown
+        alert = self.selenium.find_element_by_id('bad-email')
+
+        email = self.selenium.find_element_by_name('email')
+        email.send_keys("johnny@niu.edu")
+        submit = self.selenium.find_element_by_id('login-submit')
+        submit.click()
+
+        # Should be redirected to response screen
+        self.assertTrue(self.selenium.current_url.endswith("/response_screen/"))

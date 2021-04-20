@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('value', models.IntegerField()),
-                ('attribute', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='min_iteration3.attribute')),
+                ('attribute', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='response_screen.attribute')),
             ],
         ),
         migrations.CreateModel(
@@ -44,9 +44,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('part_name', models.CharField(max_length=200)),
                 ('part_email', models.CharField(max_length=200)),
-                ('attributes', models.ManyToManyField(through='min_iteration3.attribute_selection', to='min_iteration3.Attribute')),
-                ('desired_partner', models.ManyToManyField(blank=True, to='min_iteration3.Participant')),
-                ('group_former', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='min_iteration3.groupformer')),
+                ('attributes', models.ManyToManyField(through='response_screen.attribute_selection', to='response_screen.Attribute')),
+                ('desired_partner', models.ManyToManyField(blank=True, to='response_screen.Participant')),
+                ('group_former', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='response_screen.groupformer')),
             ],
         ),
         migrations.CreateModel(
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('project_name', models.CharField(max_length=240)),
                 ('project_description', models.TextField()),
-                ('group_former', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='min_iteration3.groupformer')),
+                ('group_former', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='response_screen.groupformer')),
             ],
         ),
         migrations.CreateModel(
@@ -63,23 +63,23 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('value', models.FloatField()),
-                ('participant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='min_iteration3.participant')),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='min_iteration3.project')),
+                ('participant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='response_screen.participant')),
+                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='response_screen.project')),
             ],
         ),
         migrations.AddField(
             model_name='participant',
             name='projects',
-            field=models.ManyToManyField(through='min_iteration3.project_selection', to='min_iteration3.Project'),
+            field=models.ManyToManyField(through='response_screen.project_selection', to='response_screen.Project'),
         ),
         migrations.AddField(
             model_name='attribute_selection',
             name='participant',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='min_iteration3.participant'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='response_screen.participant'),
         ),
         migrations.AddField(
             model_name='attribute',
             name='group_former',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='min_iteration3.groupformer'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='response_screen.groupformer'),
         ),
     ]
