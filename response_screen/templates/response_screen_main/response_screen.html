@@ -33,18 +33,8 @@
                         <div class="custom-form-box">
                             <div class="form-row align-items-center">
                                 <div class="form-group col-5 my-1">
-                                    <label for="participantNameForm">Full Name</label>
-                                    <input type="text" class="form-control" id="participantNameForm" name="participantNameForm" required>
-                                    <div id="participantNameForm_error" class="invalid-feedback">
-                                        Must enter your name.
-                                    </div>
-                                </div>
-                                <div class="form-group col-7 my-1">
-                                    <label for="participantEmailForm">E-mail</label>
-                                    <input type="text" class="form-control" id="participantEmailForm" name="participantEmailForm" required>
-                                    <div id="participantEmailForm_error" class="invalid-feedback">
-                                        Must enter your e-mail.
-                                    </div>
+                                    <h2>Response for {{ participant_name }} ({{ participant_email }})</h2>
+                                    <p>not {{ participant_name }}? <a href="{% url 'response_screen:logout' groupformer_id=groupformer.pk %}">logout!</a></p>
                                 </div>
                             </div>
                         </div>
