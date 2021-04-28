@@ -56,6 +56,7 @@ def create_all_samples():
     create_sample_participants(gfs)
     return gfs
 
+
 class SeleniumGroupformerList(LiveServerTestCase):
 
     @classmethod
@@ -79,14 +80,17 @@ class SeleniumGroupformerList(LiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
         gfs2 = gfs[2]['gf'].id
 
+        even_gfs = gfs1 if (gfs1-1) % 2 == 0 else gfs2
+        odd_gfs = gfs2 if (gfs1-1) % 2 == 0 else gfs1
+
         self.selenium.get(self.live_server_url + reverse('results_screen:groupformer_list'))
-        first_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs1))
-        second_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs2))
+        first_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(even_gfs))
+        second_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(odd_gfs))
         first_groupformer.click()
         second_groupformer.click()
-        sleep(3)
-        first_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(gfs1))
-        second_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(gfs2))
+
+        first_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(even_gfs))
+        second_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(odd_gfs))
 
         self.assertTrue("A, B, C" in first_groups.get_attribute("innerHTML"))
         self.assertTrue("1, 2, 3" in first_groups.get_attribute("innerHTML"))
