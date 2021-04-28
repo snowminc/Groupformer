@@ -23,7 +23,7 @@ def response_screen(request, groupformer_id):
         gf = GroupFormer.objects.filter(pk=groupformer_id)[0]
         current_participant = gf.getParticipantByEmail(request.session["participant_email"])
 
-        # participant doesn't belong to groupformer, so log in
+        # participant doesn't belong to groupformer, so redirect to login page
         if current_participant is None:
             return redirect(reverse('response_screen:login', kwargs={'groupformer_id': groupformer_id}))
 

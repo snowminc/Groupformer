@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.staticfiles.testing import LiveServerTestCase
+from selenium.webdriver.firefox.webdriver import WebDriver
 
 from dbtools.models import *
 
@@ -11,6 +13,7 @@ def create_sample_groupformer():
     gfs[2] = {}
     gfs[2]['gf'] = GroupFormer.objects.create(prof_name="Ben Johnson", prof_email="ben.johnson@umbc.edu", class_section="24")
     return gfs
+
 
 def create_sample_projects(gfs):
     gfs[1]['p1'] = Project.objects.create(group_former=gfs[1]['gf'], project_name="Groupformer Tool", project_description="Create a tool that creates groups!")
@@ -30,8 +33,8 @@ def create_sample_attributes(gfs):
 def create_sample_participants(gfs):
     names = ["Min","Kristian","Sarah","Morgan","Kyle","Ben","Eric","Andrew"]
     for i in range(len(names)):
-        gfs[1]['part'+str(i+1)] = Participant.objects.create(group_former=gfs[1]['gf'], part_name=names[i], part_email="example@email.com")
-        gfs[2]['part'+str(i+1)] = Participant.objects.create(group_former=gfs[2]['gf'], part_name=names[i], part_email="example@email.com")
+        gfs[1]['part'+str(i+1)] = Participant.objects.create(group_former=gfs[1]['gf'], part_name=names[i], part_email=f"{names[i]}@email.com")
+        gfs[2]['part'+str(i+1)] = Participant.objects.create(group_former=gfs[2]['gf'], part_name=names[i], part_email=f"{names[i]}@email.com")
     return names
 
 
@@ -44,11 +47,16 @@ def create_all_samples():
 
 
 class MinIteration3ResponseScreenTests(TestCase):
+
+    def login_to_sample_groupformer(self):
+        self.client.post(reverse('response_screen:login', kwargs={"groupformer_id": 1}), {"email": "Kristian@email.com"})
+
     def test_displays_all_projects(self):
         """
         Check if the projects created appear on the form
         """
         create_all_samples()
+        self.login_to_sample_groupformer()
         response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Groupformer Tool")
@@ -69,6 +77,7 @@ class MinIteration3ResponseScreenTests(TestCase):
         gfs = create_sample_groupformer()
         create_sample_projects(gfs)
         create_sample_participants(gfs)
+        self.login_to_sample_groupformer()
         response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Groupformer Tool")
@@ -87,6 +96,7 @@ class MinIteration3ResponseScreenTests(TestCase):
         Check if all attributes appear on the form
         """
         create_all_samples()
+        self.login_to_sample_groupformer()
         response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Back-End")
@@ -106,6 +116,7 @@ class MinIteration3ResponseScreenTests(TestCase):
         gfs = create_sample_groupformer()
         create_sample_attributes(gfs)
         create_sample_participants(gfs)
+        self.login_to_sample_groupformer()
         response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Back-End")
@@ -124,10 +135,9 @@ class MinIteration3ResponseScreenTests(TestCase):
         """
         gfs = create_sample_groupformer()
         create_sample_participants(gfs)
+        self.login_to_sample_groupformer()
         response = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Name")
-        self.assertContains(response, "E-mail")
 
     def test_displays_participants(self):
         """
@@ -135,20 +145,15 @@ class MinIteration3ResponseScreenTests(TestCase):
         """
         gfs = create_sample_groupformer()
         names = create_sample_participants(gfs)
+        self.login_to_sample_groupformer()
         response1 = self.client.get(reverse('response_screen:response_screen', args=(1,)))
         response2 = self.client.get(reverse('response_screen:response_screen', args=(2,)))
         for i in range(len(names)):
             self.assertContains(response1, names[i])
             self.assertContains(response2, names[i])
 
-    
 
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium.webdriver.firefox.webdriver import WebDriver
-
-
-
-class SeleniumResponseScreen(StaticLiveServerTestCase):
+class SeleniumResponseScreen(LiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -161,6 +166,8 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         cls.selenium.quit()
         super().tearDownClass()
 
+    def login_to_sample_groupformer(self):
+        self.client.post(reverse('response_screen:login', kwargs={"groupformer_id": 1}), {"email": "Kristian@email.com"})
 
     def test_missing_projects_preference(self):
         """
@@ -170,11 +177,9 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
+        self.login_to_sample_groupformer()
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
-        # Name and Email
-        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
-        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Select preferences for both projects
         self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
 
@@ -206,11 +211,9 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
+        self.login_to_sample_groupformer()
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
-        # Name and Email
-        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
-        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Select preferences for both projects
         self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
         self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
@@ -242,17 +245,14 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
+        self.login_to_sample_groupformer()
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
 
         # Remove user info to test missing error
-        #self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
-        #self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
-
-        # Select preferences for both projects
-        self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
-        self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
+        #self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
+        #self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
         # Select preferences for all attributes
         self.selenium.find_element_by_xpath("//select[@id='attrForm1']/option[text()='4']").click()
         self.selenium.find_element_by_xpath("//select[@id='attrForm2']/option[text()='2']").click()
@@ -264,8 +264,8 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        name_error_message = self.selenium.find_element_by_xpath("//div[@id='participantNameForm_error']")
-        email_error_message = self.selenium.find_element_by_xpath("//div[@id='participantEmailForm_error']")
+        name_error_message = self.selenium.find_element_by_xpath("//div[@id='projForm1_error']")
+        email_error_message = self.selenium.find_element_by_xpath("//div[@id='projForm2_error']")
         # Using .text instead of .get_attribute("innerHTML") because innerHTML still contains the error, but is hidden
         #  on display. .text only shows what the user sees (ignores any `display: hidden` text)
         self.assertTrue("Must enter your name." in name_error_message.text)
@@ -281,13 +281,11 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
         gfs2 = gfs[2]['gf'].id
 
+        self.login_to_sample_groupformer()
         #########################################
         # Test for the first groupformer object #
         #########################################
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
-        # Name and Email
-        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
-        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Select preferences for both projects
         self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
         self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
@@ -317,8 +315,6 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
         # Check if those attributes carried over the correct values for those model objects.
         self.assertTrue(len(params)==17)  # Check that only the following 16 tuples exist (plus CSRF token)
-        self.assertTrue(('participantNameForm', 'Min Chon') in params)
-        self.assertTrue(('participantEmailForm', 'minc1@umbc.edu') in params)
         self.assertTrue(('projForm1_preference', '5') in params)
         self.assertTrue(('projForm2_preference', '1') in params)
         self.assertTrue(('attrForm1_is_homogenous', str(gfs[1]['a1'].is_homogenous)) in params)
@@ -337,10 +333,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         ##########################################
         # Test for the second groupformer object #
         ##########################################
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs2)))
-        # Name and Email
-        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Bobby Bobberson")
-        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("bobbybob@umbc.edu")
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Select preferences for both projects
         self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Neutral']").click()
         self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='Somewhat Interested']").click()
@@ -366,8 +359,6 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
 
         # Attributes do not exist on this Groupformer instance, do not check for them
         self.assertTrue(len(params)==8)  # Check that only the following 7 tuples exist (plus CSRF token)
-        self.assertTrue(('participantNameForm', 'Bobby Bobberson') in params)
-        self.assertTrue(('participantEmailForm', 'bobbybob@umbc.edu') in params)
         self.assertTrue(('projForm1_preference', '3') in params)
         self.assertTrue(('projForm2_preference', '4') in params)
         self.assertTrue(('participantForm_preference', 'Sarah') in params)
@@ -397,7 +388,7 @@ class LoginScreenTest(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def test_login(self):
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/1/login'))
+        self.selenium.get(self.live_server_url + reverse('response_screen:login', kwargs={'groupformer_id': 1}))
 
         # No alert on first look
         with self.assertRaises(NoSuchElementException):
@@ -416,4 +407,4 @@ class LoginScreenTest(StaticLiveServerTestCase):
         submit.click()
 
         # Should be redirected to response screen
-        self.assertTrue(self.selenium.current_url.endswith("/response_screen/"))
+        self.assertTrue(self.selenium.current_url.endswith("/response_screen/1"))

@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 from dbtools.models import *
+from django.contrib.staticfiles.testing import LiveServerTestCase
+from selenium.webdriver.firefox.webdriver import WebDriver
 
 
 def create_sample_groupformer():
@@ -52,6 +54,7 @@ def create_all_samples():
     create_sample_participants(gfs)
     return gfs
 
+
 class MinIteration2ResponseScreenTests(TestCase):
     def test_displays_all_projects(self):
         """
@@ -71,12 +74,9 @@ class MinIteration2ResponseScreenTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "How comfortable are you with front-end?")
         self.assertContains(response, "How comfortable are you with back-end?")
-
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium.webdriver.firefox.webdriver import WebDriver
         
 
-class SeleniumGroupformerList(StaticLiveServerTestCase):
+class SeleniumGroupformerList(LiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -99,7 +99,7 @@ class SeleniumGroupformerList(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
         gfs2 = gfs[2]['gf'].id
 
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/groupformer_list'))
+        self.selenium.get(self.live_server_url + reverse('results_screen:groupformer_list'))
         first_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs1))
         second_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs2))
         first_groupformer.click()
