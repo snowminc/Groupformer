@@ -171,7 +171,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
@@ -207,7 +207,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
@@ -243,7 +243,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
 
         # Remove user info to test missing error
@@ -284,7 +284,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         #########################################
         # Test for the first groupformer object #
         #########################################
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
@@ -337,7 +337,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         ##########################################
         # Test for the second groupformer object #
         ##########################################
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs2)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs2}))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Bobby Bobberson")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("bobbybob@umbc.edu")
@@ -397,7 +397,7 @@ class LoginScreenTest(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def test_login(self):
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/1/login'))
+        self.selenium.get(self.live_server_url + reverse('response_screen:login', kwargs={'groupformer_id': 1}))
 
         # No alert on first look
         with self.assertRaises(NoSuchElementException):
@@ -416,4 +416,4 @@ class LoginScreenTest(StaticLiveServerTestCase):
         submit.click()
 
         # Should be redirected to response screen
-        self.assertTrue(self.selenium.current_url.endswith("/response_screen/"))
+        self.assertTrue(self.selenium.current_url.endswith("/response_screen/1"))
