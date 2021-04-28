@@ -27,7 +27,8 @@
                 <div class="row">
                     <main role="main" class="col-8 mx-auto px-4">
 
-                        <form class="needs-validation" action='' enctype="multipart/form-data" novalidate> <!-- User Response form -->
+                        <!-- Eventually, replace action with "/dbtools/{{gf_id}}/record_response", with method="POST" -->
+                        <form class="needs-validation" action="" enctype="multipart/form-data" novalidate> <!-- User Response form -->
                         {% csrf_token %}
                         <!-- Participant Name -->
                         <div class="custom-form-box">
@@ -58,8 +59,8 @@
                                 <p>{{ proj.project_description }}</p>
                                 <div class="form-row align-items-center">
                                     <div class="form-group col-auto my-1">
-                                        <label for="projForm{{ forloop.counter }}">Preference:</label>
-                                        <select class="form-control" id="projForm{{ forloop.counter }}" name="projForm{{ forloop.counter }}_preference" required>
+                                        <label for="projForm{{ proj.pk }}">Preference:</label>
+                                        <select class="form-control" id="projForm{{ proj.pk }}" name="projForm{{ proj.pk }}_preference" required>
                                             <option value="" selected disabled>Choose...</option>
                                             <option value="5">Very Interested</option>
                                             <option value="4">Somewhat Interested</option>
@@ -67,7 +68,7 @@
                                             <option value="2">Uninterested</option>
                                             <option value="1">PLEASE NO</option>
                                         </select>
-                                        <div id="projForm{{ forloop.counter }}_error" class="invalid-feedback">
+                                        <div id="projForm{{ proj.pk }}_error" class="invalid-feedback">
                                             Must select a preference for this project.
                                         </div>
                                     </div>
@@ -84,10 +85,8 @@
                             <div class="custom-form-box">
                                 <div class="form-row align-items-center">
                                     <div class="form-group col-auto my-1">
-                                        <label class="h6" for="attrForm{{ forloop.counter }}">{{ attr.attr_name }}</label>
-                                        <input type="hidden" name="attrForm{{ forloop.counter }}_is_homogenous" value="{{ attr.is_homogenous }}"></label>
-                                        <input type="hidden" name="attrForm{{ forloop.counter }}_is_continuous" value="{{ attr.is_continuous }}"></label>
-                                        <select class="form-control" id="attrForm{{ forloop.counter }}" name="attrForm{{ forloop.counter }}_preference" required>
+                                        <label class="h6" for="attrForm{{ attr.pk }}">{{ attr.attr_name }}</label>
+                                        <select class="form-control" id="attrForm{{ attr.pk }}" name="attrForm{{ attr.pk }}_preference" required>
                                             <option value="" selected disabled>Choose...</option>
                                             <option value="5">5 (Most preferred)</option>
                                             <option value="4">4</option>
@@ -95,7 +94,7 @@
                                             <option value="2">2</option>
                                             <option value="1">1 (Least preferred)</option>
                                         </select>
-                                        <div id="attrForm{{ forloop.counter }}_error" class="invalid-feedback">
+                                        <div id="attrForm{{ attr.pk }}_error" class="invalid-feedback">
                                             Must select a preference for this attribute.
                                         </div>
                                     </div>
