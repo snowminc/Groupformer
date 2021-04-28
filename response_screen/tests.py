@@ -333,7 +333,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
         ##########################################
         # Test for the second groupformer object #
         ##########################################
-        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs2}))
         # Select preferences for both projects
         self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Neutral']").click()
         self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='Somewhat Interested']").click()
