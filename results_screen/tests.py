@@ -1,5 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.staticfiles.testing import LiveServerTestCase
+from selenium.webdriver.firefox.webdriver import WebDriver
+from time import sleep
+
 from dbtools.models import *
 
 
@@ -52,31 +56,7 @@ def create_all_samples():
     create_sample_participants(gfs)
     return gfs
 
-class MinIteration2ResponseScreenTests(TestCase):
-    def test_displays_all_projects(self):
-        """
-        If the page shows all of the arbitrary project inputs (without backend) from views.py, then it passes
-        """
-        response = self.client.get(reverse('results_screen:response_screen'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "SomethingProject")
-        self.assertContains(response, "OtherProject")
-        self.assertContains(response, "Some description about something that has some substance about some of what something entails")
-
-    def test_displays_all_attributes(self):
-        """
-        If the page shows all of the arbitrary attribute inputs (without backend) from views.py, then it passes
-        """
-        response = self.client.get(reverse('results_screen:response_screen'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "How comfortable are you with front-end?")
-        self.assertContains(response, "How comfortable are you with back-end?")
-
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium.webdriver.firefox.webdriver import WebDriver
-        
-
-class SeleniumGroupformerList(StaticLiveServerTestCase):
+class SeleniumGroupformerList(LiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -99,11 +79,12 @@ class SeleniumGroupformerList(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
         gfs2 = gfs[2]['gf'].id
 
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/groupformer_list'))
+        self.selenium.get(self.live_server_url + reverse('results_screen:groupformer_list'))
         first_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs1))
         second_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(gfs2))
         first_groupformer.click()
         second_groupformer.click()
+        sleep(3)
         first_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(gfs1))
         second_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(gfs2))
 

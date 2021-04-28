@@ -32,7 +32,7 @@ def login_group(request, groupformer_id):
         parts = gf.getParticipantByEmail(request.POST["email"])
         if parts == None:
             return render(request, 'response_screen_main/login.html', {"groupformer": gf, 'error': True})
-        return redirect(reverse('reverse:response_screen', kwargs={"groupformer_id": gf.pk}))
+        return redirect(reverse('response_screen:response_screen', kwargs={"groupformer_id": gf.pk}))
 
     # Log into the groupformer for the first time
     return render(request, 'response_screen_main/login.html', {"groupformer": gf})
