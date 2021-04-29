@@ -373,12 +373,11 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
 
     def test_modal_shows_success(self):
         """
-        Test that users are required to input important fields such as Name, Email, and all preference boxes
+        Test that the modal shows on successful submission
         """
         gfs = create_all_samples()
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
-        gfs2 = gfs[2]['gf'].id
 
         #########################################
         # Test for the first groupformer object #
@@ -400,19 +399,6 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Ben']").click()
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
-
-        # Currently, the form is set to post parameters in the URL.
-        url = self.selenium.current_url
-        # Isolate the parameters of the POSTed form
-        param_url = url.rsplit('?', 1)[1]
-        params = param_url.split("&")
-        for i in range(len(params)):
-            # Replace symbol placeholders with correct character
-            params[i] = params[i].replace("%20", " ")
-            params[i] = params[i].replace("+", " ")
-            params[i] = params[i].replace("%40", "@")
-            # Create name, value pairs
-            params[i] = tuple(params[i].split("="))
 
         # Check the Modal
         # .text only grabs VISIBLE text
@@ -445,6 +431,41 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         self.assertTrue("Min" in modal_content)
         self.assertTrue("Ben" in modal_content)
 
+
+    def test_modal_shows_failure(self):
+        """
+        Test that the modal does not show if the submission was a failure
+        """
+        gfs = create_all_samples()
+        # ID is necessary because each Selenium test does not create its own isolated DB for models
+        gfs1 = gfs[1]['gf'].id
+
+        #########################################
+        # Test for the first groupformer object #
+        #########################################
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
+        # Name and Email
+        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
+        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
+        # Select preferences for both projects
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
+        # Select preferences for all attributes
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='4']".format(gfs[1]['a1'].pk)).click()
+        #self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='2']".format(gfs[1]['a2'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='5 (Most preferred)']".format(gfs[1]['a3'].pk)).click()
+        # Select a few students
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Kristian']").click()
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Min']").click()
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Ben']").click()
+        # Submit
+        self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
+
+        # Check the Modal
+        # .text only grabs VISIBLE text
+        modal_title = self.selenium.find_element_by_xpath("//h5[@id='submitSuccessModalLabel']").text
+
+        self.assertFalse("Your response has been submitted!" in modal_title)
 
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
