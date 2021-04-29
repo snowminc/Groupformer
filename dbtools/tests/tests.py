@@ -159,4 +159,14 @@ class DatabaseTests(TestCase):
         project_obj = Project.objects.all()[0]
         self.assertEqual(project_obj.project_name, "Test 1")
 
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        GroupFormer.objects.all().delete()
+        Participant.objects.all().delete()
+        Attribute.objects.all().delete()
+        Project.objects.all().delete()
+        attribute_selection.objects.all().delete()
+        project_selection.objects.all().delete()
+
 

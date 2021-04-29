@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 
 from .models import *
@@ -46,3 +46,66 @@ def project_create_view(request, group_former_id):
     #sending them back to the form -> project_index to stay on the same page to ask for another
     # project name and description
     return HttpResponseRedirect(reverse("project_index"))
+
+
+def record_response(request, group_former_id):
+    '''
+
+    :param request:
+    :param group_former_id: get the groupformer id from the url
+    :return: redirects to the root directory if response is recorded or raises a 404 if the request.METHOD is not a POST
+    '''
+    if request.method == "POST":
+        #get the group former from the id in the url
+        gf:GroupFormer = get_object_or_404(GroupFormer, pk=group_former_id)
+
+        #the name of the participant can be retrieved using the key, participantName
+        name = request.POST.get("participantNameForm")
+
+        #the email of the participant can be retrieved using the key, participantEmailForm
+        email = request.POST.get("participantEmailForm")
+
+        #using the email, get the participant
+        part_obj = gf.getParticipantByEmail(email)
+
+        #get all the projects associated with the specific groupformer ID
+        projects = Project.objects.filter(group_former=gf)
+        #template key from the response screen
+        key_template = "projForm#_preference"
+        proj_pref_keys = {}
+        #loop to get the the project id, the full key, the value for the key, and the project object
+        for proj in projects:
+            proj_pref_keys[proj.id] = {}
+            proj_pref_keys[proj.id]["param_key"] = key_template.replace("#", str(proj.id))
+            proj_pref_keys[proj.id]["value"] = int(request.POST.get(proj_pref_keys[proj.id]["param_key"]))
+            proj_pref_keys[proj.id]["object"] = proj
+            #add the participants project choice
+            part_obj.projectChoice(proj_pref_keys[proj.id]["object"], proj_pref_keys[proj.id]["value"])
+
+        #get all the attributes associated with the groupformer
+        attributes = Attribute.objects.filter(group_former=gf)
+        # template key from the response screen
+        key_template = "attrForm#_preference"
+        attr_pref_keys = {}
+        # loop to get the the attribute id, the full key, the value for the key, and the attribute object
+        for attr in attributes:
+            attr_pref_keys[attr.id] = {}
+            attr_pref_keys[attr.id]["param_key"] = key_template.replace("#", str(attr.id))
+            attr_pref_keys[attr.id]["value"] = int(request.POST.get(attr_pref_keys[attr.id]["param_key"]))
+            attr_pref_keys[attr.id]["object"] = attr
+            #add the participants attribute choice
+            part_obj.attributeChoice(attr_pref_keys[attr.id]["object"], attr_pref_keys[attr.id]["value"])
+
+        #get the list of the partners desired partners to work with
+        partners = request.POST.getlist("participantForm_preference")
+        if(partners is not None):
+            for des_name in partners:
+                part = gf.getParticipantByName(des_name)
+                part_obj.desires(part)
+
+        # redirecting to the root directory, if the request method is POST
+        return HttpResponseRedirect("/")
+
+    #returns a 404 if not the appropriate request method
+    else:
+        raise Http404
