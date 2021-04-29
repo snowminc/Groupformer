@@ -22,6 +22,9 @@ def groupformer_list(request):
     if not request.user.is_authenticated:
         return redirect(reverse('setup_screen:login_screen') + '?redirect=results_screen')
 
+    #TODO: filter groupformers by user email
+    #TODO: probably will want to associate groupformers to the actual user object (not just email)
+
     # Get all groupformers to list groupformer instances for group generating
     groupformers = GroupFormer.objects.all()
     context = {"groupformers": groupformers}

@@ -63,8 +63,8 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.driver.find_element_by_id('last_name').send_keys('Freeman')
         self.driver.find_element_by_id('username').send_keys('mfreeman')
         self.driver.find_element_by_id('email').send_keys('morgan@freeman.com')
-        self.driver.find_element_by_id('password').send_keys('pass')
-        self.driver.find_element_by_id('confirm_password').send_keys('pass')
+        self.driver.find_element_by_id('password').send_keys('pass1234567')
+        self.driver.find_element_by_id('confirm_password').send_keys('pass1234567')
 
         self.driver.find_element_by_id('login-submit').click()
 
@@ -72,16 +72,17 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.driver.get(self.live_server_url + reverse('setup_screen:login_screen'))
 
         self.driver.find_element_by_id('username').send_keys('mfreeman')
-        self.driver.find_element_by_id('password').send_keys('pass')
+        self.driver.find_element_by_id('password').send_keys('pass1234567')
 
         self.driver.find_element_by_id('login-submit').click()
 
-    def goto_index(self):
+    def goto_index(self, login=True):
         """
         Helper function to go to the index page
         """
-        self.try_create_account()
-        self.sign_in()
+        if login:
+            self.try_create_account()
+            self.sign_in()
 
         self.driver.get(self.live_server_url + reverse('setup_screen:index'))
 
@@ -146,7 +147,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'project-desc2')
 
         # reload page
-        self.goto_index()
+        self.goto_index(login=False)
 
         # only project input 0 should exist
         self.assertIsNotNone(self.driver.find_element_by_id(f'project-name0'))

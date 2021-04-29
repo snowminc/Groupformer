@@ -109,17 +109,24 @@ def create_account(request):
     password = request.POST['password']
     confirm_password = request.POST['confirm_password']
 
+    # TODO: create account should not render a new page (b/c we want to preserve the user's input)
+    # TODO: should be an ajax request instead
+
     if password != confirm_password:
-        # TODO: create account should not render a new page (b/c we want to preserve the user's input)
-        # TODO: should be an ajax request instead
         return render(request, 'setup_screen/instructor_login.html',
                       {'error': 'Passwords do not match!', 'create_account': True})
 
-    if len(User.objects.filter(username=username)) > 0:
-        # TODO: create account should not render a new page (b/c we want to preserve the user's input)
-        # TODO: should be an ajax request instead
+    if len(password) < 6:
         return render(request, 'setup_screen/instructor_login.html',
-                      {'error': 'Username already taken', 'create_account': True})
+                      {'error': 'password must be 6 or more characters!', 'create_account': True})
+
+    if len(User.objects.filter(username=username)) > 0:
+        return render(request, 'setup_screen/instructor_login.html',
+                      {'error': 'Username already taken!', 'create_account': True})
+
+    if len(User.objects.filter(email=email)) > 0:
+        return render(request, 'setup_screen/instructor_login.html',
+                      {'error': 'Email already taken!', 'create_account': True})
 
     user: User = User.objects.create_user(username=username, email=email, password=password)
     user.first_name = request.POST['first_name']
