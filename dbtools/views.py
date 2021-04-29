@@ -49,6 +49,12 @@ def project_create_view(request, group_former_id):
 
 
 def record_response(request, group_former_id):
+    '''
+
+    :param request:
+    :param group_former_id: get the groupformer id from the url
+    :return: redirects to the root directory if response is recorded or raises a 404 if the request.METHOD is not a POST
+    '''
     if request.method == "POST":
         #get the group former from the id in the url
         gf:GroupFormer = get_object_or_404(GroupFormer, pk=group_former_id)
