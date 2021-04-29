@@ -84,6 +84,9 @@ class GroupFormer(models.Model):
         recieved = Project.objects.filter(group_former=self.pk)
         return recieved
 
+    def getAttributeList(self):
+        recieved = Attribute.objects.filter(group_former=self.pk)
+        return recieved
 class Project(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     project_name = models.CharField(max_length=240, blank=False, null=False)
