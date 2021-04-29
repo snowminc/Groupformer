@@ -7,7 +7,12 @@ from django.utils import timezone
 
 from dbtools.models import *
 
+
 def response_screen(request, groupformer_id):
+    # If the user isn't logged in, redirect to login page
+    if "participant_email" not in request.session:
+        return redirect(reverse('response_screen:login', kwargs={'groupformer_id': groupformer_id}))
+
     # Check if the groupformer page exists before accessing
     if GroupFormer.objects.filter(pk=groupformer_id).exists():
         # Get all applicable projects, attributes, and participants to build the response page.
@@ -15,11 +20,21 @@ def response_screen(request, groupformer_id):
         projects = Project.objects.filter(group_former=groupformer_id)
         attributes = Attribute.objects.filter(group_former=groupformer_id)
         participants = Participant.objects.filter(group_former=groupformer_id)
+
+        gf = GroupFormer.objects.filter(pk=groupformer_id)[0]
+        current_participant = gf.getParticipantByEmail(request.session["participant_email"])
+
+        # participant doesn't belong to groupformer, so redirect to login page
+        if current_participant is None:
+            return redirect(reverse('response_screen:login', kwargs={'groupformer_id': groupformer_id}))
+
         context = {
             "gf_id": gf_id,
             "projects": projects, 
             "attributes": attributes, 
-            "participants": participants
+            "participants": participants,
+            "participant_name": current_participant.part_name,
+            "participant_email": request.session["participant_email"]
         }
 
         return render(request, 'response_screen_main/response_screen.html', context)
@@ -46,7 +61,16 @@ def login_group(request, groupformer_id):
         parts = gf.getParticipantByEmail(request.POST["email"])
         if parts == None:
             return render(request, 'response_screen_main/login.html', {"groupformer": gf, 'error': True})
+
+        request.session['participant_email'] = request.POST["email"]  # save participant email in the session data
         return redirect(reverse('response_screen:response_screen', kwargs={"groupformer_id": gf.pk}))
 
     # Log into the groupformer for the first time
     return render(request, 'response_screen_main/login.html', {"groupformer": gf})
+
+
+def logout(request, groupformer_id):
+    # remove email from session object, then redirect to login page
+    del request.session['participant_email']
+
+    return redirect(reverse('response_screen:login', kwargs={"groupformer_id": groupformer_id}))

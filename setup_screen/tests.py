@@ -29,21 +29,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
     """
     NOTE for running tests:
 
-    You need to download the selenium webdriver and put it in your PATH variable.
-
-    - Download: https://chromedriver.chromium.org/downloads
-    - Make sure this matches your chrome version
-    - Update PATH Environment Variable:
-    - Windows:
-        - Save `chromedriver.exe` to a path such as `C:\Program Files\Selenium`
-        - Press the windows button and search 'advanced system settings'
-        - Click 'Environment Variables'
-        - Edit your User or System `PATH` variable adding the directory you chose
-
-    Further Note: Currently an issue with Chrome v89 that will be fixed in v90 but is currently in beta.
-    Selenium will spew some warning messages, but this doesn't effect the integration tests aside from
-    clogging the terminal output.
-    - https://stackoverflow.com/questions/65080685/usb-usb-device-handle-win-cc1020-failed-to-read-descriptor-from-node-connectio
+    You need to download the selenium webdriver and put it in your PATH variable. See README for further details.
     """
 
     @classmethod

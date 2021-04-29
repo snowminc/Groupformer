@@ -5,6 +5,8 @@ from selenium.webdriver.firefox.webdriver import WebDriver
 from time import sleep
 
 from dbtools.models import *
+from django.contrib.staticfiles.testing import LiveServerTestCase
+from selenium.webdriver.firefox.webdriver import WebDriver
 
 
 def create_sample_groupformer():

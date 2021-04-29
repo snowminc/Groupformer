@@ -65,9 +65,13 @@ class DBToolsModelTest(TestCase):
         #since it is a redirect, a 302 response code just sends the full url that want to redirect too,
         #so need to ask server to redirect to that url if get a response code of 302
         response = self.client.get(response.url)
+
+        # redirect again to log in page
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get(response.url)
+
         # response code should be 200 since not performing a redirect, rendering the url directly
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Sample Response Screen")
+        self.assertContains(response, "Log into")
 
     #test to get an invalid email that is not part of the groupformer
     def test_invalid_email(self):
