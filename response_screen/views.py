@@ -11,10 +11,16 @@ def response_screen(request, groupformer_id):
     # Check if the groupformer page exists before accessing
     if GroupFormer.objects.filter(pk=groupformer_id).exists():
         # Get all applicable projects, attributes, and participants to build the response page.
+        gf_id = groupformer_id
         projects = Project.objects.filter(group_former=groupformer_id)
         attributes = Attribute.objects.filter(group_former=groupformer_id)
         participants = Participant.objects.filter(group_former=groupformer_id)
-        context = {"projects": projects, "attributes": attributes, "participants": participants}
+        context = {
+            "gf_id": gf_id,
+            "projects": projects, 
+            "attributes": attributes, 
+            "participants": participants
+        }
 
         return render(request, 'response_screen_main/response_screen.html', context)
 
