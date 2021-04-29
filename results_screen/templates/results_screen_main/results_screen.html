@@ -61,6 +61,11 @@
                                             <form class="form-inline" action="#">
                                                 <h4>Section: <span style="font-weight: 300;">{{ gf.class_section }}</span></h4>
                                                 <h5>Created By: <span style="font-weight: 300;">{{ gf.prof_name }} &lt;{{ gf.prof_email }}&gt; </span></h5>
+                                                <h5>Student Response Link: 
+                                                    <a href="{% url 'response_screen:response_screen' groupformer_id=gf.id %}">
+                                                        <span style="font-weight:300;">{{ request.META.HTTP_HOST }}{% url 'response_screen:response_screen' groupformer_id=gf.id %}</span>
+                                                    </a>
+                                                </h5>
                                                 <br>
                                                 <input type="hidden" name="id" value="{{ gf.id }}">
                                                 <button type="submit" id="groupformer{{ gf.id }}_submit" class="btn btn-primary">Create Groups</button>
