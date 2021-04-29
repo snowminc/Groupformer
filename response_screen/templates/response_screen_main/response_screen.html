@@ -197,8 +197,9 @@
             // When response is submitted, intercept and send the data, but also display the modal
             $("form").submit(function (event) {
                 // Do not actually "submit" the form.
-                //event.preventDefault();
+                event.preventDefault();
 
+                var url_data = $(this).serialize();
                 var form_values = $(this).serializeArray();
                 // Eventually, replace the url with: "/dbtools/{{gf_id}}/record_response"
                 $.ajax({
@@ -259,6 +260,7 @@
 
                         // Final display the modal
                         success_modal.modal('show');
+                        window.history.pushState("","", "{{gf_id}}?" + url_data); // Temporary, for testing the data by accessing by URL
                     }
                 });
             });
