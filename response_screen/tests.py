@@ -316,7 +316,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
 
         # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
         # Check if those attributes carried over the correct values for those model objects.
-        self.assertTrue(len(params)==11)  # Check that only the following 10 tuples exist (plus CSRF token)
+        self.assertEqual(len(params), 11)  # Check that only the following 10 tuples exist (plus CSRF token)
         self.assertTrue(('participantNameForm', 'Min Chon') in params)
         self.assertTrue(('participantEmailForm', 'minc1@umbc.edu') in params)
         self.assertTrue(('projForm{}_preference'.format(gfs[1]['p1'].pk), '5') in params)
@@ -359,7 +359,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
             params[i] = tuple(params[i].split("="))
 
         # Attributes do not exist on this Groupformer instance, do not check for them
-        self.assertTrue(len(params)==8)  # Check that only the following 7 tuples exist (plus CSRF token)
+        self.assertEqual(len(params), 8)  # Check that only the following 7 tuples exist (plus CSRF token)
         self.assertTrue(('participantNameForm', 'Bobby Bobberson') in params)
         self.assertTrue(('participantEmailForm', 'bobbybob@umbc.edu') in params)
         self.assertTrue(('projForm{}_preference'.format(gfs[2]['p1'].pk), '3') in params)

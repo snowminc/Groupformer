@@ -197,7 +197,7 @@
             // When response is submitted, intercept and send the data, but also display the modal
             $("form").submit(function (event) {
                 // Do not actually "submit" the form.
-                event.preventDefault();
+                //event.preventDefault();
 
                 var form_values = $(this).serializeArray();
                 // Eventually, replace the url with: "/dbtools/{{gf_id}}/record_response"
