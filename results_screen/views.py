@@ -16,7 +16,7 @@ class FormResponseView(generic.DetailView):
     template_name = 'results_screen_main/response_screen.html'
 """
 
-def groupformer_list(request):
+def results_screen(request):
     # Get all groupformers to list groupformer instances for group generating
     groupformers = GroupFormer.objects.all()
     context = {"groupformers": groupformers}
