@@ -82,6 +82,15 @@ class SeleniumGroupformerList(LiveServerTestCase):
 
         self.selenium.get(self.live_server_url + reverse('results_screen:results_screen'))
 
+        # Check that there's nothing on the page first
+        page_none = self.selenium.find_element_by_tag_name("body").text
+        
+        self.assertTrue("A, B, C" not in page_none)
+        self.assertTrue("1, 2, 3" not in page_none)
+        self.assertTrue("X, Y, Z" not in page_none)
+        self.assertTrue("Q, A, Z" not in page_none)
+        self.assertTrue("G, M, E" not in page_none)
+        self.assertTrue("A, S, D, F" not in page_none)
 
         # Select the first groupformer tab and create groups
         self.selenium.find_element_by_id("tab-{}".format(gfs1)).click()
