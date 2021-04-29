@@ -75,6 +75,14 @@ class GroupFormer(models.Model):
             return recieved[0]
         else:
             return None
+    
+    def getRoster(self):
+        recieved = Participant.objects.all()
+        return received
+    
+    def getProjectList(self):
+        recieved = Project.objects.all()
+        return recieved
 
 class Project(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
