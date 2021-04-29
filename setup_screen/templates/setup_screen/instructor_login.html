@@ -15,7 +15,13 @@
   <div id="page-container"> <!-- Same layout as response_screen.html -->
     <div id="container-fluid">
       <div class="row">
-        <h1 class="display-4 text-center mx-auto d-block">Login or Create Account</h1>
+        <h1 class="display-4 text-center mx-auto d-block">{% if create_account %}Create Account{% else %}Login{% endif %}</h1>
+      </div>
+      <div class="container">
+        <a class="btn btn-primary"
+             href="{% if create_account %}{% url 'setup_screen:login_screen' %}{% else %}{% url 'setup_screen:create_account_screen' %}{% endif %}">
+            {% if create_account %}Login Instead{% else %}Create Account Instead{% endif %}
+        </a>
       </div>
 
       <div class="spacer"></div>
@@ -28,8 +34,11 @@
         {% if success %}
           <div class="alert alert-success" id="success-message" role="alert">{{ success }}</div>
         {% endif %}
-          <form class="needs-validation" action="{% url 'setup_screen:login_endpoint' %}" method="post" enctype="multipart/form-data" novalidate>
+          <form class="needs-validation"
+                action="{% if create_account %}{% url 'setup_screen:create_account_endpoint' %}{% else %}{% url 'setup_screen:login_endpoint' %}{% endif %}"
+                method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
+            {% if create_account %}
             <div class="custom-form-box">
               <label for="first_name">First Name</label>
               <input type="text" class="form-control" name="first_name" id="first_name" required>
@@ -38,21 +47,31 @@
               <input type="text" class="form-control" name="last_name" id="last_name" required>
               <div class="invalid-feedback">Must complete this field.</div>
             </div>
+            {% endif %}
             <div class="custom-form-box"> <!--TODO: only Username & Password for login, rest for create_account-->
               <label for="username">Username</label>
               <input type="text" class="form-control" name="username" id="username" required>
               <div class="invalid-feedback">Must complete this field.</div>
             </div>
+            {% if create_account %}
             <div class="custom-form-box">
               <label for="email">Email</label>
               <input type="text" class="form-control" name="email" id="email" required>
               <div class="invalid-feedback">Must complete this field.</div>
             </div>
+            {% endif %}
             <div class="custom-form-box">
               <label for="password">Password</label>
               <input type="password" class="form-control" name="password" id="password" required>
               <div class="invalid-feedback">Must complete this field.</div>
             </div>
+            {% if create_account %}
+            <div class="custom-form-box">
+              <label for="confirm_password">Confirm Password</label>
+              <input type="password" class="form-control" name="confirm_password" id="confirm_password" required>
+              <div class="invalid-feedback">Must complete this field.</div>
+            </div>
+            {% endif %}
             <br>
             <button type="submit" id="login-submit" class="btn btn-primary">Submit</button>
           </form>
