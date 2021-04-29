@@ -27,6 +27,9 @@ def index(request):
     Setup screen index page. Passes the session data to the html template
     """
 
+    if not request.user.is_authenticated:
+        return redirect(reverse('setup_screen:login_screen'))
+
     context = {}
 
     return render(request, "setup_screen/setup_screen.html", context=context)
@@ -66,7 +69,7 @@ def submit_groupformer(request):
 def login_screen(request):
 
     if request.user.is_authenticated:
-        if 'results_screen' in request:  # TODO: test & implement proper redirecting
+        if request.GET['redirect'] == 'results_screen':  # TODO: test & implement proper redirecting
             return redirect(reverse('results_screen:results_screen'))
         return redirect(reverse('setup_screen:index'))
 

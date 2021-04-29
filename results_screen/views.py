@@ -17,6 +17,11 @@ class FormResponseView(generic.DetailView):
 """
 
 def groupformer_list(request):
+
+    # page requires login
+    if not request.user.is_authenticated:
+        return redirect(reverse('setup_screen:login_screen') + '?redirect=results_screen')
+
     # Get all groupformers to list groupformer instances for group generating
     groupformers = GroupFormer.objects.all()
     context = {"groupformers": groupformers}
