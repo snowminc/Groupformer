@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 from time import sleep
+import os
 
 from dbtools.models import *
 
@@ -113,3 +114,10 @@ class SeleniumGroupformerList(LiveServerTestCase):
                 self.assertTrue("Q, A, Z" in page[0])
                 self.assertTrue("G, M, E" in page[0])
                 self.assertTrue("A, S, D, F" in page[0])
+
+    def test_download(self):
+        """
+        Test of functionality of downloading a groupformer's formed groups to a csv file
+        """
+        #self.selenium.get(self.live_server_url + reverse('results_screen:results_screen'))
+        pass
