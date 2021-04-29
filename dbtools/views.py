@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 
 from .models import *
@@ -15,7 +15,7 @@ def verify_participant(request, group_former_id):
         #return code is 200 - since the view is rendered directly
         return render(request, 'dbtools/pdenied.html')
     # return code will be 302 since doing a redirect to the response screen
-    return HttpResponseRedirect(reverse('results_screen:response_screen'))
+    return HttpResponseRedirect(reverse('response_screen:response_screen', kwargs={"groupformer_id": group_former.pk}))
 
 # Migrated from projects/
 
@@ -46,3 +46,47 @@ def project_create_view(request, group_former_id):
     #sending them back to the form -> project_index to stay on the same page to ask for another
     # project name and description
     return HttpResponseRedirect(reverse("project_index"))
+
+
+def record_response(request, group_former_id):
+    if request.method == "POST":
+        #get the group former from the id in the url
+        gf:GroupFormer = get_object_or_404(GroupFormer, pk=group_former_id)
+
+        #the name of the participant can be retrieved using the key, participantName
+        name = request.POST.get("participantNameForm")
+        email = request.POST.get("participantEmailForm")
+
+        part_obj = gf.getParticipantByEmail(email)
+
+        projects = Project.objects.filter(group_former=gf)
+        key_template = "projForm#_preference"
+        proj_pref_keys = {}
+        for proj in projects:
+            proj_pref_keys[proj.id] = {}
+            proj_pref_keys[proj.id]["param_key"] = key_template.replace("#", str(proj.id))
+            proj_pref_keys[proj.id]["value"] = int(request.POST.get(proj_pref_keys[proj.id]["param_key"]))
+            proj_pref_keys[proj.id]["object"] = proj
+            part_obj.projectChoice(proj_pref_keys[proj.id]["object"], proj_pref_keys[proj.id]["value"])
+
+        attributes = Attribute.objects.filter(group_former=gf)
+        key_template = "attrForm#_preference"
+        attr_pref_keys = {}
+        for attr in attributes:
+            attr_pref_keys[attr.id] = {}
+            attr_pref_keys[attr.id]["param_key"] = key_template.replace("#", str(attr.id))
+            attr_pref_keys[attr.id]["value"] = int(request.POST.get(attr_pref_keys[attr.id]["param_key"]))
+            attr_pref_keys[attr.id]["object"] = attr
+            part_obj.attributeChoice(attr_pref_keys[attr.id]["object"], attr_pref_keys[attr.id]["value"])
+
+        partners = request.POST.getlist("participantForm_preference")
+        if(partners is not None):
+            for des_name in partners:
+                part = gf.getParticipantByName(des_name)
+                part_obj.desires(part)
+
+        # redirecting to the root directory
+        return HttpResponseRedirect("/")
+
+    else:
+        raise Http404
