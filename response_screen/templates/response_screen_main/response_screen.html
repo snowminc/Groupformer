@@ -31,7 +31,7 @@
                 <div class="row">
                     <main role="main" class="col-8 mx-auto px-4">
 
-                        <form class="needs-validation" action="" enctype="multipart/form-data" novalidate> <!-- User Response form -->
+                        <form id="responseForm" class="needs-validation" action="" enctype="multipart/form-data" novalidate> <!-- User Response form -->
                         {% csrf_token %}
                         <!-- Participant Name -->
                         <div class="custom-form-box">
@@ -195,9 +195,12 @@
             }
 
             // When response is submitted, intercept and send the data, but also display the modal
-            $("form").submit(function (event) {
+            $("#responseForm").submit(function (event) {
                 // Do not actually "submit" the form.
                 event.preventDefault();
+
+                // Stop the submission if the form is incomplete
+                if ($(this)[0].checkValidity() === false) {return;}
 
                 var url_data = $(this).serialize();
                 var form_values = $(this).serializeArray();
