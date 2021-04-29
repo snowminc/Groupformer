@@ -8,9 +8,7 @@ class GroupFormerTest(TestCase):
     """Testing database model with priority algorithm"""
 
     def setUp(self):
-        print("Adding database elements manually (.objects.create())")
         self.gf = addGroupFormer("Petra", "pnadir@umbc.edu", "Grass watching")
-        attr = self.gf.addAttribute("A", True, False)
         self.gf.addAttribute("Like salad", True, False)
         self.gf.addAttribute("Backend dev", False, False)
         proj2 = addProject(self.gf, "On top of the hill",
@@ -19,14 +17,19 @@ class GroupFormerTest(TestCase):
         self.gf.addParticipant("BigDog", "bigdogsgottaeat@food.com")
 
     #answer the questions
-        self.gf.getParticipantByName("Joe").attributeChoice(
+        participantAttributeChoice(self.gf.getParticipantByName("Joe"),
             self.gf.getAttribute("Like salad"), 1)
-        self.gf.getParticipantByName("BigDog").attributeChoice(
+        participantAttributeChoice(self.gf.getParticipantByName("BigDog"),
             self.gf.getAttribute("Like salad"), 5)
-        self.gf.getParticipantByName("Joe").attributeChoice(
+        participantAttributeChoice(self.gf.getParticipantByName("Joe"),
             self.gf.getAttribute("Backend dev"), 3)
-        self.gf.getParticipantByName("BigDog").attributeChoice(
+        participantAttributeChoice(self.gf.getParticipantByName("BigDog"),
             self.gf.getAttribute("Backend dev"), 4)
+    #answer project questions
+        participantProjectChoice(self.gf.getParticipantByName("BigDog"),
+            self.gf.getProject("On top of the hill"), 1)
+        participantProjectChoice(self.gf.getParticipantByName("Joe"),
+            self.gf.getProject("On top of the hill"), 1)
 
     def test_get_groupformer(self):
         print(str(self.gf))
@@ -36,33 +39,38 @@ class GroupFormerTest(TestCase):
         print(str(part))
 
     def test_get_roster(self):
-        roster = getGroupFormer("Petra", "Grass watching").getRoster()
+        roster = self.gf.getRoster()
         print(str(roster))
 
     def test_get_project_list(self):
-        project_list = getGroupFormer("Petra", "Grass watching").getProjectList()
+        project_list = self.gf.getProjectList()
         print(str(project_list))
+    
+    def test_get_a_project(self):
+        project = self.gf.getProject("On top of the hill")
+        print(project)
+    
+    def test_get_attributes(self):
+        attributes = self.gf.getAttributeList()
+        print(attributes)
 
     def test_get_priority_for_participant_for_project(self):
-        pass
+        project = self.gf.getProject("On top of the hill")
+        part = self.gf.getParticipantByName("Joe")
+
+        print(part.getProjectChoice(project).value)
 
     def test_get_group_score(self):
-        project = getGroupFormer("Petra", "Grass watching").getProject("On top of the hill")
-        print(str(calc_project_priority()))
-        pass
-
-    def test_get_global_score(self):
-        pass
+        project = self.gf.getProject("On top of the hill")
+        roster = self.gf.getRoster()
+        attribute_list = self.gf.getAttributeList()
+        print(str(calc_project_priority(project, roster, attribute_list)))
+        self.assertEqual(calc_project_priority(project, roster, attribute_list), 2.0)
 
     def test_shuffle_particpants(self):
-        pass
+        print(list(self.gf.getRoster()))
+        print(shuffle_particpants(self.gf))
 
-    def test_optimal_particpant_score(self):
-        pass
+    def test_get_global_score(self):
+        print(calc_optimal_groups(self.gf)[1])
 
-    def test_add_project_with_questions(self):
-        pass
-
-    def test_get_project_score(self):
-        
-        pass

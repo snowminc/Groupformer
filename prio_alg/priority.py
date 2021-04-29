@@ -5,6 +5,8 @@ import random
 import math
 from dbtools.models import *
 
+MAX_PRIO = 5
+MIN_PRIO = 0
 #calculate the priority for a group
 def calc_project_priority(project, participant_list, attribute_list):
     """Calculates a projects priority.
@@ -23,7 +25,10 @@ def calc_project_priority(project, participant_list, attribute_list):
     tot_score = 0
     # get project score for each participant in the group
     for part in participant_list:
-        tot_score += part.getProjectChoice(project)
+        try:
+            tot_score += part.getProjectChoice(project).value
+        except (AttributeError):
+            tot_score += MAX_PRIO+MIN_PRIO/2
 
     for att in attribute_list:
         # to get the outliers of the answers
@@ -32,29 +37,36 @@ def calc_project_priority(project, participant_list, attribute_list):
         val = 0
         #find if we need to change the max/min values
         for part in participant_list:
-            val = part.getAttributeChoice(att).value
-            if val < min_num:
-                min_num = val
-            if val > max_num:
-                max_num = val
+            try:
+                val = part.getAttributeChoice(att).value
+                if val < min_num:
+                    min_num = val
+                if val > max_num:
+                    max_num = val
+            except (AttributeError): #if the user didn't answer a question
+                val = 0
+            
         
         #get the furthest range for each attribute among each participant and 
         #add to the total score
         for part in participant_list:
-            val = part.getAttributeChoice(att).value
 
-            if abs(max_num-val) > abs(min_num-val):
-                val = abs(max_num-val)
-            else:
-                val = abs(min_num-val)
+            try:
+                val = part.getAttributeChoice(att).value
 
-            if att.attribute.is_homogenous:
-                val = val * -1
+                if abs(max_num-val) > abs(min_num-val):
+                    val = abs(max_num-val)
+                else:
+                    val = abs(min_num-val)
+
+                if att.attribute.is_homogenous:
+                    val = val * -1
+            except (AttributeError):
+                val = 0
 
             tot_score += val
         
         return tot_score
-
 def calc_individual_priority(input_list):
     pass
 
@@ -63,7 +75,7 @@ def calc_individual_priority(input_list):
 def calc_global_score(project_list, attribute_list):
     master_score = 0
     min_proj = 99999
-    for i in len(project_list):
+    for i in range(len(project_list)):
         val = calc_project_priority(project_list[i][0], project_list[i][1], attribute_list)
         if val < min_proj:
             min_proj = val
@@ -73,7 +85,7 @@ def calc_global_score(project_list, attribute_list):
     return master_score
 
 def shuffle_particpants(gf):
-    roster = gf.getRoster().copy()
+    roster = list(gf.getRoster()).copy()
     random.shuffle(roster)
     return roster
 
@@ -83,19 +95,43 @@ def calc_optimal_groups(gf, epoch=50, max_parts=4):
     best_group_value = 0
     best_group_list = []
     #amount of people able to go into projects for evenness
-    similar_group_number = len(gf.getProjectList()) / len(gf.getRoster())
+    similar_group_number = int(len(gf.getProjectList()) / len(gf.getRoster()))
     total_combinations = combination_num(max_parts, len(gf.getRoster()))
 
     # do shuffle for amount of epochs or if we reached
     # the maximum total combinations possible
-    for i in range(epoch) and i < total_combinations:
+    for i in range(epoch):
+        if i >= total_combinations:
+            break
         roster = shuffle_particpants(gf)
+        #lists of lists of candidates
         candidate_lists = []
+
+        #creates lists of max_part or optimal sized groups
         while len(roster) > 0:
             temp_list = []
-            for j in range(similar_group_number) and j < max_parts:
+            for j in range(similar_group_number):
+                if j >= max_parts:
+                    break
                 candidate_lists.append(roster.pop())
+            
             candidate_lists.append(temp_list.copy())
+
+
+            #if for some reason we have more people than allowable participants
+            if len(candidate_lists) >= len(gf.getProjectList()):
+                people_remaining = len(roster)
+                #pop evenly into the candidate_lists until we run out of people
+                #no on will not get put into a group
+                while len(roster) > 0:
+                    for i in range(people_remaining):
+                        index = i%len(candidate_lists)
+                        part = roster.pop()
+                        alist = candidate_lists[index]
+                        alist.append(part)
+                        #candidate_lists[index].append[part]
+                
+            
 
         group_list = create_random_candidate(gf.getProjectList(), candidate_lists)
             
@@ -117,7 +153,7 @@ def combination_num(n, r):
 def create_random_candidate(project_list, candidate_lists):
     group_list = []
     total = min(len(candidate_lists), len(project_list))
-    for i in total:
+    for i in range(total):
             project = project_list[i]
             candidates = candidate_lists[i]
             group_list.append(save_group(project, candidates))
