@@ -254,8 +254,6 @@ class SeleniumResponseScreen(LiveServerTestCase):
         self.login_to_sample_groupformer(gfs1)
         # Test for the first groupformer object
         self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
-        # Name and Email
-
         # Remove user info to test missing error
         #self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
         #self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
@@ -270,8 +268,8 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        proj1_error_message = self.selenium.find_element_by_id("projForm1_error")
-        proj2_error_message = self.selenium.find_element_by_id("projForm2_error")
+        proj1_error_message = self.selenium.find_element_by_id(f"projForm{gfs[1]['p1'].pk}_error")
+        proj2_error_message = self.selenium.find_element_by_id(f"projForm{gfs[1]['p2'].pk}_error")
         # Using .text instead of .get_attribute("innerHTML") because innerHTML still contains the error, but is hidden
         #  on display. .text only shows what the user sees (ignores any `display: hidden` text)
         self.assertTrue("Must select a preference for this project." in proj1_error_message.text)
@@ -286,11 +284,9 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
+        self.login_to_sample_groupformer(gfs1)
         # Test for the first groupformer object
         self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
-        # Name and Email
-        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
-        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
         # Select preferences for both projects
         self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
         self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
@@ -322,9 +318,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
 
         # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
         # Check if those attributes carried over the correct values for those model objects.
-        self.assertEqual(len(params), 8)  # Check that only the following 7 tuples exist (plus CSRF token)
-        self.assertTrue(('participantNameForm', 'Min Chon') in params)
-        self.assertTrue(('participantEmailForm', 'minc1@umbc.edu') in params)
+        self.assertEqual(len(params), 6)  # Check that only the following 5 tuples exist (plus CSRF token)
         self.assertTrue(('projForm{}_preference'.format(gfs[1]['p1'].pk), '5') in params)
         self.assertTrue(('projForm{}_preference'.format(gfs[1]['p2'].pk), '1') in params)
         self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a1'].pk), '4') in params)
@@ -429,13 +423,11 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
+        self.login_to_sample_groupformer(gfs1)
         #########################################
         # Test for the first groupformer object #
         #########################################
         self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
-        # Name and Email
-        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
-        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
         # Select preferences for both projects
         self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
         self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
@@ -453,14 +445,6 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # Check the Modal
         # .text only grabs VISIBLE text
         modal_content = self.selenium.find_element_by_xpath("//div[@id='submitSuccessModalContent']").text
-
-        # Full Name
-        self.assertTrue("Full Name:" in modal_content)
-        self.assertTrue("Min Chon" in modal_content)
-
-        # E-mail
-        self.assertTrue("E-mail:" in modal_content)
-        self.assertTrue("minc1@umbc.edu" in modal_content)
 
         # Project preferences
         self.assertTrue(gfs[1]['p1'].project_name in modal_content)
@@ -490,13 +474,11 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
+        self.login_to_sample_groupformer(gfs1)
         #########################################
         # Test for the first groupformer object #
         #########################################
         self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
-        # Name and Email
-        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
-        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
         # Select preferences for both projects
         self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
         self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
