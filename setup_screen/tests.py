@@ -56,10 +56,33 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         cls.driver.quit()
         super().tearDownClass()
 
+    def try_create_account(self):
+        self.driver.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.driver.find_element_by_id('first_name').send_keys('Morgan')
+        self.driver.find_element_by_id('last_name').send_keys('Freeman')
+        self.driver.find_element_by_id('username').send_keys('mfreeman')
+        self.driver.find_element_by_id('email').send_keys('morgan@freeman.com')
+        self.driver.find_element_by_id('password').send_keys('pass')
+        self.driver.find_element_by_id('confirm_password').send_keys('pass')
+
+        self.driver.find_element_by_id('login-submit').click()
+
+    def sign_in(self):
+        self.driver.get(self.live_server_url + reverse('setup_screen:login_screen'))
+
+        self.driver.find_element_by_id('username').send_keys('mfreeman')
+        self.driver.find_element_by_id('password').send_keys('pass')
+
+        self.driver.find_element_by_id('login-submit').click()
+
     def goto_index(self):
         """
         Helper function to go to the index page
         """
+        self.try_create_account()
+        self.sign_in()
+
         self.driver.get(self.live_server_url + reverse('setup_screen:index'))
 
     def click_add_project(self):
