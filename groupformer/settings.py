@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'prio_alg.apps.PrioAlgConfig',
     'dbtools.apps.DbtoolsConfig',
     'setup_screen.apps.FormConfig',
     'results_screen.apps.ResultsScreenConfig',
