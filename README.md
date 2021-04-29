@@ -4,10 +4,7 @@ A tool to make forming groups based on preference more efficient.
 1. Install Python 3.8  
 1. Install the requirments.txt file:
    - `pip install -r requirments.txt` to install the requirments needed to run our application.
-1. To run the following tests:
-   - `cd \app\GroupFormer`
-   - `python manage.py test setup_screen`
- 
+1. To run the tests:
    NOTE for running tests: You need to download the selenium webdriver and put it in your PATH variable.
    
    The requirements.txt reflects the Selenium version used to test the AJAX interaction within groupformer_list, and the form submission interaction within response_screen.
