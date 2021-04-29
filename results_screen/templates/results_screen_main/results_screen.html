@@ -110,9 +110,15 @@
                 // Save the GroupFormer section ID and select the group display div.
                 var id = this.id.value;
                 var group_display = $("#groupformer" + id + "_groups");
-
-                // Retrieve the created Groups (EXAMPLE FOR PROOF OF CONCEPT)
-                $.ajax({
+                
+                formButton = $(this).children('button')[0]
+                if (formButton.id == "groupformer" + id + "_submit") {
+                  
+                  $("#groupformer" + id + "_submit").text("Export to CSV");
+                  $("#groupformer" + id + "_submit").prop('id',"groupformer" + id + "_export")
+                  
+                  // Retrieve the created Groups (EXAMPLE FOR PROOF OF CONCEPT)
+                  $.ajax({
                     url: 'sample_groups/' + id,
                     type: 'get',
                     dataType: 'json',
@@ -122,6 +128,11 @@
                         updateGroupDisplay(group_display, data);
                     }
                 });
+                } else if (formButton.id == "groupformer" + id + "_export") {
+                  console.log("Export");
+                } else {
+                  console.log("Unexpected Button ID: " + formButton.id);
+                }
             });
         </script>
     </body>
