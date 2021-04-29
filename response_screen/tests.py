@@ -159,15 +159,21 @@ class SeleniumResponseScreen(LiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(10)
+        cls.selenium.implicitly_wait(1)
 
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
         super().tearDownClass()
 
-    def login_to_sample_groupformer(self):
-        self.client.post(reverse('response_screen:login', kwargs={"groupformer_id": 1}), {"email": "Kristian@email.com"})
+    def login_to_sample_groupformer(self, groupformer_id):
+        self.selenium.get(self.live_server_url + reverse('response_screen:login', kwargs={'groupformer_id': groupformer_id}))
+
+        self.selenium.find_element_by_id('email').send_keys("Kristian@email.com")
+        self.selenium.find_element_by_id('login-submit').click()
+
+        # Should be redirected to response screen
+        self.assertTrue(self.selenium.current_url.endswith(f"/response_screen/{groupformer_id}"))
 
     def test_missing_projects_preference(self):
         """
@@ -177,7 +183,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
-        self.login_to_sample_groupformer()
+        self.login_to_sample_groupformer(gfs1)
         # Test for the first groupformer object
         self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Select preferences for both projects
@@ -211,7 +217,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
-        self.login_to_sample_groupformer()
+        self.login_to_sample_groupformer(gfs1)
         # Test for the first groupformer object
         self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Select preferences for both projects
@@ -245,7 +251,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
 
-        self.login_to_sample_groupformer()
+        self.login_to_sample_groupformer(gfs1)
         # Test for the first groupformer object
         self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
@@ -264,12 +270,12 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        name_error_message = self.selenium.find_element_by_xpath("//div[@id='projForm1_error']")
-        email_error_message = self.selenium.find_element_by_xpath("//div[@id='projForm2_error']")
+        proj1_error_message = self.selenium.find_element_by_id("projForm1_error")
+        proj2_error_message = self.selenium.find_element_by_id("projForm2_error")
         # Using .text instead of .get_attribute("innerHTML") because innerHTML still contains the error, but is hidden
         #  on display. .text only shows what the user sees (ignores any `display: hidden` text)
-        self.assertTrue("Must enter your name." in name_error_message.text)
-        self.assertTrue("Must enter your e-mail." in email_error_message.text)
+        self.assertTrue("Must select a preference for this project." in proj1_error_message.text)
+        self.assertTrue("Must select a preference for this project." in proj2_error_message.text)
 
 
     def test_fill_response_screen(self):
@@ -281,7 +287,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
         gfs2 = gfs[2]['gf'].id
 
-        self.login_to_sample_groupformer()
+        self.login_to_sample_groupformer(gfs1)
         #########################################
         # Test for the first groupformer object #
         #########################################
@@ -314,7 +320,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
 
         # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
         # Check if those attributes carried over the correct values for those model objects.
-        self.assertTrue(len(params)==17)  # Check that only the following 16 tuples exist (plus CSRF token)
+        self.assertEqual(len(params), 15)  # Check that only the following 14 tuples exist (plus CSRF token)
         self.assertTrue(('projForm1_preference', '5') in params)
         self.assertTrue(('projForm2_preference', '1') in params)
         self.assertTrue(('attrForm1_is_homogenous', str(gfs[1]['a1'].is_homogenous)) in params)
@@ -358,7 +364,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
             params[i] = tuple(params[i].split("="))
 
         # Attributes do not exist on this Groupformer instance, do not check for them
-        self.assertTrue(len(params)==8)  # Check that only the following 7 tuples exist (plus CSRF token)
+        self.assertEqual(len(params), 6)  # Check that only the following 5 tuples exist (plus CSRF token)
         self.assertTrue(('projForm1_preference', '3') in params)
         self.assertTrue(('projForm2_preference', '4') in params)
         self.assertTrue(('participantForm_preference', 'Sarah') in params)
@@ -374,37 +380,68 @@ from dbtools.models import *
 
 class LoginScreenTest(StaticLiveServerTestCase):
     @classmethod
-    def setUp(cls):
-        gf = addGroupFormer("Ben Johnson", "bjohn@umbc.edu", "CMSC 447-01")
-        gf.addParticipant("John Beachy", "johnny@niu.edu")
-
+    def setUpClass(cls):
         super().setUpClass()
         cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(0.5)
+        cls.selenium.implicitly_wait(1)
 
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
         super().tearDownClass()
 
+    def setUp(self):
+        self.gf = addGroupFormer("Ben Johnson", "bjohn@umbc.edu", "CMSC 447-01")
+        self.gf.addParticipant("John Beachy", "johnny@niu.edu")
+
     def test_login(self):
-        self.selenium.get(self.live_server_url + reverse('response_screen:login', kwargs={'groupformer_id': 1}))
+        self.selenium.get(self.live_server_url + reverse('response_screen:login', kwargs={'groupformer_id': self.gf.pk}))
 
         # No alert on first look
         with self.assertRaises(NoSuchElementException):
             alert = self.selenium.find_element_by_id('bad-email')
 
-        email = self.selenium.find_element_by_name('email')
+        email = self.selenium.find_element_by_id('email')
         email.send_keys("nonsense@non.sense")
         submit = self.selenium.find_element_by_id('login-submit')
         submit.click()
         # Once an incorrect email is entered, an alert is shown
         alert = self.selenium.find_element_by_id('bad-email')
 
-        email = self.selenium.find_element_by_name('email')
+        email = self.selenium.find_element_by_id('email')
         email.send_keys("johnny@niu.edu")
         submit = self.selenium.find_element_by_id('login-submit')
         submit.click()
 
         # Should be redirected to response screen
-        self.assertTrue(self.selenium.current_url.endswith("/response_screen/1"))
+        self.assertTrue(self.selenium.current_url.endswith(f"/response_screen/{self.gf.pk}"))
+
+    def test_redirect_login(self):
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': self.gf.pk}))
+
+        # Should be redirected to login screen
+        self.assertTrue(self.selenium.current_url.endswith(f"/response_screen/{self.gf.pk}/login"))
+
+        email = self.selenium.find_element_by_id('email')
+        email.send_keys("johnny@niu.edu")
+        submit = self.selenium.find_element_by_id('login-submit')
+        submit.click()
+
+        # Should be redirected to response screen
+        self.assertTrue(self.selenium.current_url.endswith(f"/response_screen/{self.gf.pk}"))
+
+    def test_login_logout_sequence(self):
+        self.selenium.get(self.live_server_url + reverse('response_screen:login', kwargs={'groupformer_id': self.gf.pk}))
+
+        email = self.selenium.find_element_by_id('email')
+        email.send_keys("johnny@niu.edu")
+        submit = self.selenium.find_element_by_id('login-submit')
+        submit.click()
+
+        # Should be redirected to response screen
+        self.assertTrue(self.selenium.current_url.endswith(f"/response_screen/{self.gf.pk}"))
+
+        self.selenium.find_element_by_id('logout-link').click()
+
+        # Logging out redirects to login afterwards
+        self.assertTrue(self.selenium.current_url.endswith(f"/response_screen/{self.gf.pk}/login"))

@@ -34,7 +34,7 @@
                             <div class="form-row align-items-center">
                                 <div class="form-group col-5 my-1">
                                     <h2>Response for {{ participant_name }} ({{ participant_email }})</h2>
-                                    <p>not {{ participant_name }}? <a href="{% url 'response_screen:logout' groupformer_id=groupformer.pk %}">logout!</a></p>
+                                    <p>not {{ participant_name }}? <a id="logout-link" href="{% url 'response_screen:logout' groupformer_id=groupformer.pk %}">logout!</a></p>
                                 </div>
                             </div>
                         </div>
