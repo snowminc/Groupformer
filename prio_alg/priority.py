@@ -63,8 +63,8 @@ def calc_individual_priority(input_list):
 def calc_global_score(project_list, participant_list):
     master_score = 0
     min_proj = 99999
-    for project in project_list:
-        val = calc_project_priority(project)
+    for i in len(project_list):
+        val = calc_project_priority(project_list[i], participant_list[i])
         if val < min_proj:
             min_proj = val
         master_score += val
@@ -84,7 +84,7 @@ def calc_optimal_groups(gf, epoch=50, max_parts=4):
     best_group_list = []
     #amount of people able to go into projects for evenness
     similar_group_number = len(gf.getProjectList()) / len(gf.getRoster())
-    total_combinations = combinations_num(max_parts, len(gf.getRoster()))
+    total_combinations = combination_num(max_parts, len(gf.getRoster()))
 
     # do shuffle for amount of epochs or if we reached
     # the maximum total combinations possible
@@ -103,7 +103,8 @@ def calc_optimal_groups(gf, epoch=50, max_parts=4):
             for i in len(candidate_list):
                 project = gf.getProjectList()[i]
                 candidates = candidate_list[i]
-                best_global_list.append(save_group(project, candidates))
+                best_group_list.append(save_group(project, candidates))
+            best_group_value = temp
 
     # returns a list of tupled project, with the participant roster
     return best_group_value

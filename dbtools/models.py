@@ -77,11 +77,11 @@ class GroupFormer(models.Model):
             return None
     
     def getRoster(self):
-        recieved = Participant.objects.all()
-        return received
+        recieved = Participant.objects.filter(group_former=self.pk)
+        return recieved
     
     def getProjectList(self):
-        recieved = Project.objects.all()
+        recieved = Project.objects.filter(group_former=self.pk)
         return recieved
 
 class Project(models.Model):

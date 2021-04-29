@@ -1,10 +1,7 @@
 """Testing participant, group, and response modules"""
 from django.test import TestCase
 from dbtools.models import *
-from .group import Group
-from .participant import Participant
-from .response import Question
-
+from .priority import *
 
 # class PrioTest(TestCase):
 #     """Testing priority algorithm methods"""
@@ -54,34 +51,32 @@ from .response import Question
 class GroupFormerTest(TestCase):
     """Testing database model with priority algorithm"""
 
-    def create_synthetic_db(self):
+    def setUp(self):
         print("Adding database elements manually (.objects.create())")
-        gf = addGroupFormer("Petra", "pnadir@umbc.edu", "Grass watching")
-        attr = gf.addAttribute("A", True, False)
-        gf.addAttribute("Like salad", True, False)
-        gf.addAttribute("Backend dev", False, False)
-        proj2 = addProject(gf2, "On top of the hill",
+        self.gf = addGroupFormer("Petra", "pnadir@umbc.edu", "Grass watching")
+        attr = self.gf.addAttribute("A", True, False)
+        self.gf.addAttribute("Like salad", True, False)
+        self.gf.addAttribute("Backend dev", False, False)
+        proj2 = addProject(self.gf, "On top of the hill",
                            "This grass needs to be watched")
-        gf.addParticipant("Joe", "JoeShmoe@aol.com")
-        gf.addParticipant("BigDog", "bigdogsgottaeat@food.com")
+        self.gf.addParticipant("Joe", "JoeShmoe@aol.com")
+        self.gf.addParticipant("BigDog", "bigdogsgottaeat@food.com")
 
     #answer the questions
-        gf.getParticipantByName("Joe").attributeChoice(
-            gf.getAttribute("Like salad"), 1)
-        gf.getParticipantByName("BigDog").attributeChoice(
-            gf.getAttribute("Like salad"), 5)
-        gf.getParticipantByName("Joe").attributeChoice(
-            gf.getAttribute("Backend dev"), 3)
-        gf.getParticipantByName("BigDog").attributeChoice(
-            gf.getAttribute("Backend dev"), 4)
+        self.gf.getParticipantByName("Joe").attributeChoice(
+            self.gf.getAttribute("Like salad"), 1)
+        self.gf.getParticipantByName("BigDog").attributeChoice(
+            self.gf.getAttribute("Like salad"), 5)
+        self.gf.getParticipantByName("Joe").attributeChoice(
+            self.gf.getAttribute("Backend dev"), 3)
+        self.gf.getParticipantByName("BigDog").attributeChoice(
+            self.gf.getAttribute("Backend dev"), 4)
 
     def test_get_groupformer(self):
-        gf = getGroupFormer("Petra", "Grass watching")
-        print(str(gf))
+        print(str(self.gf))
     
     def test_get_participant(self):
-        gf = getGroupFormer("Petra", "Grass watching")
-        part = gf.getParticipantByName("BigDog")
+        part = self.gf.getParticipantByName("BigDog")
         print(str(part))
 
     def test_get_roster(self):
@@ -97,7 +92,7 @@ class GroupFormerTest(TestCase):
 
     def test_get_group_score(self):
         project = getGroupFormer("Petra", "Grass watching").getProject("On top of the hill")
-        print(str(calc_project_priority()))
+        #print(str(calc_project_priority()))
         pass
 
     def test_get_global_score(self):
