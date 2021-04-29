@@ -6,6 +6,10 @@ class DBToolsRecordResponseTest(TestCase):
 
     #set up a group former, with participants, attributes and projects
     def setUp(self):
+        '''
+        function that sets up the test database with participants, attributes and projects
+        :return:
+        '''
         self.groupform1 = GroupFormer.objects.create(prof_name="Dr. B", prof_email="b@umbc.edu",
                                                      class_section="CMSC3")
         self.groupform1.save()
@@ -28,8 +32,11 @@ class DBToolsRecordResponseTest(TestCase):
         self.attr1 = addAttribute(self.groupform1, "An Attribute1", False, False)
         self.attr2 = addAttribute(self.groupform1, "An Attribute2", False, False)
 
-    #function to tear down the database after it runs
     def tearDown(cls):
+        '''
+         function tears down the test database after the test is completed
+        :return:
+        '''
         GroupFormer.objects.all().delete()
         Participant.objects.all().delete()
         Attribute.objects.all().delete()
@@ -37,24 +44,39 @@ class DBToolsRecordResponseTest(TestCase):
         attribute_selection.objects.all().delete()
         project_selection.objects.all().delete()
 
-    #test that the groupformer was added
     def test_groupformer_added(self):
+        '''
+        function tests that a groupformer was added to the test database
+        :return:
+        '''
         gfobj = GroupFormer.objects.all()[0]
         self.assertEqual(gfobj.prof_name, "Dr. B")
 
-    #test the participants were added
+
     def test_participant_added(self):
+        '''
+        function tests that participants were added to the database
+        :return:
+        '''
         gfobj = GroupFormer.objects.all()[0]
         self.assertEqual(6, Participant.objects.filter(group_former=gfobj).count())
 
-    #test that all the attributes were added
+
     def test_attributes_added(self):
+        '''
+        function tests that attributes were added to the database
+        :return:
+        '''
         print("\n")
         gfobj = GroupFormer.objects.all()[0]
         self.assertEqual(2, Attribute.objects.filter(group_former=gfobj).count())
 
-    #test to make sure that there are no responses already stored in the databse
+
     def no_responses(self):
+        '''
+        function that tests that no response are already stored in the database
+        :return:
+        '''
         self.assertEqual(len(project_selection.objects.all()), 0)
         self.assertEqual(len(attribute_selection.objects.all()), 0)
 
@@ -62,8 +84,11 @@ class DBToolsRecordResponseTest(TestCase):
         for proj in projects:
             self.assertEqual(len(proj.desired_partner), 0)
 
-    #test to check that a participants project and attributes are saved into the database
     def test_saved_response(self):
+        '''
+        test to check that a participants project and attributes are saved into the database
+        :return:
+        '''
         response_dict = {
                         "participantNameForm": self.p1.part_name,
                         "participantEmailForm": self.p1.part_email,
@@ -92,8 +117,12 @@ class DBToolsRecordResponseTest(TestCase):
         self.assertEqual(self.p1.getAttributeChoice(self.attr1).value, 1)
         self.assertEqual(self.p1.getAttributeChoice(self.attr2).value, 2)
 
-    #test to check that if a participant desires to work with other participants, it is properly recorded
+
     def test_saved_response_withpartners(self):
+        '''
+        test to check that if a participant desires to work with other participants, it is properly recorded
+        :return:
+        '''
         response_dict = {
             "participantNameForm": self.p3.part_name,
             "participantEmailForm": self.p3.part_email,
@@ -122,8 +151,11 @@ class DBToolsRecordResponseTest(TestCase):
         self.assertEqual(self.p3.getAttributeChoice(self.attr2).value, 1)
         self.assertSetEqual(set(response_dict["participantForm_preference"]), {x.part_name for x in self.p3.desired_partner.all()})
 
-    #test that the view only works with posting data
     def test_method_is_get(self):
+        '''
+        test that the view only works with a POST
+        :return:
+        '''
         response = self.client.get(reverse('record_response', kwargs={"group_former_id": self.groupform1.pk}))
         self.assertEqual(response.status_code, 404)
 
