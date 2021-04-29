@@ -84,6 +84,7 @@
         </div>
 
         <script>
+            var group_data = {};
             
             function updateGroupDisplay(display, data) {
                 // Create an unordered list of student groups and add them to the display div.
@@ -125,11 +126,30 @@
                     success: function (response) {
                         // Data is in a "data" key, to serialize information as JSON. Cannot send plain List/Arrays over.
                         data = response.data;
+                        group_data[id]=data;
                         updateGroupDisplay(group_display, data);
                     }
                 });
                 } else if (formButton.id == "groupformer" + id + "_export") {
                   console.log("Export");
+                  console.log(group_data[id]);
+                  
+                  csv_output = group_data[id].map(
+                    r => r.map(i => (i.indexOf(',')>-1) ? '"'+i+'"' : i).join(',')
+                  ).join('\n');
+                  // Creates CSV in same form as display
+                  // Elements with commas in them are quote-delineated
+                  
+                  // Creates the csv file and downloads it
+                  var blob = new Blob([csv_output], {type: 'text/csv;charset=utf-8;' });
+                  var link = document.createElement('a');
+                  var url = URL.createObjectURL(blob);
+                  link.setAttribute('href', url);
+                  link.setAttribute('download','groupformer'+id+"_groups.csv")
+                  link.style.visibility = 'hidden';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
                 } else {
                   console.log("Unexpected Button ID: " + formButton.id);
                 }
