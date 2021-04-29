@@ -4,3 +4,5 @@ pytz==2021.1
 selenium==3.141.0
 sqlparse==0.4.1
 urllib3==1.26.4
+gunicorn==20.1.0
+django_heroku==0.3.1
