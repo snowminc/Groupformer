@@ -80,7 +80,7 @@ class SeleniumGroupformerList(LiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
         gfs2 = gfs[2]['gf'].id
 
-        self.selenium.get(self.live_server_url + reverse('results_screen:groupformer_list'))
+        self.selenium.get(self.live_server_url + reverse('results_screen:results_screen'))
 
 
         # Select the first groupformer tab and create groups

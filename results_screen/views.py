@@ -21,7 +21,7 @@ def groupformer_list(request):
     groupformers = GroupFormer.objects.all()
     context = {"groupformers": groupformers}
 
-    return render(request, 'results_screen_main/groupformer_list.html', context)
+    return render(request, 'results_screen_main/results_screen.html', context)
 
 
 def sample_groups(request, groupformer_id):
