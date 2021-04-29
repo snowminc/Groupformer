@@ -80,22 +80,36 @@ class SeleniumGroupformerList(LiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
         gfs2 = gfs[2]['gf'].id
 
-        even_gfs = gfs1 if (gfs1-1) % 2 == 0 else gfs2
-        odd_gfs = gfs2 if (gfs1-1) % 2 == 0 else gfs1
-
         self.selenium.get(self.live_server_url + reverse('results_screen:groupformer_list'))
-        first_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(even_gfs))
-        second_groupformer = self.selenium.find_element_by_id("groupformer{}_submit".format(odd_gfs))
-        first_groupformer.click()
-        second_groupformer.click()
 
-        first_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(even_gfs))
-        second_groups = self.selenium.find_element_by_id("groupformer{}_groups".format(odd_gfs))
 
-        self.assertTrue("A, B, C" in first_groups.get_attribute("innerHTML"))
-        self.assertTrue("1, 2, 3" in first_groups.get_attribute("innerHTML"))
-        self.assertTrue("X, Y, Z" in first_groups.get_attribute("innerHTML"))
+        # Select the first groupformer tab and create groups
+        self.selenium.find_element_by_id("tab-{}".format(gfs1)).click()
+        self.selenium.find_element_by_id("groupformer{}_submit".format(gfs1)).click()
+        self.selenium.find_element_by_id("groupformer{}_groups".format(gfs1))
+        page1text = self.selenium.find_element_by_tag_name("body").text
 
-        self.assertTrue("Q, A, Z" in second_groups.get_attribute("innerHTML"))
-        self.assertTrue("G, M, E" in second_groups.get_attribute("innerHTML"))
-        self.assertTrue("A, S, D, F" in second_groups.get_attribute("innerHTML"))
+        # Select the second groupformer tab and create groups
+        self.selenium.find_element_by_id("tab-{}".format(gfs2)).click()
+        self.selenium.find_element_by_id("groupformer{}_submit".format(gfs2)).click()
+        self.selenium.find_element_by_id("groupformer{}_groups".format(gfs2))
+        page2text = self.selenium.find_element_by_tag_name("body").text
+
+        # Check both pages if they have the right groups showing currently.
+        # Using .text instead of .innerHTML to verify what is VISIBLE (.innerHTML includes hidden text as well)
+        for page in ((page1text, gfs1), (page2text, gfs2)):
+            # Odd groupformer ids will have the ABC group.
+            if page[1] % 2:
+                self.assertTrue("A, B, C" in page[0])
+                self.assertTrue("1, 2, 3" in page[0])
+                self.assertTrue("X, Y, Z" in page[0])
+                self.assertTrue("Q, A, Z" not in page[0])
+                self.assertTrue("G, M, E" not in page[0])
+                self.assertTrue("A, S, D, F" not in page[0])
+            else:
+                self.assertTrue("A, B, C" not in page[0])
+                self.assertTrue("1, 2, 3" not in page[0])
+                self.assertTrue("X, Y, Z" not in page[0])
+                self.assertTrue("Q, A, Z" in page[0])
+                self.assertTrue("G, M, E" in page[0])
+                self.assertTrue("A, S, D, F" in page[0])
