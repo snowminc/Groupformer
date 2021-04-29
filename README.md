@@ -1,44 +1,22 @@
 # Groupformer
 A tool to make forming groups based on preference more efficient.
 
-1.  Install Python 3.8  
-2.  Install the requirments.txt file:
-   - `pip install -r requirments.txt` to install the requirments needed to run our application. 
-
-3. To run the following tests: 
- - `cd \app\GroupFormer`
- - `python manage.py test setup_screen`
- NOTE for running tests: You need to download the selenium webdriver and put it in your PATH variable.
-
- Download: https://chromedriver.chromium.org/downloads
- Make sure this matches your chrome version
- Update PATH Environment Variable:
- Windows:
- Save chromedriver.exe to a path such as C:\Program Files\Selenium
- Press the windows button and search 'advanced system settings'
- Click 'Environment Variables'
- Edit your User or System PATH variable adding the directory you chose
- Further Note: Currently an issue with Chrome v89 that will be fixed in v90 but is currently in beta.
- Selenium will spew some warning messages, but this doesn't effect the integration tests aside from
- clogging the terminal output.
- https://stackoverflow.com/questions/65080685/usb-usb-device-handle-win-cc1020-failed-to-read-descriptor-from-node-connectio
+1. Install Python 3.8  
+1. Install the requirments.txt file:
+   - `pip install -r requirments.txt` to install the requirments needed to run our application.
+1. To run the following tests:
+   - `cd \app\GroupFormer`
+   - `python manage.py test setup_screen`
  
- The requirements.txt reflects the Selenium version used to test the AJAX interaction within groupformer_list, and the form submission interaction within response_screen.
- The WebDriver used for the Selenium test is geckodriver, a Firefox webdriver.
- Tester must have Firefox installed and install the geckodriver executable and include its path on the system PATH to test the following:
+   NOTE for running tests: You need to download the selenium webdriver and put it in your PATH variable.
+   
+   The requirements.txt reflects the Selenium version used to test the AJAX interaction within groupformer_list, and the form submission interaction within response_screen.
+   The WebDriver used for the Selenium test is geckodriver, a Firefox webdriver. 
+   Tester must have Firefox installed and install the geckodriver executable ([link](https://github.com/mozilla/geckodriver/releases)) and include its path on the system PATH run out integration tests.
 
- To test the response_screen endpoint:
- (Displaying the GroupFormer projects, attributes and participants)
- - `python manage.py test min_iteration3.tests.MinIteration3ResponseScreenTests`
- (Testing form submission, input omission, form data receival validation)
- - `python manage.py test min_iteration3.tests.SeleniumResponseScreen`
- To test the groupformer_list endpoint:
- - `python manage.py test min_iteration3.tests.SeleniumGroupformerList`
+   Run all tests from the project root directory using:
+   
+   `python manage.py test`
 
- https://github.com/mozilla/geckodriver/releases
- 
- - `python manage.py test dbtools` will test the database and verify a user's email is an instance of the groupformer. 
- - `python manage.py test min_iteration2.tests.LoginScreenTest` - Login Screen testing, requires Selenium 
- 
-4. After running  you can look at the output in localhost:8000 in your browser by running the following commands 
- - `python manage.py runserver` will run the server on localhost at port 8000.
+1. After running  you can look at the output in localhost:8000 in your browser by running the following commands 
+   - `python manage.py runserver` will run the server on localhost at port 8000

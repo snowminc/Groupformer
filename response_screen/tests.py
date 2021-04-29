@@ -171,20 +171,20 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
         # Select preferences for both projects
-        self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
 
         # Remove the second project to test missing error
-        #self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
+        #self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
 
         # Select preferences for all attributes
-        self.selenium.find_element_by_xpath("//select[@id='attrForm1']/option[text()='4']").click()
-        self.selenium.find_element_by_xpath("//select[@id='attrForm2']/option[text()='2']").click()
-        self.selenium.find_element_by_xpath("//select[@id='attrForm3']/option[text()='5 (Most preferred)']").click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='4']".format(gfs[1]['a1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='2']".format(gfs[1]['a2'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='5 (Most preferred)']".format(gfs[1]['a3'].pk)).click()
         # Select a few students
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Kristian']").click()
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Min']").click()
@@ -192,7 +192,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        error_message = self.selenium.find_element_by_xpath("//div[@id='projForm2_error']")
+        error_message = self.selenium.find_element_by_xpath("//div[@id='projForm{}_error']".format(gfs[1]['p2'].pk))
         # Using .text instead of .get_attribute("innerHTML") because innerHTML still contains the error, but is hidden
         #  on display. .text only shows what the user sees (ignores any `display: hidden` text)
         self.assertTrue("Must select a preference for this project."  in error_message.text)
@@ -207,19 +207,19 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
         # Select preferences for both projects
-        self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
-        self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
         # Select preferences for all attributes
-        self.selenium.find_element_by_xpath("//select[@id='attrForm1']/option[text()='4']").click()
-        self.selenium.find_element_by_xpath("//select[@id='attrForm2']/option[text()='2']").click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='4']".format(gfs[1]['a1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='2']".format(gfs[1]['a2'].pk)).click()
 
         # Remove the third attribute to test missing error
-        #self.selenium.find_element_by_xpath("//select[@id='attrForm3']/option[text()='5 (Most preferred)']").click()
+        #self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='5 (Most preferred)']".format(gfs[1]['a3'].pk)).click()
 
         # Select a few students
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Kristian']").click()
@@ -228,7 +228,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        error_message = self.selenium.find_element_by_xpath("//div[@id='attrForm3_error']")
+        error_message = self.selenium.find_element_by_xpath("//div[@id='attrForm{}_error']".format(gfs[1]['a3'].pk))
         # Using .text instead of .get_attribute("innerHTML") because innerHTML still contains the error, but is hidden
         #  on display. .text only shows what the user sees (ignores any `display: hidden` text)
         self.assertTrue("Must select a preference for this attribute." in error_message.text)
@@ -243,7 +243,7 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         gfs1 = gfs[1]['gf'].id
 
         # Test for the first groupformer object
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
 
         # Remove user info to test missing error
@@ -251,12 +251,12 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         #self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
 
         # Select preferences for both projects
-        self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
-        self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
         # Select preferences for all attributes
-        self.selenium.find_element_by_xpath("//select[@id='attrForm1']/option[text()='4']").click()
-        self.selenium.find_element_by_xpath("//select[@id='attrForm2']/option[text()='2']").click()
-        self.selenium.find_element_by_xpath("//select[@id='attrForm3']/option[text()='5 (Most preferred)']").click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='4']".format(gfs[1]['a1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='2']".format(gfs[1]['a2'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='5 (Most preferred)']".format(gfs[1]['a3'].pk)).click()
         # Select a few students
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Kristian']").click()
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Min']").click()
@@ -272,6 +272,59 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         self.assertTrue("Must enter your e-mail." in email_error_message.text)
 
 
+    def test_missing_participant(self):
+        """
+        Test if the form still successfuly submits on missing participants (it is not a required input)
+        """
+        gfs = create_all_samples()
+        # ID is necessary because each Selenium test does not create its own isolated DB for models
+        gfs1 = gfs[1]['gf'].id
+
+        # Test for the first groupformer object
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
+        # Name and Email
+        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
+        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
+        # Select preferences for both projects
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
+        # Select preferences for all attributes
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='4']".format(gfs[1]['a1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='2']".format(gfs[1]['a2'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='5 (Most preferred)']".format(gfs[1]['a3'].pk)).click()
+
+        # Select no students
+        #self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Kristian']").click()
+        #self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Min']").click()
+        #self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Ben']").click()
+
+        # Submit
+        self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
+
+        # Currently, the form is set to post parameters in the URL.
+        url = self.selenium.current_url
+        # Isolate the parameters of the POSTed form
+        param_url = url.rsplit('?', 1)[1]
+        params = param_url.split("&")
+        for i in range(len(params)):
+            # Replace symbol placeholders with correct character
+            params[i] = params[i].replace("%20", " ")
+            params[i] = params[i].replace("+", " ")
+            params[i] = params[i].replace("%40", "@")
+            # Create name, value pairs
+            params[i] = tuple(params[i].split("="))
+
+        # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
+        # Check if those attributes carried over the correct values for those model objects.
+        self.assertEqual(len(params), 8)  # Check that only the following 7 tuples exist (plus CSRF token)
+        self.assertTrue(('participantNameForm', 'Min Chon') in params)
+        self.assertTrue(('participantEmailForm', 'minc1@umbc.edu') in params)
+        self.assertTrue(('projForm{}_preference'.format(gfs[1]['p1'].pk), '5') in params)
+        self.assertTrue(('projForm{}_preference'.format(gfs[1]['p2'].pk), '1') in params)
+        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a1'].pk), '4') in params)
+        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a2'].pk), '2') in params)
+        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a3'].pk), '5') in params)
+
     def test_fill_response_screen(self):
         """
         Test that users are required to input important fields such as Name, Email, and all preference boxes
@@ -284,17 +337,17 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         #########################################
         # Test for the first groupformer object #
         #########################################
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs1)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
         # Select preferences for both projects
-        self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Very Interested']").click()
-        self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='PLEASE NO']").click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
         # Select preferences for all attributes
-        self.selenium.find_element_by_xpath("//select[@id='attrForm1']/option[text()='4']").click()
-        self.selenium.find_element_by_xpath("//select[@id='attrForm2']/option[text()='2']").click()
-        self.selenium.find_element_by_xpath("//select[@id='attrForm3']/option[text()='5 (Most preferred)']").click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='4']".format(gfs[1]['a1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='2']".format(gfs[1]['a2'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='5 (Most preferred)']".format(gfs[1]['a3'].pk)).click()
         # Select a few students
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Kristian']").click()
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Min']").click()
@@ -302,13 +355,14 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        # Currently, the form is set to post to current page, leaving parameters in the URL.
+        # Currently, the form is set to post parameters in the URL.
         url = self.selenium.current_url
         # Isolate the parameters of the POSTed form
         param_url = url.rsplit('?', 1)[1]
         params = param_url.split("&")
         for i in range(len(params)):
             # Replace symbol placeholders with correct character
+            params[i] = params[i].replace("%20", " ")
             params[i] = params[i].replace("+", " ")
             params[i] = params[i].replace("%40", "@")
             # Create name, value pairs
@@ -316,20 +370,14 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
 
         # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
         # Check if those attributes carried over the correct values for those model objects.
-        self.assertTrue(len(params)==17)  # Check that only the following 16 tuples exist (plus CSRF token)
+        self.assertEqual(len(params), 11)  # Check that only the following 10 tuples exist (plus CSRF token)
         self.assertTrue(('participantNameForm', 'Min Chon') in params)
         self.assertTrue(('participantEmailForm', 'minc1@umbc.edu') in params)
-        self.assertTrue(('projForm1_preference', '5') in params)
-        self.assertTrue(('projForm2_preference', '1') in params)
-        self.assertTrue(('attrForm1_is_homogenous', str(gfs[1]['a1'].is_homogenous)) in params)
-        self.assertTrue(('attrForm1_is_continuous', str(gfs[1]['a1'].is_continuous)) in params)
-        self.assertTrue(('attrForm1_preference', '4') in params)
-        self.assertTrue(('attrForm2_is_homogenous', str(gfs[1]['a2'].is_homogenous)) in params)
-        self.assertTrue(('attrForm2_is_continuous', str(gfs[1]['a2'].is_continuous)) in params)
-        self.assertTrue(('attrForm2_preference', '2') in params)
-        self.assertTrue(('attrForm3_is_homogenous', str(gfs[1]['a3'].is_homogenous)) in params)
-        self.assertTrue(('attrForm3_is_continuous', str(gfs[1]['a3'].is_continuous)) in params)
-        self.assertTrue(('attrForm3_preference', '5') in params)
+        self.assertTrue(('projForm{}_preference'.format(gfs[1]['p1'].pk), '5') in params)
+        self.assertTrue(('projForm{}_preference'.format(gfs[1]['p2'].pk), '1') in params)
+        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a1'].pk), '4') in params)
+        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a2'].pk), '2') in params)
+        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a3'].pk), '5') in params)
         self.assertTrue(('participantForm_preference', 'Min') in params)
         self.assertTrue(('participantForm_preference', 'Kristian') in params)
         self.assertTrue(('participantForm_preference', 'Ben') in params)
@@ -337,13 +385,13 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         ##########################################
         # Test for the second groupformer object #
         ##########################################
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/response_screen/{}'.format(gfs2)))
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs2}))
         # Name and Email
         self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Bobby Bobberson")
         self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("bobbybob@umbc.edu")
         # Select preferences for both projects
-        self.selenium.find_element_by_xpath("//select[@id='projForm1']/option[text()='Neutral']").click()
-        self.selenium.find_element_by_xpath("//select[@id='projForm2']/option[text()='Somewhat Interested']").click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Neutral']".format(gfs[2]['p1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Somewhat Interested']".format(gfs[2]['p2'].pk)).click()
         # Select preferences for all attributes (None :D)
         # Select a few students
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Sarah']").click()
@@ -352,27 +400,125 @@ class SeleniumResponseScreen(StaticLiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        # Currently, the form is set to post to current page, leaving parameters in the URL.
+        # Currently, the form is set to post parameters in the URL.
         url = self.selenium.current_url
         # Isolate the parameters of the POSTed form
         param_url = url.rsplit('?', 1)[1]
         params = param_url.split("&")
         for i in range(len(params)):
             # Replace symbol placeholders with correct character
+            params[i] = params[i].replace("%20", " ")
             params[i] = params[i].replace("+", " ")
             params[i] = params[i].replace("%40", "@")
             # Create name, value pairs
             params[i] = tuple(params[i].split("="))
 
         # Attributes do not exist on this Groupformer instance, do not check for them
-        self.assertTrue(len(params)==8)  # Check that only the following 7 tuples exist (plus CSRF token)
+        self.assertEqual(len(params), 8)  # Check that only the following 7 tuples exist (plus CSRF token)
         self.assertTrue(('participantNameForm', 'Bobby Bobberson') in params)
         self.assertTrue(('participantEmailForm', 'bobbybob@umbc.edu') in params)
-        self.assertTrue(('projForm1_preference', '3') in params)
-        self.assertTrue(('projForm2_preference', '4') in params)
+        self.assertTrue(('projForm{}_preference'.format(gfs[2]['p1'].pk), '3') in params)
+        self.assertTrue(('projForm{}_preference'.format(gfs[2]['p2'].pk), '4') in params)
         self.assertTrue(('participantForm_preference', 'Sarah') in params)
         self.assertTrue(('participantForm_preference', 'Kyle') in params)
         self.assertTrue(('participantForm_preference', 'Morgan') in params)
+
+
+    def test_modal_shows_success(self):
+        """
+        Test that the modal shows on successful submission
+        """
+        gfs = create_all_samples()
+        # ID is necessary because each Selenium test does not create its own isolated DB for models
+        gfs1 = gfs[1]['gf'].id
+
+        #########################################
+        # Test for the first groupformer object #
+        #########################################
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
+        # Name and Email
+        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
+        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
+        # Select preferences for both projects
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
+        # Select preferences for all attributes
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='4']".format(gfs[1]['a1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='2']".format(gfs[1]['a2'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='5 (Most preferred)']".format(gfs[1]['a3'].pk)).click()
+        # Select a few students
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Kristian']").click()
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Min']").click()
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Ben']").click()
+        # Submit
+        self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
+
+        # Check the Modal
+        # .text only grabs VISIBLE text
+        modal_content = self.selenium.find_element_by_xpath("//div[@id='submitSuccessModalContent']").text
+
+        # Full Name
+        self.assertTrue("Full Name:" in modal_content)
+        self.assertTrue("Min Chon" in modal_content)
+
+        # E-mail
+        self.assertTrue("E-mail:" in modal_content)
+        self.assertTrue("minc1@umbc.edu" in modal_content)
+
+        # Project preferences
+        self.assertTrue(gfs[1]['p1'].project_name in modal_content)
+        self.assertTrue("5" in modal_content)
+        self.assertTrue(gfs[1]['p2'].project_name in modal_content)
+        self.assertTrue("1" in modal_content)
+
+        # Attribute preferences
+        self.assertTrue(gfs[1]['a1'].attr_name in modal_content)
+        self.assertTrue("4" in modal_content)
+        self.assertTrue(gfs[1]['a2'].attr_name in modal_content)
+        self.assertTrue("2" in modal_content)
+        self.assertTrue(gfs[1]['a3'].attr_name in modal_content)
+        self.assertTrue("5" in modal_content)
+
+        # Participants listed
+        self.assertTrue("Kristian" in modal_content)
+        self.assertTrue("Min" in modal_content)
+        self.assertTrue("Ben" in modal_content)
+
+
+    def test_modal_shows_failure(self):
+        """
+        Test that the modal does not show if the submission was a failure
+        """
+        gfs = create_all_samples()
+        # ID is necessary because each Selenium test does not create its own isolated DB for models
+        gfs1 = gfs[1]['gf'].id
+
+        #########################################
+        # Test for the first groupformer object #
+        #########################################
+        self.selenium.get(self.live_server_url + reverse('response_screen:response_screen', kwargs={'groupformer_id': gfs1}))
+        # Name and Email
+        self.selenium.find_element_by_xpath("//input[@id='participantNameForm']").send_keys("Min Chon")
+        self.selenium.find_element_by_xpath("//input[@id='participantEmailForm']").send_keys("minc1@umbc.edu")
+        # Select preferences for both projects
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='Very Interested']".format(gfs[1]['p1'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='projForm{}']/option[text()='PLEASE NO']".format(gfs[1]['p2'].pk)).click()
+        # Select preferences for all attributes
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='4']".format(gfs[1]['a1'].pk)).click()
+        #self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='2']".format(gfs[1]['a2'].pk)).click()
+        self.selenium.find_element_by_xpath("//select[@id='attrForm{}']/option[text()='5 (Most preferred)']".format(gfs[1]['a3'].pk)).click()
+        # Select a few students
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Kristian']").click()
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Min']").click()
+        self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Ben']").click()
+        # Submit
+        self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
+
+        # Check the Modal
+        # .text only grabs VISIBLE text
+        modal_title = self.selenium.find_element_by_xpath("//h5[@id='submitSuccessModalLabel']").text
+
+        self.assertFalse("Your response has been submitted!" in modal_title)
 
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -397,7 +543,7 @@ class LoginScreenTest(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def test_login(self):
-        self.selenium.get('%s%s' % (self.live_server_url, '/response_screen/1/login'))
+        self.selenium.get(self.live_server_url + reverse('response_screen:login', kwargs={'groupformer_id': 1}))
 
         # No alert on first look
         with self.assertRaises(NoSuchElementException):
@@ -416,4 +562,4 @@ class LoginScreenTest(StaticLiveServerTestCase):
         submit.click()
 
         # Should be redirected to response screen
-        self.assertTrue(self.selenium.current_url.endswith("/response_screen/"))
+        self.assertTrue(self.selenium.current_url.endswith("/response_screen/1"))

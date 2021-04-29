@@ -9,6 +9,10 @@
         <!-- Bootstrap CDN -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
         
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        
         <title>Sample Response Screen</title>
     </head>
 
@@ -17,7 +21,7 @@
             <div id="container-fluid">
                 <!-- Page Header -->
                 <div class="row">
-                    <h1 class="display-4 text-center mx-auto d-block">Sample Response Screen</h1>
+                    <h1 class="display-4 text-center mx-auto d-block">Response Screen</h1>
                 </div>
 
                 <!-- Page Spacer -->
@@ -27,7 +31,7 @@
                 <div class="row">
                     <main role="main" class="col-8 mx-auto px-4">
 
-                        <form class="needs-validation" action='' enctype="multipart/form-data" novalidate> <!-- User Response form -->
+                        <form id="responseForm" class="needs-validation" action="" enctype="multipart/form-data" novalidate> <!-- User Response form -->
                         {% csrf_token %}
                         <!-- Participant Name -->
                         <div class="custom-form-box">
@@ -54,12 +58,12 @@
                         {% if projects %}
                             {% for proj in projects %}
                             <div class="custom-form-box">
-                                <h4>{{ proj.project_name }}</h4>
+                                <h4 id="proj{{ proj.pk }}_name">{{ proj.project_name }}</h4>
                                 <p>{{ proj.project_description }}</p>
                                 <div class="form-row align-items-center">
                                     <div class="form-group col-auto my-1">
-                                        <label for="projForm{{ forloop.counter }}">Preference:</label>
-                                        <select class="form-control" id="projForm{{ forloop.counter }}" name="projForm{{ forloop.counter }}_preference" required>
+                                        <label for="projForm{{ proj.pk }}">Preference:</label>
+                                        <select class="form-control" id="projForm{{ proj.pk }}" name="projForm{{ proj.pk }}_preference" required>
                                             <option value="" selected disabled>Choose...</option>
                                             <option value="5">Very Interested</option>
                                             <option value="4">Somewhat Interested</option>
@@ -67,7 +71,7 @@
                                             <option value="2">Uninterested</option>
                                             <option value="1">PLEASE NO</option>
                                         </select>
-                                        <div id="projForm{{ forloop.counter }}_error" class="invalid-feedback">
+                                        <div id="projForm{{ proj.pk }}_error" class="invalid-feedback">
                                             Must select a preference for this project.
                                         </div>
                                     </div>
@@ -84,10 +88,8 @@
                             <div class="custom-form-box">
                                 <div class="form-row align-items-center">
                                     <div class="form-group col-auto my-1">
-                                        <label class="h6" for="attrForm{{ forloop.counter }}">{{ attr.attr_name }}</label>
-                                        <input type="hidden" name="attrForm{{ forloop.counter }}_is_homogenous" value="{{ attr.is_homogenous }}"></label>
-                                        <input type="hidden" name="attrForm{{ forloop.counter }}_is_continuous" value="{{ attr.is_continuous }}"></label>
-                                        <select class="form-control" id="attrForm{{ forloop.counter }}" name="attrForm{{ forloop.counter }}_preference" required>
+                                        <label id="attr{{ attr.pk }}_name" for="attrForm{{ attr.pk }}">{{ attr.attr_name }}</label>
+                                        <select class="form-control" id="attrForm{{ attr.pk }}" name="attrForm{{ attr.pk }}_preference" required>
                                             <option value="" selected disabled>Choose...</option>
                                             <option value="5">5 (Most preferred)</option>
                                             <option value="4">4</option>
@@ -95,7 +97,7 @@
                                             <option value="2">2</option>
                                             <option value="1">1 (Least preferred)</option>
                                         </select>
-                                        <div id="attrForm{{ forloop.counter }}_error" class="invalid-feedback">
+                                        <div id="attrForm{{ attr.pk }}_error" class="invalid-feedback">
                                             Must select a preference for this attribute.
                                         </div>
                                     </div>
@@ -124,6 +126,26 @@
                         <button id="submitForm" type="submit" class="btn btn-primary">Submit</button>
 
                         </form> <!-- End User Response form -->
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="submitSuccessModal" tabindex="-1" role="dialog" aria-labelledby="submitSuccessModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="submitSuccessModalLabel">Your response has been submitted!</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div id="submitSuccessModalContent" class="modal-body">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </main>
                 </div> <!-- End Main Content row -->
             </div>
@@ -149,10 +171,104 @@
                     });
                 }, false);
             })();
+
+            function getFormAsJSON(formdata) {
+                var result = {};
+                for (var i = 0; i < formdata.length; i++) {
+                    if (formdata[i]['name'] != 'csrfmiddlewaretoken') {  // Exclude the CSRF token
+                        if (result.hasOwnProperty(formdata[i]['name'])) {
+                            result[formdata[i]['name']].push(formdata[i]['value']);
+                        }
+                        else {
+                            result[formdata[i]['name']] = [formdata[i]['value']];
+                        }
+                    }
+                }
+                return result;
+            }
+            
+            // Strip the ID from "projForm#_preference" or "attrForm#_preference"
+            function getFormID(tag) {
+                var name = tag.split("_")[0];
+                var id = name.substring(8);
+                return id;
+            }
+
+            // When response is submitted, intercept and send the data, but also display the modal
+            $("#responseForm").submit(function (event) {
+                // Do not actually "submit" the form.
+                event.preventDefault();
+
+                // Stop the submission if the form is incomplete
+                if ($(this)[0].checkValidity() === false) {return;}
+
+                var url_data = $(this).serialize();
+                var form_values = $(this).serializeArray();
+                // Eventually, replace the url with: "/dbtools/{{gf_id}}/record_response"
+                $.ajax({
+                    url: 'submit',
+                    type: 'post',
+                    data: form_values,
+                    dataType: 'json',
+                    success: function (response) {
+                        // Data posted successfully, show the user the information submitted
+                        success_modal = $('#submitSuccessModal');
+
+                        modal_content = $('#submitSuccessModalContent');
+                        modal_content.html("");  // Clear HTML of the content to prevent duplication
+                        
+                        // Fill the modal with the confirmed information
+                        var form_json = getFormAsJSON(form_values);
+                        for (var key in form_json) {
+
+                            // Name
+                            if (key == "participantNameForm") {
+                                modal_content.append("<b>Full Name:</b><br>");
+                                modal_content.append("&emsp;&emsp;" + form_json[key][0] + "<br>")
+                            }
+
+                            // Email
+                            if (key == "participantEmailForm") {
+                                modal_content.append("<b>E-mail:</b><br>");
+                                modal_content.append("&emsp;&emsp;" + form_json[key][0] + "<br>")
+                            }
+
+                            // Projects
+                            if (key.includes("projForm")) {
+                                for (const val of form_json[key]) {
+                                    var id = getFormID(key);
+                                    modal_content.append("<b>" + $('#proj' + id + '_name').html() + " Preference:</b><br>");
+                                    modal_content.append("&emsp;&emsp;" + val + "<br>");
+                                }
+                            }
+
+                            // Attributes
+                            if (key.includes("attrForm")) {
+                                for (const val of form_json[key]) {
+                                    var id = getFormID(key);
+                                    modal_content.append("<b>" + $('#attr' + id + '_name').html() + " Preference:</b><br>");
+                                    modal_content.append("&emsp;&emsp;" + val + "<br>");
+                                }
+                            }
+
+                            // List of participants user wants to work with
+                            if (key == "participantForm_preference") {
+                                modal_content.append("<b>Participants you would like to work with:</b><br>&emsp;&emsp;");
+                                for (const val of form_json[key]) {
+                                    modal_content.append(val + ", ");
+                                }
+                                modal_content.append("<br>");
+                            }
+                        }
+
+                        // Final display the modal
+                        success_modal.modal('show');
+                        window.history.pushState("","", "{{gf_id}}?" + url_data); // Temporary, for testing the data by accessing by URL
+                    }
+                });
+            });
         </script>
 
-        <!-- Bootstrap Scripts (STAY AT BOTTOM) -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
     </body>
 
 </html>
