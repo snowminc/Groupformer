@@ -31,7 +31,6 @@
                 <div class="row">
                     <main role="main" class="col-8 mx-auto px-4">
 
-                        <!-- Eventually, replace action with "/dbtools/{{gf_id}}/record_response", with method="POST" -->
                         <form class="needs-validation" action="" enctype="multipart/form-data" novalidate> <!-- User Response form -->
                         {% csrf_token %}
                         <!-- Participant Name -->
@@ -195,15 +194,13 @@
                 return id;
             }
 
-            // When any form is submitted, grab the groups formed at the specified form's groupformer id.
+            // When response is submitted, intercept and send the data, but also display the modal
             $("form").submit(function (event) {
                 // Do not actually "submit" the form.
                 event.preventDefault();
 
-                // Save the GroupFormer section ID and select the group display div.
                 var form_values = $(this).serializeArray();
-
-                // Retrieve the created Groups (EXAMPLE FOR PROOF OF CONCEPT)
+                // Eventually, replace the url with: "/dbtools/{{gf_id}}/record_response"
                 $.ajax({
                     url: 'submit',
                     type: 'post',
@@ -216,18 +213,23 @@
                         modal_content = $('#submitSuccessModalContent');
                         modal_content.html("");  // Clear HTML of the content to prevent duplication
                         
+                        // Fill the modal with the confirmed information
                         var form_json = getFormAsJSON(form_values);
                         for (var key in form_json) {
 
-                            // Name and Email
+                            // Name
                             if (key == "participantNameForm") {
                                 modal_content.append("<b>Full Name:</b><br>");
                                 modal_content.append("&emsp;&emsp;" + form_json[key][0] + "<br>")
                             }
+
+                            // Email
                             if (key == "participantEmailForm") {
                                 modal_content.append("<b>E-mail:</b><br>");
                                 modal_content.append("&emsp;&emsp;" + form_json[key][0] + "<br>")
                             }
+
+                            // Projects
                             if (key.includes("projForm")) {
                                 for (const val of form_json[key]) {
                                     var id = getFormID(key);
@@ -235,6 +237,8 @@
                                     modal_content.append("&emsp;&emsp;" + val + "<br>");
                                 }
                             }
+
+                            // Attributes
                             if (key.includes("attrForm")) {
                                 for (const val of form_json[key]) {
                                     var id = getFormID(key);
@@ -242,6 +246,8 @@
                                     modal_content.append("&emsp;&emsp;" + val + "<br>");
                                 }
                             }
+
+                            // List of participants user wants to work with
                             if (key == "participantForm_preference") {
                                 modal_content.append("<b>Participants you would like to work with:</b><br>&emsp;&emsp;");
                                 for (const val of form_json[key]) {
