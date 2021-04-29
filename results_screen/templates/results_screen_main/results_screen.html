@@ -131,9 +131,6 @@
                     }
                 });
                 } else if (formButton.id == "groupformer" + id + "_export") {
-                  console.log("Export");
-                  console.log(group_data[id]);
-                  
                   csv_output = group_data[id].map(
                     r => r.map(i => (i.indexOf(',')>-1) ? '"'+i+'"' : i).join(',')
                   ).join('\n');
