@@ -1,7 +1,9 @@
 import json
 
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 
 from dbtools.models import *
 
@@ -59,3 +61,47 @@ def submit_groupformer(request):
                 addAttribute(gf, attribute_name, attribute_homogenous, False)
 
     return HttpResponse("OK")
+
+
+def login_screen(request):
+
+    if request.user.is_authenticated:
+        if 'results_screen' in request:  # TODO: test & implement proper redirecting
+            return redirect(reverse('results_screen:results_screen'))
+        return redirect(reverse('setup_screen:index'))
+
+    # display login screen
+    return render(request, 'setup_screen/instructor_login.html')
+
+
+def login_endpoint(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        if 'results_screen' in request:  # TODO: test & implement proper redirecting
+            return redirect(reverse('results_screen:results_screen'))
+        return redirect(reverse('setup_screen::index'))
+
+    # failed to authenticate, so display error message
+    return render(request, 'setup_screen/instructor_login.html', {'error': 'could not authenticate user'})
+
+
+def create_account(request):
+    email = request.POST['email']
+    password = request.POST['password']
+
+    user: User = User.objects.create_user(username=email.split('@')[0], email=email, password=password)
+    user.first_name = request.POST['first_name']
+    user.last_name = request.POST['last_name']
+
+    # redirect to setup screen
+    return redirect(reverse('setup_screen::index'))
+
+
+def logout_endpoint(request):
+    logout(request)
+
+    return render(request, 'setup_screen/instructor_login.html', {'success': 'Logged out successfully!'})
