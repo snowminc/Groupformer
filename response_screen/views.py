@@ -16,6 +16,7 @@ def response_screen(request, groupformer_id):
     # Check if the groupformer page exists before accessing
     if GroupFormer.objects.filter(pk=groupformer_id).exists():
         # Get all applicable projects, attributes, and participants to build the response page.
+        gf_id = groupformer_id
         projects = Project.objects.filter(group_former=groupformer_id)
         attributes = Attribute.objects.filter(group_former=groupformer_id)
         participants = Participant.objects.filter(group_former=groupformer_id)
@@ -28,9 +29,9 @@ def response_screen(request, groupformer_id):
             return redirect(reverse('response_screen:login', kwargs={'groupformer_id': groupformer_id}))
 
         context = {
-            "groupformer": gf,
-            "projects": projects,
-            "attributes": attributes,
+            "gf_id": gf_id,
+            "projects": projects, 
+            "attributes": attributes, 
             "participants": participants,
             "participant_name": current_participant.part_name,
             "participant_email": request.session["participant_email"]
@@ -39,6 +40,14 @@ def response_screen(request, groupformer_id):
         return render(request, 'response_screen_main/response_screen.html', context)
 
     return HttpResponse("404", status=404)
+
+
+def temporary_submit_test(request):
+    if request.method == "POST":
+        print(request.POST)
+        return JsonResponse({"data": []}, status=200)
+    
+    return HttpResponse("no", status=200)
 
 
 def login_group(request, groupformer_id):
