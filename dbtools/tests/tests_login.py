@@ -81,6 +81,14 @@ class DBToolsModelTest(TestCase):
         response = self.client.get(reverse('verify_participant', kwargs={"group_former_id": 2000}))
         self.assertEqual(response.status_code, 404)
 
+    def tearDown(self):
+        GroupFormer.objects.all().delete()
+        Participant.objects.all().delete()
+        Attribute.objects.all().delete()
+        Project.objects.all().delete()
+        attribute_selection.objects.all().delete()
+        project_selection.objects.all().delete()
+
 
 
 
