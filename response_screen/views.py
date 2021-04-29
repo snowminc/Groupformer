@@ -27,6 +27,14 @@ def response_screen(request, groupformer_id):
     return HttpResponse("404", status=404)
 
 
+def temporary_submit_test(request):
+    if request.method == "POST":
+        print(request.POST)
+        return JsonResponse({"data": []}, status=200)
+    
+    return HttpResponse("no", status=200)
+
+
 def login_group(request, groupformer_id):
     gfs = GroupFormer.objects.filter(pk=groupformer_id)
     if len(gfs) == 0:
