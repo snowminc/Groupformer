@@ -27,13 +27,19 @@ def calc_project_priority(project, participant_list, attribute_list):
     for part in participant_list:
         try:
             tot_score += part.getProjectChoice(project).value
+
+            if part.desired_partner != None:
+                if part.desired_partner in list(participant_list):
+                    tot_score += math.ceil((MAX_PRIO-MIN_PRIO)/2)
+
         except (AttributeError):
-            tot_score += MAX_PRIO+MIN_PRIO/2
+            #give them an average score
+            tot_score += math.ceil(MAX_PRIO+MIN_PRIO/2)
 
     for att in attribute_list:
         # to get the outliers of the answers
-        max_num = 0
-        min_num = 5
+        max_num = MIN_PRIO
+        min_num = MAX_PRIO
         val = 0
         #find if we need to change the max/min values
         for part in participant_list:
@@ -70,71 +76,64 @@ def calc_project_priority(project, participant_list, attribute_list):
 def calc_individual_priority(input_list):
     pass
 
+def update_min_prio(x):
+    MIN_PRIO = x
+
+def update_max_prio(x):
+    MAX_PRIO = x
+
 # for this function, we need to handle keeping track of the minimum score
 # in each of the projects and add to the master_score
-def calc_global_score(project_list, attribute_list):
+def calc_global_score(project_candidate_list, attribute_list):
+    """Calculates the global score of a parsed out group of projects and candidates
+    Use function: create_random_candidate_groups
+    Overall list structure:
+        [
+            (project, [candidates]),
+            (project, [candidates]),
+            ...
+        ]
+    """
     master_score = 0
     min_proj = 99999
-    for i in range(len(project_list)):
-        val = calc_project_priority(project_list[i][0], project_list[i][1], attribute_list)
-        if val < min_proj:
+    for i in range(len(project_candidate_list)):
+        val = calc_project_priority(project_candidate_list[i][0], project_candidate_list[i][1], attribute_list)
+        #check if the project has a candidate list associated,
+        #if it doesn't, it doesn't get counted for the min_proj score
+        if val < min_proj and len(project_candidate_list[i][1]) != 0:
             min_proj = val
         master_score += val
 
     master_score += min_proj
     return master_score
 
-def shuffle_particpants(gf):
-    roster = list(gf.getRoster()).copy()
-    random.shuffle(roster)
-    return roster
+def shuffle_list(ref_list):
+    """Utility function to return the copy of a shuffled list.
+    NOTE: If more than one element resides in list, it will ensure the
+    returned copy isn't the same as the referenced list"""
+    shuf_list = ref_list.copy()
 
-def calc_optimal_groups(gf, epoch=50, max_parts=4):
+    if len(ref_list) > 1:
+        while check_if_exactly_equal(shuf_list, ref_list):
+            random.shuffle(shuf_list)
+
+    return shuf_list
+
+def calc_optimal_groups(gf, max_parts=4, epoch=50):
     """Uses random hill climbing algorithm to determine
     the "best" grouping of participants"""
     best_group_value = 0
     best_group_list = []
     #amount of people able to go into projects for evenness
-    similar_group_number = int(len(gf.getProjectList()) / len(gf.getRoster()))
-    total_combinations = combination_num(max_parts, len(gf.getRoster()))
+    #total_combinations = combination_num(max_parts, len(gf.getRoster()))
 
     # do shuffle for amount of epochs or if we reached
     # the maximum total combinations possible
     for i in range(epoch):
-        if i >= total_combinations:
-            break
-        roster = shuffle_particpants(gf)
-        #lists of lists of candidates
-        candidate_lists = []
+        #if i >= total_combinations:
+            #break
+        group_list = create_random_candidate_groups(gf, max_parts)
 
-        #creates lists of max_part or optimal sized groups
-        while len(roster) > 0:
-            temp_list = []
-            for j in range(similar_group_number):
-                if j >= max_parts:
-                    break
-                candidate_lists.append(roster.pop())
-            
-            candidate_lists.append(temp_list.copy())
-
-
-            #if for some reason we have more people than allowable participants
-            if len(candidate_lists) >= len(gf.getProjectList()):
-                people_remaining = len(roster)
-                #pop evenly into the candidate_lists until we run out of people
-                #no on will not get put into a group
-                while len(roster) > 0:
-                    for i in range(people_remaining):
-                        index = i%len(candidate_lists)
-                        part = roster.pop()
-                        alist = candidate_lists[index]
-                        alist.append(part)
-                        #candidate_lists[index].append[part]
-                
-            
-
-        group_list = create_random_candidate(gf.getProjectList(), candidate_lists)
-            
         temp = calc_global_score(group_list, gf.getAttributeList())
 
         if temp > best_group_value:
@@ -142,20 +141,129 @@ def calc_optimal_groups(gf, epoch=50, max_parts=4):
             best_group_value = temp
 
     # returns a list of tupled project, with the participant roster
-    return best_group_list, best_group_value
+    return best_group_list
 
 def save_group(project, candidate_list):
+    """Groups project and the proj's candidate list into a tuple"""
     return (project, candidate_list)
 
 def combination_num(n, r):
+    """Combination formula"""
     return math.factorial(n) / (math.factorial(r) * math.factorial(n-r))
 
-def create_random_candidate(project_list, candidate_lists):
+def create_random_candidate_groups(gf, max_parts):
+    """creates a random candidate list from list of lists and maps to projects
+    tuple structure (project, [candidates]).
+    
+    Overall list structure:
+        [
+            (project, [candidates]),
+            (project, [candidates]),
+            ...
+        ]
+    """
+    project_list = shuffle_list(list(gf.getProjectList()))
+    roster = shuffle_list(list(gf.getRoster()))
+    even_members_per_group = math.ceil(len(roster)/float(max_parts))
+        #lists of lists of candidates
+    candidate_lists = []
+
+    #do we want even distribution or do we want to prioritize better
+    #creates lists of max_part or optimal sized groups
+    #evenly spreads out participants and ensures all projects have someone
+    #assigned to them. may want to prioritze better groupings rather than
+    #assigning every project
+
+    #case where every project gets max participants
+    if len(project_list) == even_members_per_group:
+        while len(roster) > 0:
+            temp_list = []
+            for j in range(max_parts):
+                if j >= max_parts:
+                    break
+                elif len(roster) == 0:
+                    break
+                else:
+                    temp_list.append(roster.pop())
+        candidate_lists.append(temp_list.copy())
+
+    #case where we have more people than allowable participants
+    elif len(project_list) < even_members_per_group:
+        #normally fill up the lists, then add equally to each subsequent
+        #proj until we finish the pushing to roster
+        while len(roster) > 0:
+            temp_list = []
+            for j in range(max_parts):
+                if j >= max_parts:
+                    break
+                elif len(roster) == 0:
+                    break
+                else:
+                    temp_list.append(roster.pop())
+            candidate_lists.append(temp_list.copy())
+
+            #when the project list count meets candidate list
+            if len(project_list) == len(candidate_lists):
+                for j in range(roster):
+                    candidate_lists[j%len(project_list)].append(roster.pop())
+
+    #case where projects will have 0 or more people
+    #all projects aren't full
+    elif len(project_list) > even_members_per_group:
+        #put random people into random groups and bias towards
+        #groups with more people than groups with just one person
+        #initialize the candidate_list with projects
+        for i in range(len(project_list)):
+            candidate_lists.append([])
+        
+        j = 0
+        while len(roster) > 0:
+            
+            #get random amount of people to be partnered up from 0 to max_participants
+            num_parts = random.randrange(0, max_parts)
+            temp_list = []
+            for i in range(num_parts):
+                if len(roster) == 0:
+                    break
+                else:
+                    temp_list.append(roster.pop())
+            
+            #we should never get to the point where adding to a list 
+            while len(temp_list) + len(candidate_lists[j%len(candidate_lists)-1]) > max_parts:
+                j += 1
+            #make sure j mods the list size so we don't iterate passed the list
+            candidate_lists[j%len(candidate_lists)-1].append(temp_list)
+            j += 1
+            
+
+     
+    # combine the projects with their respective candidate lists
     group_list = []
-    total = min(len(candidate_lists), len(project_list))
+    # make sure that there aren't more candidate lists than there are projects
+    if len(candidate_lists) > len(project_list):
+        raise Exception('Candidate list length is longer than project list length')
+
+    total = len(candidate_lists)
     for i in range(total):
             project = project_list[i]
             candidates = candidate_lists[i]
             group_list.append(save_group(project, candidates))
     
     return group_list
+
+def check_if_exactly_equal(list_1, list_2):
+    """ 
+    Referenced and pulled from:
+    https://thispointer.com/python-check-if-two-lists-are-equal-or-not-covers-both-ordered-unordered-lists/
+    Checks if two lists are exactly identical
+    """
+    # check if both the lists are of same size
+    if len(list_1) != len(list_2):
+        return False
+    # create a zipped object from 2lists
+    final_list = zip(list_1, list_2)
+    # iterate over the zipped object
+    for elem in final_list:
+        if elem[0] != elem[1]:
+            return False
+    return True
