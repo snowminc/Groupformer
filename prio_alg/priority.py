@@ -220,7 +220,14 @@ def create_random_candidate_groups(gf, max_parts):
         while len(roster) > 0:
             
             #get random amount of people to be partnered up from 0 to max_participants
-            num_parts = random.randrange(0, max_parts)
+            #if roster length remaining is larger than the max participants
+            #get a random number between 0 and the max_participants
+            #else the roster length remaining is smaller than the max allowable participants
+            #get a random number between 0 and the rang of the length of the roster
+            if max_parts <= len(roster):
+                num_parts = random.randint(0, max_parts)
+            else:
+                num_parts = random.randint(0, len(roster))
             temp_list = []
             for i in range(num_parts):
                 if len(roster) == 0:
@@ -228,7 +235,9 @@ def create_random_candidate_groups(gf, max_parts):
                 else:
                     temp_list.append(roster.pop())
             
-            #we should never get to the point where adding to a list 
+            #we should never get to the point where we infinite loop because the random int is
+            # bound to the limits of the roster length, we just have to search the buckets that
+            # can fit the remaining participants 
             while len(temp_list) + len(candidate_lists[j%len(candidate_lists)-1]) > max_parts:
                 j += 1
             #make sure j mods the list size so we don't iterate passed the list
