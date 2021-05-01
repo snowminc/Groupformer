@@ -7,6 +7,7 @@ from dbtools.models import *
 
 MAX_PRIO = 5
 MIN_PRIO = 0
+PERCENTAGE_THRESHOLD = .15
 #calculate the priority for a group
 def calc_project_priority(project, participant_list, attribute_list):
     """Calculates a projects priority.
@@ -28,53 +29,61 @@ def calc_project_priority(project, participant_list, attribute_list):
         try:
             tot_score += part.getProjectChoice(project).value
 
-            if part.desired_partner != None:
-                if part.desired_partner in list(participant_list):
+            if part.getDesiredPartnerList():
+                #https://www.geeksforgeeks.org/python-check-if-one-list-is-subset-of-other/
+                if all(x in participant_list for x in list(part.getDesiredPartnerList())):
                     tot_score += math.ceil((MAX_PRIO-MIN_PRIO)/2)
 
         except (AttributeError):
             #give them an average score
-            tot_score += math.ceil(MAX_PRIO+MIN_PRIO/2)
+            tot_score += 0
 
-    for att in attribute_list:
-        # to get the outliers of the answers
-        max_num = MIN_PRIO
-        min_num = MAX_PRIO
-        val = 0
-        #find if we need to change the max/min values
-        for part in participant_list:
-            try:
-                val = part.getAttributeChoice(att).value
-                if val < min_num:
-                    min_num = val
-                if val > max_num:
-                    max_num = val
-            except (AttributeError): #if the user didn't answer a question
-                val = 0
-            
+    if attribute_list != None:
+        for att in attribute_list:
+            # to get the outliers of the answers
+            max_num = MIN_PRIO
+            min_num = MAX_PRIO
+            val = 0
+            #find if we need to change the max/min outliers
+            for part in participant_list:
+                try:
+                    val = part.getAttributeChoice(att).value
+                    if val < min_num:
+                        min_num = val
+                    if val > max_num:
+                        max_num = val
+                except (AttributeError):  # if the user didn't answer a question
+                    val = 0
         
-        #get the furthest range for each attribute among each participant and 
-        #add to the total score
-        for part in participant_list:
+            #get the furthest range for each attribute among each participant and
+            #add to the total score
+            for part in participant_list:
 
-            try:
-                val = part.getAttributeChoice(att).value
+                try:
+                    val = part.getAttributeChoice(att).value
 
-                if abs(max_num-val) > abs(min_num-val):
-                    val = abs(max_num-val)
-                else:
-                    val = abs(min_num-val)
-
-                if att.attribute.is_homogenous:
-                    val = val * -1
-            except (AttributeError):
-                val = 0
-
-            tot_score += val
-        
-        return tot_score
+                    # if the difference of the max_num to the value
+                    # is greater than the difference of min_num to the value
+                    val = max_range(min_num, val, max_num)
+                    if att.is_homogenous:
+                        val = val * -1
+                    
+                    tot_score += val
+                except (AttributeError):
+                    #if there is no value for an attribute
+                    continue
+    
+    return tot_score
 def calc_individual_priority(input_list):
     pass
+
+def max_range(min_num, val, max_num):
+    """returns the greater difference between a value
+    and two numbers"""
+    if abs(max_num-val) > abs(min_num-val):
+        return abs(max_num-val)
+    else:
+        return abs(min_num-val)
 
 def update_min_prio(x):
     MIN_PRIO = x
@@ -167,7 +176,7 @@ def create_random_candidate_groups(gf, max_parts):
     even_members_per_group = math.ceil(len(roster)/float(max_parts))
         #lists of lists of candidates
     candidate_lists = []
-
+    #print(even_members_per_group)
     #do we want even distribution or do we want to prioritize better
     #creates lists of max_part or optimal sized groups
     #evenly spreads out participants and ensures all projects have someone
@@ -178,6 +187,8 @@ def create_random_candidate_groups(gf, max_parts):
     if len(project_list) == even_members_per_group:
         while len(roster) > 0:
             temp_list = []
+            #pop the roster onto the temp list for the
+            # amount of max_participants
             for j in range(max_parts):
                 if j >= max_parts:
                     break
@@ -185,7 +196,8 @@ def create_random_candidate_groups(gf, max_parts):
                     break
                 else:
                     temp_list.append(roster.pop())
-        candidate_lists.append(temp_list.copy())
+            
+            candidate_lists.append(temp_list.copy())
 
     #case where we have more people than allowable participants
     elif len(project_list) < even_members_per_group:
@@ -216,33 +228,38 @@ def create_random_candidate_groups(gf, max_parts):
         for i in range(len(project_list)):
             candidate_lists.append([])
         
+        
         j = 0
         while len(roster) > 0:
-            
+            print(roster)
             #get random amount of people to be partnered up from 0 to max_participants
             #if roster length remaining is larger than the max participants
             #get a random number between 0 and the max_participants
             #else the roster length remaining is smaller than the max allowable participants
-            #get a random number between 0 and the rang of the length of the roster
-            if max_parts <= len(roster):
-                num_parts = random.randint(0, max_parts)
-            else:
-                num_parts = random.randint(0, len(roster))
-            temp_list = []
+            #get a random number between 0 and the range of the length of the roster
+
+            num_parts = random.randint(0, max_parts)
+
+            if num_parts + len(candidate_lists[j]) > max_parts:
+                num_parts -= len(candidate_lists[j])
+
+            #print(num_parts)
             for i in range(num_parts):
                 if len(roster) == 0:
                     break
                 else:
-                    temp_list.append(roster.pop())
-            
+                    candidate_lists[j].append(roster.pop())
+            #print(temp_list)
             #we should never get to the point where we infinite loop because the random int is
             # bound to the limits of the roster length, we just have to search the buckets that
             # can fit the remaining participants 
-            while len(temp_list) + len(candidate_lists[j%len(candidate_lists)-1]) > max_parts:
-                j += 1
+
             #make sure j mods the list size so we don't iterate passed the list
-            candidate_lists[j%len(candidate_lists)-1].append(temp_list)
-            j += 1
+            #print(candidate_lists)
+            if j == len(candidate_lists):
+                j = 0
+            else:
+                j += 1
             
 
      
@@ -253,10 +270,10 @@ def create_random_candidate_groups(gf, max_parts):
         raise Exception('Candidate list length is longer than project list length')
 
     total = len(candidate_lists)
-    for i in range(total):
-            project = project_list[i]
-            candidates = candidate_lists[i]
-            group_list.append(save_group(project, candidates))
+    for i in range(total):        
+        project = project_list[i]
+        candidates = candidate_lists[i]
+        group_list.append(save_group(project, candidates))
     
     return group_list
 

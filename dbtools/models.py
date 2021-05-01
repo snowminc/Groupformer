@@ -139,7 +139,9 @@ class Participant(models.Model):
     """
         Helper functions to get selections
     """
-    
+    def getDesiredPartnerList(self):
+        recieved = self.desired_partner.filter(participant=self.pk)
+        return recieved
     def getAttributeChoice(self, attribute):
         recieved = attribute_selection.objects.filter(participant=self,attribute=attribute)
         if len(recieved) > 1:
