@@ -75,7 +75,18 @@ class GroupFormer(models.Model):
             return recieved[0]
         else:
             return None
+    
+    def getRoster(self):
+        recieved = Participant.objects.filter(group_former=self.pk)
+        return recieved
+    
+    def getProjectList(self):
+        recieved = Project.objects.filter(group_former=self.pk)
+        return recieved
 
+    def getAttributeList(self):
+        recieved = Attribute.objects.filter(group_former=self.pk)
+        return recieved
 class Project(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     project_name = models.CharField(max_length=240, blank=False, null=False)
@@ -128,7 +139,9 @@ class Participant(models.Model):
     """
         Helper functions to get selections
     """
-    
+    def getDesiredPartnerList(self):
+        recieved = self.desired_partner.filter(participant=self.pk)
+        return recieved
     def getAttributeChoice(self, attribute):
         recieved = attribute_selection.objects.filter(participant=self,attribute=attribute)
         if len(recieved) > 1:
