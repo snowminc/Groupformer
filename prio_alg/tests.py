@@ -7,6 +7,7 @@ from .priority import *
 class GroupFormerTest(TestCase):
     """Testing database model with priority algorithm"""
 
+
     def setUp(self):
         self.gf = addGroupFormer("Petra", "pnadir@umbc.edu", "Petra's Project Tests")
         self.att1 = self.gf.addAttribute("Like salad", True, False)
@@ -150,9 +151,6 @@ class GroupFormerTest(TestCase):
 
         self.assertEqual(optimal_groups,)
 
-        
-
-
     def test_max_part_more_than_projects(self):
         pass
     
@@ -160,4 +158,54 @@ class GroupFormerTest(TestCase):
         pass
     
     def test_less_than_full_projects(self):
+        pass
+
+class OptimalGroupsTest(TestCase):
+    def setUp(self):
+        #groupformer creation
+        self.gf = addGroupFormer("Ben Johnson", "bjohnson@umbc.edu", "Johnson's project tests")
+
+        #participant creation
+        self.part1 = self.gf.addParticipant("Jim", "jimmyneutron@gmail.com")
+        self.part2 = self.gf.addParticipant("Jill", "jackandjill@yahoo.com")
+        self.part3 = self.gf.addParticipant("Bob", "bigbob@umbc.edu")
+        self.part4 = self.gf.addParticipant("Alice", "aliceinwonderland@aol.com")
+
+        #project creation
+        self.proj1 = self.gf.addProject("proj1", "proj description")
+        self.proj2 = self.gf.addProject("proj2", "proj description")
+
+        #attribute creation
+        self.att1 = self.gf.addAttribute("backend", False, False)
+        self.att2 = self.gf.addAttribute("likes video games", True, False)
+
+        #project answers
+        participantProjectChoice(self.part1, self.proj1, 5)
+        participantProjectChoice(self.part1, self.proj2, 1)
+        participantProjectChoice(self.part2, self.proj1, 3)
+        participantProjectChoice(self.part2, self.proj2, 3)
+        participantProjectChoice(self.part3, self.proj1, 3)
+        participantProjectChoice(self.part3, self.proj2, 3)
+        participantProjectChoice(self.part4, self.proj1, 2)
+        participantProjectChoice(self.part4, self.proj2, 2)
+
+        #attribute answers
+        participantAttributeChoice(self.part1, self.att1, 5)
+        participantAttributeChoice(self.part1, self.att2, 1)
+        participantAttributeChoice(self.part2, self.att1, 1)
+        participantAttributeChoice(self.part2, self.att2, 3)
+        participantAttributeChoice(self.part3, self.att1, 4)
+        participantAttributeChoice(self.part3, self.att2, 3)
+        participantAttributeChoice(self.part4, self.att1, 2)
+        participantAttributeChoice(self.part4, self.att2, 1)
+
+    def test_calc_priority(self):
+        roster = [self.part1, self.part4]
+        roster2 = [self.part2, self.part3]
+        self.assertEqual(calc_project_priority(self.proj1, roster, self.gf.getAttributeList()), 10)
+        self.assertEqual(calc_project_priority(self.proj2, roster2, self.gf.getAttributeList()), 9)
+    def test_get_optimal_group(self):
+        best_group, best_value, second_group, second_value, third_group, third_value = calc_optimal_groups(self.gf, 2)
+        self.assertEqual(best_value, 28)
+    def test_get_multiple_optimal_groups(self):
         pass

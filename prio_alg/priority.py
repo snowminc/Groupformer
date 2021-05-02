@@ -18,10 +18,10 @@ def calc_project_priority(project, participant_list, attribute_list):
     # participant project attributes summed together
     # particpant attributes have the same id
     #   - Homogenous:
-    #       -   get the range between the current value and
+    #       -   get the rnge between the current value and
     #       -   the greatest outlier, then subtract
     #   - Hetergenous:
-    #       -   get the range between the current value and
+    #       -   get the rnge between the current value and
     #       -   the greatest outlier, then add
     tot_score = 0
     # get project score for each participant in the group
@@ -40,35 +40,33 @@ def calc_project_priority(project, participant_list, attribute_list):
 
     if attribute_list != None:
         for att in attribute_list:
-            # to get the outliers of the answers
-            max_num = MIN_PRIO
-            min_num = MAX_PRIO
-            val = 0
-            #find if we need to change the max/min outliers
-            for part in participant_list:
-                try:
-                    val = part.getAttributeChoice(att).value
-                    if val < min_num:
-                        min_num = val
-                    if val > max_num:
-                        max_num = val
-                except (AttributeError):  # if the user didn't answer a question
-                    val = 0
-        
-            #get the furthest range for each attribute among each participant and
+            #get the furthest rnge for each attribute among each participant and
             #add to the total score
-            for part in participant_list:
-
+            for i in range(len(participant_list)):
+                part = participant_list[i]
                 try:
-                    val = part.getAttributeChoice(att).value
+                    part_val = participant_list[i].getAttributeChoice(att).value
 
-                    # if the difference of the max_num to the value
-                    # is greater than the difference of min_num to the value
-                    val = max_range(min_num, val, max_num)
-                    if att.is_homogenous:
-                        val = val * -1
-                    
-                    tot_score += val
+                    #the idea here is to compare the value of the participant object with
+                    #every one of the teammates and add/subtract based off of the rnge of
+                    #that teammates score, use a for loop to only count the iterations
+                    #past the indexed participant
+                    #we don't want to account for a teammates comparison twice
+                    for j in range(i, len(participant_list)):
+                        teammate = participant_list[j]
+                        if teammate is not part:
+                            try:
+                                teammate_val = teammate.getAttributeChoice(att).value
+                                rnge = abs(teammate_val - part_val)
+
+                                if att.is_homogenous:
+                                    rnge = rnge * -1
+
+                                tot_score += rnge
+                            #participant didn't enter data for an attribute
+                            #so just skip it
+                            except (AttributeError):
+                                continue
                 except (AttributeError):
                     #if there is no value for an attribute
                     continue
@@ -148,19 +146,19 @@ def calc_optimal_groups(gf, max_parts=4, epoch=50):
         group_list = create_random_candidate_groups(gf, max_parts)
 
         temp = calc_global_score(group_list, gf.getAttributeList())
-
+        print(temp)
         if temp > best_group_value:
             best_group_list = group_list.copy()
             best_group_value = temp
         elif temp > second_best_value:
-            second_best_value = group_list.copy()
-            second_best_group_list = temp
+            second_best_group_list = group_list.copy()
+            second_best_value = temp
         elif temp > third_best_value:
-            third_best_value = group_list.copy()
-            third_best_group_list = temp
+            third_best_group_list = group_list.copy()
+            third_best_value = temp
 
     # returns a list of tupled project, with the participant roster
-    return best_group_list, second_best_group_list, third_best_group_list
+    return best_group_list, best_group_value, second_best_group_list, second_best_value, third_best_group_list, third_best_value
 
 def save_group(project, candidate_list):
     """Groups project and the proj's candidate list into a tuple"""
