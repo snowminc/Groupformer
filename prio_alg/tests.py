@@ -73,12 +73,6 @@ class GroupFormerTest(TestCase):
         val = calc_project_priority(self.proj1, self.gf.getRoster(), None)
         self.assertEqual(val, 7.0)
 
-    def test_get_group_score(self):
-        project = self.proj1
-        roster = self.gf.getRoster()
-        attribute_list = self.gf.getAttributeList()
-        self.assertEqual(calc_project_priority(project, roster, attribute_list), -1.0)
-
     def test_shuffle_particpants(self):
         roster = list(self.gf.getRoster())
         shuffled_roster = shuffle_list(list(self.gf.getRoster()))
@@ -137,7 +131,7 @@ class GroupFormerTest(TestCase):
 
         optimal_groups, second_optimal, third_optimal = calc_optimal_groups(self.gf, 1, 1)
 
-        self.assertEqual(optimal_groups,)
+        self.assertGreater(optimal_groups[1], second_optimal[1])
 
     def test_max_part_more_than_projects(self):
         pass
@@ -196,7 +190,7 @@ class OptimalGroupsTest(TestCase):
         best_group, second_group, third_group = calc_optimal_groups(self.gf, 2)
         #self.assert that the particpants are jim / alice in proj1, bob / jill in proj2
         self.assertEqual(best_group[1], 28, 'The best group value is indeed 28!')
-        
+
     def test_get_multiple_optimal_groups(self):
         best_group, second_group, third_group = calc_optimal_groups(self.gf, 2)
         self.assertEqual(best_group[1], 28, 'The best group value is indeed 28!')
