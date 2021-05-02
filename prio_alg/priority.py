@@ -128,7 +128,8 @@ def shuffle_list(ref_list):
 
 def calc_optimal_groups(gf, max_parts=4, epoch=75):
     """Uses random hill climbing algorithm to determine
-    the "best" grouping of participants"""
+    the "best" grouping of participants
+    returns top three groupings in tuples (group, value)"""
     best_group_value = 0
     best_group_list = []
     second_best_value = 0
@@ -158,7 +159,7 @@ def calc_optimal_groups(gf, max_parts=4, epoch=75):
             third_best_value = temp
 
     # returns a list of tupled project, with the participant roster
-    return best_group_list, best_group_value, second_best_group_list, second_best_value, third_best_group_list, third_best_value
+    return (best_group_list, best_group_value), (second_best_group_list, second_best_value), (third_best_group_list, third_best_value)
 
 def save_group(project, candidate_list):
     """Groups project and the proj's candidate list into a tuple"""

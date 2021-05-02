@@ -99,18 +99,9 @@ class GroupFormerTest(TestCase):
         print('Before adding desiring partners')
         prio1 = calc_project_priority(self.proj1, self.gf.getRoster(), self.gf.getAttributeList())
         print(str(prio1))
-        #self.assertEqual(prio, 2.0)
-        #print the score after making desired partners
         print('After adding desired partners')
         self.part1.desires(self.part2)
         self.part2.desires(self.part1)
-        #print(self.part1.getDesiredPartnerList())
-        #self.part2.desires(self.part1)
-        #if self.part2 in self.part1.getDesiredPartnerList():
-         #   print(True)
-        #else:
-         #   print(False)
-        #print(list(self.part1.desired_partner.all()))
         prio2 = calc_project_priority(self.proj1, self.gf.getRoster(), self.gf.getAttributeList())
         print(str(prio2))
         self.assertGreater(prio2, prio1)
@@ -202,8 +193,10 @@ class OptimalGroupsTest(TestCase):
         self.assertEqual(calc_project_priority(self.proj1, roster, self.gf.getAttributeList()), 10)
         self.assertEqual(calc_project_priority(self.proj2, roster2, self.gf.getAttributeList()), 9)
     def test_get_optimal_group(self):
-        best_group, best_value, second_group, second_value, third_group, third_value = calc_optimal_groups(self.gf, 2)
-        self.assertEqual(best_value, 28, 'The best group value is indeed 28!')
+        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2)
+        #self.assert that the particpants are jim / alice in proj1, bob / jill in proj2
+        self.assertEqual(best_group[1], 28, 'The best group value is indeed 28!')
+        
     def test_get_multiple_optimal_groups(self):
         best_group, best_value, second_group, second_value, third_group, third_value = calc_optimal_groups(self.gf, 2)
         self.assertEqual(best_value, 28, 'The best group value is indeed 28!')
@@ -213,3 +206,18 @@ class OptimalGroupsTest(TestCase):
     def test_get_priority_for_participant_for_project(self):
         val = calc_project_priority(self.proj1, self.gf.getRoster(), None)
         self.assertEqual(val, 13.0)
+
+    def test_desired_partner(self):
+        # print the score before making desired partners
+        # groups = create_random_candidate_groups(self.gf, 2)
+        # print(str(calc_global_score(groups, self.gf.getAttributeList())))
+        print('Before adding desiring partners')
+        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2)
+        print(str(best_group))
+        print('After adding desired partners')
+        self.part1.desires(self.part1)
+        self.part2.desires(self.part4)
+        best_group2, second_group, third_group = calc_optimal_groups(self.gf, 2)
+        print(str(best_group2))
+        self.assertGreater(best_group2[1], best_group[1])
+    
