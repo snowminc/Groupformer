@@ -133,6 +133,10 @@ def calc_optimal_groups(gf, max_parts=4, epoch=50):
     the "best" grouping of participants"""
     best_group_value = 0
     best_group_list = []
+    second_best_value = 0
+    second_best_group_list = []
+    third_best_value = 0
+    third_best_group_list = []
     #amount of people able to go into projects for evenness
     #total_combinations = combination_num(max_parts, len(gf.getRoster()))
 
@@ -148,9 +152,15 @@ def calc_optimal_groups(gf, max_parts=4, epoch=50):
         if temp > best_group_value:
             best_group_list = group_list.copy()
             best_group_value = temp
+        elif temp > second_best_value:
+            second_best_value = group_list.copy()
+            second_best_group_list = temp
+        elif temp > third_best_value:
+            third_best_value = group_list.copy()
+            third_best_group_list = temp
 
     # returns a list of tupled project, with the participant roster
-    return best_group_list
+    return best_group_list, second_best_group_list, third_best_group_list
 
 def save_group(project, candidate_list):
     """Groups project and the proj's candidate list into a tuple"""

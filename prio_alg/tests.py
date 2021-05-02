@@ -146,7 +146,9 @@ class GroupFormerTest(TestCase):
         participantProjectChoice(self.part2, proj5, 5)
         participantProjectChoice(self.part2, proj6, 4)
 
-        print(calc_optimal_groups(self.gf, 1, 1))
+        optimal_groups, second_optimal, third_optimal = calc_optimal_groups(self.gf, 1, 1)
+
+        self.assertEqual(optimal_groups,)
 
         
 
