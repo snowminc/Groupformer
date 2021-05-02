@@ -206,6 +206,6 @@ class OptimalGroupsTest(TestCase):
         self.assertEqual(calc_project_priority(self.proj2, roster2, self.gf.getAttributeList()), 9)
     def test_get_optimal_group(self):
         best_group, best_value, second_group, second_value, third_group, third_value = calc_optimal_groups(self.gf, 2)
-        self.assertEqual(best_value, 28)
+        self.assertEqual(best_value, 28, 'The best group value is indeed 28!')
     def test_get_multiple_optimal_groups(self):
         pass

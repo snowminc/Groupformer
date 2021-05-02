@@ -146,7 +146,7 @@ def calc_optimal_groups(gf, max_parts=4, epoch=50):
         group_list = create_random_candidate_groups(gf, max_parts)
 
         temp = calc_global_score(group_list, gf.getAttributeList())
-        print(temp)
+        #print(temp)
         if temp > best_group_value:
             best_group_list = group_list.copy()
             best_group_value = temp
@@ -239,36 +239,39 @@ def create_random_candidate_groups(gf, max_parts):
         
         j = 0
         while len(roster) > 0:
-            print(roster)
+            #print(roster)
             #get random amount of people to be partnered up from 0 to max_participants
             #if roster length remaining is larger than the max participants
             #get a random number between 0 and the max_participants
             #else the roster length remaining is smaller than the max allowable participants
             #get a random number between 0 and the range of the length of the roster
 
-            num_parts = random.randint(0, max_parts)
+            #only step into this if we can put people into a bucket
+            if len(candidate_lists[j]) < max_parts:
 
-            if num_parts + len(candidate_lists[j]) > max_parts:
-                num_parts -= len(candidate_lists[j])
+                #get a random number between 0 and the maximum participants to a group
+                num_parts = random.randint(0, max_parts)
 
-            #print(num_parts)
-            for i in range(num_parts):
-                if len(roster) == 0:
-                    break
-                else:
-                    candidate_lists[j].append(roster.pop())
-            #print(temp_list)
-            #we should never get to the point where we infinite loop because the random int is
-            # bound to the limits of the roster length, we just have to search the buckets that
-            # can fit the remaining participants 
+                #check if the addition of the participants would exceed the max_participant
+                #limit, if it does then get the remaining available spots and fill them
+                #with participants
+                if num_parts + len(candidate_lists[j]) > max_parts:
+                    num_parts -= len(candidate_lists[j])
+
+                #print(num_parts)
+                for i in range(num_parts):
+                    if len(roster) == 0:
+                        break
+                    else:
+                        candidate_lists[j].append(roster.pop())
 
             #make sure j mods the list size so we don't iterate passed the list
             #print(candidate_lists)
-            if j == len(candidate_lists):
+            if j >= len(candidate_lists):
                 j = 0
             else:
                 j += 1
-            
+
 
      
     # combine the projects with their respective candidate lists
