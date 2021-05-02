@@ -126,7 +126,7 @@ def shuffle_list(ref_list):
 
     return shuf_list
 
-def calc_optimal_groups(gf, max_parts=4, epoch=50):
+def calc_optimal_groups(gf, max_parts=4, epoch=75):
     """Uses random hill climbing algorithm to determine
     the "best" grouping of participants"""
     best_group_value = 0
@@ -147,13 +147,13 @@ def calc_optimal_groups(gf, max_parts=4, epoch=50):
 
         temp = calc_global_score(group_list, gf.getAttributeList())
         #print(temp)
-        if temp > best_group_value:
+        if temp >= best_group_value:
             best_group_list = group_list.copy()
             best_group_value = temp
-        elif temp > second_best_value:
+        elif temp >= second_best_value:
             second_best_group_list = group_list.copy()
             second_best_value = temp
-        elif temp > third_best_value:
+        elif temp >= third_best_value:
             third_best_group_list = group_list.copy()
             third_best_value = temp
 

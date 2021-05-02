@@ -70,21 +70,18 @@ class GroupFormerTest(TestCase):
             print(att.is_homogenous)
 
     def test_get_priority_for_participant_for_project(self):
-        print(calc_project_priority(self.proj2, self.gf.getRoster(), None))
-        #self.assertEqual(self.part1.getProjectChoice(self.proj1).value, float(1.0))
+        val = calc_project_priority(self.proj1, self.gf.getRoster(), None)
+        self.assertEqual(val, 7.0)
 
     def test_get_group_score(self):
         project = self.proj1
         roster = self.gf.getRoster()
         attribute_list = self.gf.getAttributeList()
-        print(str(calc_project_priority(project, roster, attribute_list)))
         self.assertEqual(calc_project_priority(project, roster, attribute_list), -1.0)
 
     def test_shuffle_particpants(self):
         roster = list(self.gf.getRoster())
         shuffled_roster = shuffle_list(list(self.gf.getRoster()))
-        print(roster)
-        print(shuffled_roster)
         self.assertNotEqual(roster, shuffled_roster, "Roster order is different")
 
     def test_get_global_score(self):
@@ -208,4 +205,11 @@ class OptimalGroupsTest(TestCase):
         best_group, best_value, second_group, second_value, third_group, third_value = calc_optimal_groups(self.gf, 2)
         self.assertEqual(best_value, 28, 'The best group value is indeed 28!')
     def test_get_multiple_optimal_groups(self):
-        pass
+        best_group, best_value, second_group, second_value, third_group, third_value = calc_optimal_groups(self.gf, 2)
+        self.assertEqual(best_value, 28, 'The best group value is indeed 28!')
+        self.assertEqual(second_value, 21, 'The second best value is 21!')
+        self.assertEqual(third_value, 20, 'The third best value is 20!')
+
+    def test_get_priority_for_participant_for_project(self):
+        val = calc_project_priority(self.proj1, self.gf.getRoster(), None)
+        self.assertEqual(val, 13.0)
