@@ -198,10 +198,10 @@ class OptimalGroupsTest(TestCase):
         self.assertEqual(best_group[1], 28, 'The best group value is indeed 28!')
         
     def test_get_multiple_optimal_groups(self):
-        best_group, best_value, second_group, second_value, third_group, third_value = calc_optimal_groups(self.gf, 2)
-        self.assertEqual(best_value, 28, 'The best group value is indeed 28!')
-        self.assertEqual(second_value, 21, 'The second best value is 21!')
-        self.assertEqual(third_value, 20, 'The third best value is 20!')
+        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2)
+        self.assertEqual(best_group[1], 28, 'The best group value is indeed 28!')
+        self.assertEqual(second_group[1], 21, 'The second best value is 21!')
+        self.assertEqual(third_group[1], 20, 'The third best value is 20!')
 
     def test_get_priority_for_participant_for_project(self):
         val = calc_project_priority(self.proj1, self.gf.getRoster(), None)
