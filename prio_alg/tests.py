@@ -105,9 +105,9 @@ class GroupFormerTest(TestCase):
     def test_range_fcn(self):
         min_num = -2
         max_num = 20
-        self.assertEqual(max_range(min_num, 2, max_num), 18)
-        self.assertEqual(max_range(min_num, 10, max_num), 12)
-        self.assertEqual(max_range(min_num, 20, max_num), 22)
+        self.assertEqual(greater_difference(min_num, 2, max_num), 18)
+        self.assertEqual(greater_difference(min_num, 10, max_num), 12)
+        self.assertEqual(greater_difference(min_num, 20, max_num), 22)
     
     def test_create_random_candidates(self):
         print(create_random_candidate_groups(self.gf, 1))
@@ -645,3 +645,9 @@ class RealWorldTest(TestCase):
         best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, 100)
 
         print(best_group[1], second_best[1], third_best[1])
+    
+    def test_get_proj_score_after_initial_groupings(self):
+        best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, 100)
+        #print(best_group)
+        print(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()))
+        #self.assertEqual(get_individual_proj_scores(best_group, self.gf.getAttributeList()), best_group[1])
