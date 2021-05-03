@@ -645,9 +645,10 @@ class RealWorldTest(TestCase):
         best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, 100)
 
         print(best_group[1], second_best[1], third_best[1])
+        self.assertGreater(best_group[1], second_best[1])
     
     def test_get_proj_score_after_initial_groupings(self):
         best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, 100)
         #print(best_group)
-        print(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()))
-        #self.assertEqual(get_individual_proj_scores(best_group, self.gf.getAttributeList()), best_group[1])
+        #print(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()))
+        self.assertEqual(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()), best_group[1])
