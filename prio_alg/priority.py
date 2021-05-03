@@ -268,10 +268,12 @@ def create_random_candidate_groups(gf, max_parts):
 
             #make sure j mods the list size so we don't iterate passed the list
             #print(candidate_lists)
-            if j >= len(candidate_lists):
-                j = 0
-            else:
+            #have to decrement the size becuase we do the operation THEN check,
+            # not check then iterate
+            if j < len(candidate_lists)-1:
                 j += 1
+            else:
+                j = 0
 
 
      
@@ -288,6 +290,17 @@ def create_random_candidate_groups(gf, max_parts):
         group_list.append(save_group(project, candidates))
     
     return group_list
+
+# returns the group score in a list of tuples
+def get_individual_proj_scores(group_list, attribute_list):
+    proj_list = []
+    for group_tuple in group_list:
+        proj_name = group_tuple[0]
+        proj_parts = group_tuple[1]
+        proj_prio = calc_project_priority(proj_name, proj_parts, attribute_list)
+        proj_list.append((proj_name, proj_prio))
+    return proj_list
+
 
 def check_if_exactly_equal(list_1, list_2):
     """ 
