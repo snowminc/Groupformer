@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'prio_alg.apps.PrioAlgConfig',
     'dbtools.apps.DbtoolsConfig',
     'setup_screen.apps.FormConfig',
     'results_screen.apps.ResultsScreenConfig',
@@ -122,8 +123,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-
+if 'HEROKU' in os.environ:
+    import django_heroku
+    django_heroku.settings(locals())
+    DEBUG = False
 
 # CSRF Security
 CSRF_USE_SESSIONS = True

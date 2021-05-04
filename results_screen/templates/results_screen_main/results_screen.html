@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        
+        <!-- Custom CSS file -->
+        <link rel="stylesheet" type="text/css" href="{% static 'main/style.css' %}">
+        <!-- Bootstrap CDN -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+        
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+        <title>Sample List Of Groupformer Instances</title>
+    </head>
+
+    <body>
+        <div id="page-container">
+            <div id="container-fluid">
+                <!-- Page Header -->
+                <div class="row">
+                    <h1 class="display-4 text-center mx-auto d-block">Section Groups</h1>
+                </div>
+
+                <!-- Page Spacer -->
+                <div class="spacer"></div>
+
+                <!-- Main Content -->
+                <div class="row">
+                    <main role="main" class="col-8 mx-auto px-4">
+
+                        <!-- Project Listings -->
+                        {% if groupformers %}
+                        <div class="row">
+                            <!-- Tabs -->
+                            <div class="nav flex-column nav-pills col-3" id="vert-tabs" role="tablist" aria-orientation="vertical">
+                                <h4 style="border-bottom: 1px solid #AAA; padding-bottom: 15px;">Sections</h4>
+
+                                <!-- Example: <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">Home</a> -->
+                                {% for gf in groupformers %}
+                                <a class="nav-link {% if forloop.counter == 1 %}active show{% endif %}" 
+                                        id="tab-{{ gf.pk }}" data-toggle="pill" href="#content-{{ gf.pk }}" role="tab" 
+                                        aria-controls="content-{{ gf.pk }}" aria-selected="{% if forloop.counter == 1 %}}true{% else %}false{% endif %}">
+                                    {{ gf.class_section }}
+                                </a>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Tab Content -->
+                            <div class="tab-content col-9" id="vert-tabs-content">
+
+                                <!-- Example: <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">...</div> -->
+                                {% for gf in groupformers %}
+                                <div class="tab-pane fade {% if forloop.counter == 1 %}active show{% endif %}" 
+                                        id="content-{{ gf.pk }}" role="tabpanel" aria-labelledby="tab-{{ gf.pk }}">
+
+                                    <div class="custom-form-box">
+                                        <form action='#' class="needs-validation" novalidate>
+                                            <form class="form-inline" action="#">
+                                                <h4>Section: <span style="font-weight: 300;">{{ gf.class_section }}</span></h4>
+                                                <h5>Created By: <span style="font-weight: 300;">{{ gf.prof_name }} &lt;{{ gf.prof_email }}&gt; </span></h5>
+                                                <h5>Student Response Link: 
+                                                    <a href="{% url 'response_screen:response_screen' groupformer_id=gf.id %}">
+                                                        <span style="font-weight:300;">{{ request.META.HTTP_HOST }}{% url 'response_screen:response_screen' groupformer_id=gf.id %}</span>
+                                                    </a>
+                                                </h5>
+                                                <br>
+                                                <input type="hidden" name="id" value="{{ gf.id }}">
+                                                <button type="submit" id="groupformer{{ gf.id }}_submit" class="btn btn-primary">Create Groups</button>
+                                            </form>
+        
+                                            <!-- Group Names display -->
+                                            <div id="groupformer{{ gf.id }}_groups">
+                                            
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </main>
+                </div> <!-- End Main Content row -->
+            </div>
+        </div>
+
+        <script>
+            
+            function updateGroupDisplay(display, data) {
+                // Create an unordered list of student groups and add them to the display div.
+                var label = $('<h6/>').html("Groups:");
+                var ul = $('<ul/>');
+                ul.addClass('list-group list-group-flush');
+                $.each(data, function (index, value) {
+                    var row = $('<li/>').html(value.join(", "));
+                    row.addClass('list-group-item');
+                    ul.append(row);
+                });
+
+                // Clear display div first to prevent duplicated output.
+                display.html("<br>");
+                display.append(label);
+                display.append(ul);
+            }
+
+            // When any form is submitted, grab the groups formed at the specified form's groupformer id.
+            $("form").submit(function (event) {
+                // Do not actually "submit" the form.
+                event.preventDefault();
+
+                // Save the GroupFormer section ID and select the group display div.
+                var id = this.id.value;
+                var group_display = $("#groupformer" + id + "_groups");
+
+                // Retrieve the created Groups (EXAMPLE FOR PROOF OF CONCEPT)
+                $.ajax({
+                    url: 'sample_groups/' + id,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (response) {
+                        // Data is in a "data" key, to serialize information as JSON. Cannot send plain List/Arrays over.
+                        data = response.data;
+                        updateGroupDisplay(group_display, data);
+                    }
+                });
+            });
+        </script>
+    </body>
+
+</html>

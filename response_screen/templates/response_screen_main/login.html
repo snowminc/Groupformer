@@ -27,12 +27,12 @@
         {% if error %}
           <div class="alert alert-danger" id="bad-email" role="alert" visibility=hidden>Email not connected to this section</div>
         {% endif %}
-          <form class="needs-validation" action='login' method="post" enctype="multipart/form-data" novalidate>
+          <form class="needs-validation" action="{% url 'response_screen:login' groupformer_id=groupformer.pk %}" method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
             <input type="hidden" name="redirect" value="{{ redirect }}">
             <div class="custom-form-box">
               <label for="email">Email</label>
-              <input type="text" class="form-control" name="email" required>
+              <input type="text" class="form-control" name="email" id="email" required>
                 <div class="invalid-feedback">
                   Must complete this field.
                 </div>

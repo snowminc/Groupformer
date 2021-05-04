@@ -16,20 +16,15 @@ class FormResponseView(generic.DetailView):
     template_name = 'results_screen_main/response_screen.html'
 """
 
-def groupformer_list(request):
-
-    # page requires login
-    if not request.user.is_authenticated:
-        return redirect(reverse('setup_screen:login_screen') + '?redirect=results_screen')
-
-    #TODO: filter groupformers by user email
-    #TODO: probably will want to associate groupformers to the actual user object (not just email)
-
+def results_screen(request):
     # Get all groupformers to list groupformer instances for group generating
     groupformers = GroupFormer.objects.all()
     context = {"groupformers": groupformers}
 
-    return render(request, 'results_screen_main/groupformer_list.html', context)
+    #TODO: filter groupformers by user email
+    #TODO: probably will want to associate groupformers to the actual user object (not just email)
+
+    return render(request, 'results_screen_main/results_screen.html', context)
 
 
 def sample_groups(request, groupformer_id):
