@@ -2,6 +2,7 @@
 from django.test import TestCase
 from dbtools.models import *
 from .priority import *
+import pprint
 
 
 class GroupFormerTest(TestCase):
@@ -649,6 +650,9 @@ class RealWorldTest(TestCase):
     
     def test_get_proj_score_after_initial_groupings(self):
         best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, 100)
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(best_group)
+        pp.pprint(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()))
         #print(best_group)
         #print(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()))
         self.assertEqual(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()), best_group[1])
@@ -656,3 +660,13 @@ class RealWorldTest(TestCase):
     def test_combination_calculation(self):
         self.assertEqual(combination_num(12, 4), 495)
         self.assertEqual(combination_num(20, 7), 77520)
+
+    def test_different_epochs(self):
+        pp = pprint.PrettyPrinter(indent=4)
+
+        for i in range(200,500,25):
+            best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, i)
+
+            pp.pprint(str(i) + ' : ' + str(best_group[1]))
+
+    

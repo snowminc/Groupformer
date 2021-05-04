@@ -7,7 +7,7 @@ from dbtools.models import *
 
 MAX_PRIO = 5
 MIN_PRIO = 0
-PERCENTAGE_THRESHOLD = .15
+#PERCENTAGE_THRESHOLD = .15
 
 
 # calculate the priority for a group
@@ -126,7 +126,7 @@ def calc_global_score(project_candidate_list, attribute_list):
             min_proj = val
         master_score += val
 
-    master_score += min_proj
+    master_score += min_proj**2
     return master_score
 
 
@@ -151,7 +151,7 @@ def shuffle_list(ref_list):
 
 def calc_optimal_groups(gf, max_parts=4, epoch=0):
     """Uses random hill climbing algorithm to determine
-    the "best" grouping of participants
+    the "best" grouping of participants.
 
     :param
         gf (groupformer) : groupformer instance
@@ -167,7 +167,7 @@ def calc_optimal_groups(gf, max_parts=4, epoch=0):
         to match to the project and val is the master priority of all of the groups in groups list
         returns top three groupings in tuples (group, value)"""
     if epoch == 0:
-        epoch = combination_num(max_parts, len(gf.getProjectList()))
+        epoch = int(combination_num(len(gf.getProjectList()), max_parts))
     
     best_group_value = 0
     best_group_list = []
