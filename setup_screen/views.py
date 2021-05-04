@@ -69,18 +69,21 @@ def submit_groupformer(request):
 def login_screen(request):
 
     if request.user.is_authenticated:
-        if request.GET['redirect'] == 'results_screen':  # TODO: test & implement proper redirecting
+        if request.GET['redirect'] == 'results_screen':
             return redirect(reverse('results_screen:results_screen'))
         return redirect(reverse('setup_screen:index'))
 
     # display login screen
-    return render(request, 'setup_screen/instructor_login.html', context={'create_account': False})
+    return render(request,
+                  'setup_screen/instructor_login.html',
+                  context={'create_account': False, 'redirect': request.GET['redirect']}
+                  )
 
 
 def create_account_screen(request):
 
     if request.user.is_authenticated:
-        if 'results_screen' in request:  # TODO: test & implement proper redirecting
+        if request.GET['redirect'] == 'results_screen':
             return redirect(reverse('results_screen:results_screen'))
         return redirect(reverse('setup_screen:index'))
 
@@ -95,12 +98,17 @@ def login_endpoint(request):
 
     if user is not None:
         login(request, user)
-        if 'results_screen' in request:  # TODO: test & implement proper redirecting
+        if request.POST['redirect'] == 'results_screen':
             return redirect(reverse('results_screen:results_screen'))
         return redirect(reverse('setup_screen:index'))
 
     # failed to authenticate, so display error message
-    return render(request, 'setup_screen/instructor_login.html', {'error': 'could not authenticate user', 'create_account': False})
+    return render(request, 'setup_screen/instructor_login.html',
+                  {
+                      'error': 'Could not authenticate user',
+                      'create_account': False,
+                      'redirect': request.GET['redirect']
+                  })
 
 
 def create_account(request):
@@ -114,19 +122,31 @@ def create_account(request):
 
     if password != confirm_password:
         return render(request, 'setup_screen/instructor_login.html',
-                      {'error': 'Passwords do not match!', 'create_account': True})
+                      {
+                          'error': 'Passwords do not match!',
+                          'create_account': True
+                      })
 
     if len(password) < 6:
         return render(request, 'setup_screen/instructor_login.html',
-                      {'error': 'password must be 6 or more characters!', 'create_account': True})
+                      {
+                          'error': 'password must be 6 or more characters!',
+                          'create_account': True
+                      })
 
     if len(User.objects.filter(username=username)) > 0:
         return render(request, 'setup_screen/instructor_login.html',
-                      {'error': 'Username already taken!', 'create_account': True})
+                      {
+                          'error': 'Username already taken!',
+                          'create_account': True
+                      })
 
     if len(User.objects.filter(email=email)) > 0:
         return render(request, 'setup_screen/instructor_login.html',
-                      {'error': 'Email already taken!', 'create_account': True})
+                      {
+                          'error': 'Email already taken!',
+                          'create_account': True
+                      })
 
     user: User = User.objects.create_user(username=username, email=email, password=password)
     user.first_name = request.POST['first_name']
@@ -140,4 +160,8 @@ def create_account(request):
 def logout_endpoint(request):
     logout(request)
 
-    return render(request, 'setup_screen/instructor_login.html', {'success': 'Logged out successfully!', 'create_account': False})
+    return render(request, 'setup_screen/instructor_login.html',
+                  {
+                      'success': 'Logged out successfully!',
+                      'create_account': False
+                  })

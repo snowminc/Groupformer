@@ -29,6 +29,7 @@
         {% endif %}
           <form class="needs-validation" action='login' method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
+            <input type="hidden" name="redirect" value="{{ redirect }}">
             <div class="custom-form-box">
               <label for="email">Email</label>
               <input type="text" class="form-control" name="email" required>
