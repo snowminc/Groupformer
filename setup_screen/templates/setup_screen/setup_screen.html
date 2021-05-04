@@ -303,7 +303,7 @@
 
             <h2>Info</h2>
             <div class="container">
-                <h3>Welcome {{ user.first_name }} ({{ user.email }}). <a class="btn btn-danger" href="{% url 'setup_screen:logout_endpoint' %}">logout</a> </h3>
+                <h3>Welcome {{ user.first_name }} ({{ user.email }}). <a class="btn btn-danger" id="logout-btn" href="{% url 'setup_screen:logout_endpoint' %}">logout</a> </h3>
                 <div class="form-group"><!--TODO: remove name and email in light of authentication-->
                     <label for="instructor-name">Your Name</label>
                     <input id="instructor-name" type="text" class="form-control col-md-2" placeholder="Jules Johnson" required>

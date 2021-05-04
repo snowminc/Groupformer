@@ -31,7 +31,7 @@
                 <div class="row">
                     <main role="main" class="col-8 mx-auto px-4">
 
-                        <h4>Welcome {{ user.first_name }} ({{ user.email }}). <a class="btn btn-danger" href="{% url 'setup_screen:logout_endpoint' %}">logout</a> </h4>
+                        <h4>Welcome {{ user.first_name }} ({{ user.email }}). <a class="btn btn-danger" id="logout-btn" href="{% url 'setup_screen:logout_endpoint' %}">logout</a> </h4>
                         <div class="spacer"></div>
 
                         <!-- Project Listings -->

@@ -67,23 +67,29 @@ def submit_groupformer(request):
 
 
 def login_screen(request):
+    redirect_value = ""
+    if 'redirect' in request.GET:
+        redirect_value = request.GET['redirect']
 
     if request.user.is_authenticated:
-        if request.GET['redirect'] == 'results_screen':
+        if redirect_value == 'results_screen':
             return redirect(reverse('results_screen:results_screen'))
         return redirect(reverse('setup_screen:index'))
 
     # display login screen
     return render(request,
                   'setup_screen/instructor_login.html',
-                  context={'create_account': False, 'redirect': request.GET['redirect']}
+                  context={'create_account': False, 'redirect': redirect_value}
                   )
 
 
 def create_account_screen(request):
+    redirect_value = ""
+    if 'redirect' in request.GET:
+        redirect_value = request.GET['redirect']
 
     if request.user.is_authenticated:
-        if request.GET['redirect'] == 'results_screen':
+        if redirect_value == 'results_screen':
             return redirect(reverse('results_screen:results_screen'))
         return redirect(reverse('setup_screen:index'))
 
@@ -96,9 +102,13 @@ def login_endpoint(request):
     password = request.POST['password']
     user = authenticate(request, username=username, password=password)
 
+    redirect_value = ""
+    if 'redirect' in request.POST:
+        redirect_value = request.POST['redirect']
+
     if user is not None:
         login(request, user)
-        if request.POST['redirect'] == 'results_screen':
+        if redirect_value == 'results_screen':
             return redirect(reverse('results_screen:results_screen'))
         return redirect(reverse('setup_screen:index'))
 
@@ -107,7 +117,7 @@ def login_endpoint(request):
                   {
                       'error': 'Could not authenticate user',
                       'create_account': False,
-                      'redirect': request.POST['redirect']
+                      'redirect': redirect_value
                   })
 
 
@@ -130,7 +140,7 @@ def create_account(request):
     if len(password) < 6:
         return render(request, 'setup_screen/instructor_login.html',
                       {
-                          'error': 'password must be 6 or more characters!',
+                          'error': 'Password must be 6 or more characters!',
                           'create_account': True
                       })
 
