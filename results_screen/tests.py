@@ -8,7 +8,6 @@ from dbtools.models import *
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-
 def create_sample_groupformer():
     gfs = {}
     gfs[1] = {}
@@ -72,11 +71,34 @@ class SeleniumGroupformerList(LiveServerTestCase):
         cls.selenium.quit()
         super().tearDownClass()
 
+    def try_create_account(self):
+        self.selenium.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.selenium.find_element_by_id('first_name').send_keys('Min')
+        self.selenium.find_element_by_id('last_name').send_keys('CHon')
+        self.selenium.find_element_by_id('username').send_keys('minc')
+        self.selenium.find_element_by_id('email').send_keys('minc1@umbc.edu')
+        self.selenium.find_element_by_id('password').send_keys('pass1234567')
+        self.selenium.find_element_by_id('confirm_password').send_keys('pass1234567')
+
+        self.selenium.find_element_by_id('login-submit').click()
+
+    def sign_in(self):
+        self.selenium.get(self.live_server_url + reverse('setup_screen:login_screen'))
+
+        self.selenium.find_element_by_id('username').send_keys('minc')
+        self.selenium.find_element_by_id('password').send_keys('pass1234567')
+
+        self.selenium.find_element_by_id('login-submit').click()
+
     def test_get_group(self):
         """
         Test that the now non-arbitrary groups still display on the list.
         "Formed groups" are still arbitrary, and act as if retrieved from the back-end group forming algorithm
         """
+        self.try_create_account()
+        self.sign_in()
+
         gfs = create_all_samples()
         # ID is necessary because each Selenium test does not create its own isolated DB for models
         gfs1 = gfs[1]['gf'].id
