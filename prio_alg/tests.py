@@ -652,3 +652,7 @@ class RealWorldTest(TestCase):
         #print(best_group)
         #print(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()))
         self.assertEqual(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()), best_group[1])
+    
+    def test_combination_calculation(self):
+        self.assertEqual(combination_num(12, 4), 495)
+        self.assertEqual(combination_num(20, 7), 77520)

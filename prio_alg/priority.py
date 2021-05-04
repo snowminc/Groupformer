@@ -149,7 +149,7 @@ def shuffle_list(ref_list):
     return shuf_list
 
 
-def calc_optimal_groups(gf, max_parts=4, epoch=75):
+def calc_optimal_groups(gf, max_parts=4, epoch=0):
     """Uses random hill climbing algorithm to determine
     the "best" grouping of participants
 
@@ -166,7 +166,9 @@ def calc_optimal_groups(gf, max_parts=4, epoch=75):
         groups is [(project,participant_list), ...] where each candidate_list has participants
         to match to the project and val is the master priority of all of the groups in groups list
         returns top three groupings in tuples (group, value)"""
-
+    if epoch == 0:
+        epoch = combination_num(max_parts, len(gf.getProjectList()))
+    
     best_group_value = 0
     best_group_list = []
     second_best_value = 0
@@ -213,12 +215,17 @@ def save_group(project, candidate_list):
 
 def combination_num(n, r):
     """Combination formula to calculate the maximum amount of different combinations
+    "n choose r"
     :param
         n (int) : n distict objects
         r (int) : sample of r elements
 
     :return
         Returns result of combination calculation"""
+    if n < r:
+        raise Exception()('n cannot be less than r')
+    if n == 0 or r == 0:
+        raise Exception('n or r cannot be 0')
     return math.factorial(n) / (math.factorial(r) * math.factorial(n - r))
 
 
