@@ -107,7 +107,7 @@ def login_endpoint(request):
                   {
                       'error': 'Could not authenticate user',
                       'create_account': False,
-                      'redirect': request.GET['redirect']
+                      'redirect': request.POST['redirect']
                   })
 
 
