@@ -197,17 +197,6 @@ def addRoster(gf, roster):
             #Raise a warning to the proper channels
     return ps
 
-def getUser(username):
-    """
-        Gets a User (django.contrib.auth.models.User) from a given username
-    """
-    associated_users = User.objects.filter(username=associated_username)
-    if len(associated_users) == 0:
-        return None
-    #Username required to be unique
-    return associated_users[0]
-    
-
 """ 
     Each of the following takes the required attributes
     Of their associated model, and returns an instance of that model
