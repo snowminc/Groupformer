@@ -364,7 +364,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.goto_index()
 
         instructor_name = "Ben Johnson"
-        instructor_email = "benj1@umbc.edu"
+        instructor_email = "morgan@freeman.com"
         custom_name = "CMSC 447 Section 3"
         people_per_group = "5"
         roster_input = "Min Chon,minc1@umbc.edu\n" \
@@ -678,7 +678,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # ensure groupformer was properly added
         gf = GroupFormer.objects.all()[0]
         self.assertEqual("Ben Johnson", gf.prof_name)
-        self.assertEqual("benj1@umbc.edu", gf.prof_email)
+        self.assertEqual("morgan@freeman.com", gf.prof_email)
         self.assertEqual("CMSC 447 Section 3", gf.class_section)
         # TODO: self.assertEqual(5, gf.people_per_group)
 
