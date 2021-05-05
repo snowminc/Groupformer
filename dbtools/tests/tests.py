@@ -117,51 +117,53 @@ class DatabaseTests(TestCase):
         #This test is of a database that has been manually put into duplication
         #Expects many many errors
         user = User.objects.create_user("Benjo", "bjohn@umbc.edu","9YzFnrrK")
-        user.save()
         GroupFormer.objects.create(associated_user_id=user,
                                    prof_name="Ben Johnson",
                                    prof_email="bjohn@umbc.edu",
                                    class_section="CMSC 447-01")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate GroupFormer - adding
             addGroupFormer("Ben Johnson","bjohn@umbc.edu","CMSC 447-01")
         p2 = GroupFormer.objects.create(associated_user_id=user,
                                         prof_name="Ben Johnson",
                                         prof_email="bjohn@umbc.edu",
                                         class_section="CMSC 447-01")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate GroupFormer - getting
             getGroupFormer("Ben Johnson","CMSC 447-01")
         p2.delete()
         
         gf = getGroupFormer("Ben Johnson","CMSC 447-01")
         gf.addAttribute("Attribute",True,True)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate attribute - adding
             gf.addAttribute("Attribute",True,False)
         a2 = Attribute.objects.create(group_former=gf,attr_name="Attribute",is_homogenous=True,is_continuous=False)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate attribute with different aux. properties
             gf.addAttribute("Attribute",False,False)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate attribute - getting
             gf.getAttribute("Attribute")
         gf.delete()
         self.assertEqual(len(Attribute.objects.all()),0)
-        user2 = User.objects.create_user("proff", "prof@e.mail","9YzFnrrK")
-        user2.save()
-        with self.assertRaises(ValueError):
+        User.objects.create_user("proff", "prof@e.mail","9YzFnrrK")
+        with self.assertRaises(ValueError): # User doesn't exist - different email
             addGroupFormer("Professor","notprof@e.mail","Section 1")
+        u5 = User.objects.create_user("otherprof", "prof@e.mail","9YzFnrrK")
+        with self.assertRaises(ValueError): # Multiple users exist
+            addGroupFormer("Professor","notprof@e.mail","Section 1")
+        u5.delete()
         gf = addGroupFormer("Professor","prof@e.mail","Section 1")
         a2 = gf.addAttribute("Attributes",True,True)
         gf.addParticipant("Party Cipant","pcpant@uwm.edu")
         p2 = Participant.objects.create(group_former=gf,part_name="Party Cipant",part_email="pcpant@uwm.edu")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate Participant - getting by name
             gf.getParticipantByName("Party Cipant")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate Participant - getting by email
             gf.getParticipantByEmail("pcpant@uwm.edu")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate Participant - adding (name dup)
             gf.addParticipant("Party Cipant","party@yahoo.biz")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate Participant - adding (email dup)
             gf.addParticipant("Parles C. Pant","pcpant@uwm.edu")
         p2.delete()
         gf.getParticipantByName("Party Cipant").attributeChoice(a2,3)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): # Duplicate Attribute Choice
             gf.getParticipantByName("Party Cipant").attributeChoice(a2,1)
             
     #Migrated from projects/
