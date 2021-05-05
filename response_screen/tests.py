@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 
@@ -7,11 +8,13 @@ from dbtools.models import *
 
 
 def create_sample_groupformer():
+    User.objects.create_user("mchon", "minc1@umbc.edu", "pahKygvg")
+    User.objects.create_user("bjohn", "ben.johnson@umbc.edu", "MnbHtgUr")
     gfs = {}
     gfs[1] = {}
-    gfs[1]['gf'] = GroupFormer.objects.create(prof_name="Min Chon", prof_email="minc1@umbc.edu", class_section="34")
+    gfs[1]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "34")
     gfs[2] = {}
-    gfs[2]['gf'] = GroupFormer.objects.create(prof_name="Ben Johnson", prof_email="ben.johnson@umbc.edu", class_section="24")
+    gfs[2]['gf'] = addGroupFormer("Ben Johnson", "ben.johnson@umbc.edu", "24")
     return gfs
 
 
@@ -519,6 +522,7 @@ class LoginScreenTest(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def setUp(self):
+        User.objects.create_user("bjohn","bjohn@umbc.edu","eYnNtTBH")
         self.gf = addGroupFormer("Ben Johnson", "bjohn@umbc.edu", "CMSC 447-01")
         self.gf.addParticipant("John Beachy", "johnny@niu.edu")
 
