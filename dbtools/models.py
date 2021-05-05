@@ -214,10 +214,15 @@ def getUser(username):
     after adding it to the database
 """
 
-def addGroupFormer(associated_user,name,email,section):
+def addGroupFormer(name,email,section):
     if getGroupFormer(name,section) != None:
         raise ValueError("GroupFormer with name "+name+" and section "+section+" already exists")
-    p = GroupFormer.objects.create(associated_user_id = associated_user,
+    associated_users = User.objects.filter(email=email)
+    if len(associated_users) == 0:
+        raise ValueError("No User exists with email "+email)
+    if len(associated_users) > 1:
+        raise ValueError("Multiple Users exist with email "+email)
+    p = GroupFormer.objects.create(associated_user_id=associated_users[0],
                                    prof_name=name,
                                    prof_email=email,
                                    class_section=section)

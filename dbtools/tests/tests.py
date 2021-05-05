@@ -20,7 +20,7 @@ class DatabaseTests(TestCase):
         print("Adding with helper functions (add...(gf,))")
         u2 = User.objects.create_user("petra","pnadir@umbc.edu","tUn7MkwK")
         u2.save()
-        gf2 = addGroupFormer(u2,"Petra","pnadir@umbc.edu","Grass watching")
+        gf2 = addGroupFormer("Petra","pnadir@umbc.edu","Grass watching")
         attr2 = addAttribute(gf2,"An Attribute",False,False)
         proj2 = addProject(gf2,"On top of the hill","This grass needs to be watched")
         part2 = addParticipant(gf2,"In dividual","one@unl.edu")
@@ -123,7 +123,7 @@ class DatabaseTests(TestCase):
                                    prof_email="bjohn@umbc.edu",
                                    class_section="CMSC 447-01")
         with self.assertRaises(ValueError):
-            addGroupFormer(user,"Ben Johnson","bjohn@umbc.edu","CMSC 447-01")
+            addGroupFormer("Ben Johnson","bjohn@umbc.edu","CMSC 447-01")
         p2 = GroupFormer.objects.create(associated_user_id=user,
                                         prof_name="Ben Johnson",
                                         prof_email="bjohn@umbc.edu",
@@ -143,9 +143,11 @@ class DatabaseTests(TestCase):
             gf.getAttribute("Attribute")
         gf.delete()
         self.assertEqual(len(Attribute.objects.all()),0)
-        user2 = User.objects.create_user("proff", "notprof@e.mail","9YzFnrrK")
+        user2 = User.objects.create_user("proff", "prof@e.mail","9YzFnrrK")
         user2.save()
-        gf = addGroupFormer(user2,"Professor","prof@e.mail","Section 1")
+        with self.assertRaises(ValueError):
+            addGroupFormer("Professor","notprof@e.mail","Section 1")
+        gf = addGroupFormer("Professor","prof@e.mail","Section 1")
         a2 = gf.addAttribute("Attributes",True,True)
         gf.addParticipant("Party Cipant","pcpant@uwm.edu")
         p2 = Participant.objects.create(group_former=gf,part_name="Party Cipant",part_email="pcpant@uwm.edu")
@@ -167,7 +169,7 @@ class DatabaseTests(TestCase):
         user = User.objects.create_user("Benjo", "bjohn@umbc.edu","9YzFnrrK")
         user.save()
         project_objects_dict = {"project_name": "Test 1", "project_description": "Test Description"}
-        gfobj = addGroupFormer(user,"Dr. Benjamin Johnson","bjohn@umbc.edu","CMSC341")
+        gfobj = addGroupFormer("Dr. Benjamin Johnson","bjohn@umbc.edu","CMSC341")
         response = self.client.post('/dbtools/'+str(gfobj.pk)+'/add_project', project_objects_dict)
         
         # response code for redirecting is 302
