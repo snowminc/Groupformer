@@ -197,19 +197,27 @@ def addRoster(gf, roster):
             #Raise a warning to the proper channels
     return ps
 
+def getUser(username):
+    """
+        Gets a User (django.contrib.auth.models.User) from a given username
+    """
+    associated_users = User.objects.filter(username=associated_username)
+    if len(associated_users) == 0:
+        return None
+    #Username required to be unique
+    return associated_users[0]
+    
+
 """ 
     Each of the following takes the required attributes
     Of their associated model, and returns an instance of that model
     after adding it to the database
 """
 
-def addGroupFormer(associated_username,name,email,section):
+def addGroupFormer(associated_user,name,email,section):
     if getGroupFormer(name,section) != None:
         raise ValueError("GroupFormer with name "+name+" and section "+section+" already exists")
-    associated_users = User.objects.filter(username=associated_username)
-    if len(associated_users) == 0:
-        raise ValueError("No User with username "+associated_username+" in database")
-    p = GroupFormer.objects.create(associated_user_id = associated_users[0],
+    p = GroupFormer.objects.create(associated_user_id = associated_user,
                                    prof_name=name,
                                    prof_email=email,
                                    class_section=section)

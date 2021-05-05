@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from dbtools.models import *
+from django.contrib.auth.models import User
 
 class DatabaseTests(TestCase):
     def test_basic(self):
@@ -8,14 +9,18 @@ class DatabaseTests(TestCase):
         
         # Manual addition
         print("Adding database elements manually (.objects.create())")
-        gf = GroupFormer.objects.create(prof_name="Test Prof",prof_email="test@uni.edu",class_section="DEPT101")
+        u1 = User.objects.create_user("tprof","test@unl.edu",'KjzdkUGu')
+        u1.save()
+        gf = GroupFormer.objects.create(associated_user_id=u1,prof_name="Test Prof",prof_email="test@uni.edu",class_section="DEPT101")
         attr = Attribute.objects.create(group_former=gf,attr_name="Attr Name 1",is_homogenous=False,is_continuous=True)
         proj = Project.objects.create(group_former=gf,project_name="Project One",project_description="A description!")
         part = Participant.objects.create(group_former=gf,part_name="Participant One",part_email="joe@umbc.edu")
         
         # Standalone Helper function addition
         print("Adding with helper functions (add...(gf,))")
-        gf2 = addGroupFormer("Petra","pnadir@umbc.edu","Grass watching")
+        u2 = User.objects.create_user("petra","pnadir@umbc.edu","tUn7MkwK")
+        u2.save()
+        gf2 = addGroupFormer(u2,"Petra","pnadir@umbc.edu","Grass watching")
         attr2 = addAttribute(gf2,"An Attribute",False,False)
         proj2 = addProject(gf2,"On top of the hill","This grass needs to be watched")
         part2 = addParticipant(gf2,"In dividual","one@unl.edu")
@@ -111,10 +116,18 @@ class DatabaseTests(TestCase):
     def test_duplicates(self):
         #This test is of a database that has been manually put into duplication
         #Expects many many errors
-        GroupFormer.objects.create(prof_name="Ben Johnson",prof_email="bjohn@umbc.edu",class_section="CMSC 447-01")
+        user = User.objects.create_user("Benjo", "bjohn@umbc.edu","9YzFnrrK")
+        user.save()
+        GroupFormer.objects.create(associated_user_id=user,
+                                   prof_name="Ben Johnson",
+                                   prof_email="bjohn@umbc.edu",
+                                   class_section="CMSC 447-01")
         with self.assertRaises(ValueError):
-            addGroupFormer("Ben Johnson","bjohn@umbc.edu","CMSC 447-01")
-        p2 = GroupFormer.objects.create(prof_name="Ben Johnson",prof_email="bjohn@umbc.edu",class_section="CMSC 447-01")
+            addGroupFormer(user,"Ben Johnson","bjohn@umbc.edu","CMSC 447-01")
+        p2 = GroupFormer.objects.create(associated_user_id=user,
+                                        prof_name="Ben Johnson",
+                                        prof_email="bjohn@umbc.edu",
+                                        class_section="CMSC 447-01")
         with self.assertRaises(ValueError):
             getGroupFormer("Ben Johnson","CMSC 447-01")
         p2.delete()
@@ -130,7 +143,9 @@ class DatabaseTests(TestCase):
             gf.getAttribute("Attribute")
         gf.delete()
         self.assertEqual(len(Attribute.objects.all()),0)
-        gf = addGroupFormer("Professor","prof@e.mail","Section 1")
+        user2 = User.objects.create_user("proff", "notprof@e.mail","9YzFnrrK")
+        user2.save()
+        gf = addGroupFormer(user2,"Professor","prof@e.mail","Section 1")
         a2 = gf.addAttribute("Attributes",True,True)
         gf.addParticipant("Party Cipant","pcpant@uwm.edu")
         p2 = Participant.objects.create(group_former=gf,part_name="Party Cipant",part_email="pcpant@uwm.edu")
@@ -149,8 +164,10 @@ class DatabaseTests(TestCase):
             
     #Migrated from projects/
     def test_project_saved(self):
+        user = User.objects.create_user("Benjo", "bjohn@umbc.edu","9YzFnrrK")
+        user.save()
         project_objects_dict = {"project_name": "Test 1", "project_description": "Test Description"}
-        gfobj = addGroupFormer("Dr. Benjamin Johnson","bj@umbc.edu","CMSC341")
+        gfobj = addGroupFormer(user,"Dr. Benjamin Johnson","bjohn@umbc.edu","CMSC341")
         response = self.client.post('/dbtools/'+str(gfobj.pk)+'/add_project', project_objects_dict)
         
         # response code for redirecting is 302
@@ -158,15 +175,3 @@ class DatabaseTests(TestCase):
         #checking the first project object
         project_obj = Project.objects.all()[0]
         self.assertEqual(project_obj.project_name, "Test 1")
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        GroupFormer.objects.all().delete()
-        Participant.objects.all().delete()
-        Attribute.objects.all().delete()
-        Project.objects.all().delete()
-        attribute_selection.objects.all().delete()
-        project_selection.objects.all().delete()
-
-

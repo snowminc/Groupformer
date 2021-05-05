@@ -10,7 +10,11 @@ class DBToolsRecordResponseTest(TestCase):
         function that sets up the test database with participants, attributes and projects
         :return:
         '''
-        self.groupform1 = GroupFormer.objects.create(prof_name="Dr. B", prof_email="b@umbc.edu",
+        user = User.objects.create_user("Drb", "b@umbc.edu","9YzFnrrK")
+        user.save()
+        self.groupform1 = GroupFormer.objects.create(associated_user_id=user,
+                                                     prof_name="Dr. B",
+                                                     prof_email="b@umbc.edu",
                                                      class_section="CMSC3")
         self.groupform1.save()
 

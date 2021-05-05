@@ -5,16 +5,28 @@ from dbtools.models import *
 class DBToolsModelTest(TestCase):
     #test to set up the test functions by adding GroupFormer and Participant objects into the "test" database
     def setUp(self):
-        groupform1 = GroupFormer.objects.create(prof_name = "Dr. Benjamin Johnson", prof_email = "bj@umbc.edu",
-                                                 class_section = "CMSC341")
+        user1 = User.objects.create_user("Benjo", "bj@umbc.edu","9YzFnrrK")
+        user1.save()
+        groupform1 = GroupFormer.objects.create(associated_user_id=user1,
+                                                prof_name = "Dr. Benjamin Johnson",
+                                                prof_email = "bj@umbc.edu",
+                                                class_section = "CMSC341")
         groupform1.save()
 
-        groupform2 = GroupFormer.objects.create(prof_name="Dr. Jeremy Dixon", prof_email="jd@umbc.edu",
-                                                 class_section="CMSC202")
+        user2 = User.objects.create_user("Jdix", "jd@umbc.edu","9YzFnrrK")
+        user2.save()
+        groupform2 = GroupFormer.objects.create(associated_user_id=user2,
+                                                prof_name="Dr. Jeremy Dixon",
+                                                prof_email="jd@umbc.edu",
+                                                class_section="CMSC202")
         groupform2.save()
 
-        groupform3 = GroupFormer.objects.create(prof_name="Dr. Richard Chang", prof_email="rc@umbc.edu",
-                                                 class_section="CMSC441")
+        user3 = User.objects.create_user("Rchang", "rc@umbc.edu","9YzFnrrK")
+        user3.save()
+        groupform3 = GroupFormer.objects.create(associated_user_id=user3,
+                                                prof_name="Dr. Richard Chang",
+                                                prof_email="rc@umbc.edu",
+                                                class_section="CMSC441")
         groupform3.save()
         #Adding a group of participants to the ONLY ONE group former
         p1 = addParticipant(groupform1, "Sarah", "sarah@umbc.edu")
