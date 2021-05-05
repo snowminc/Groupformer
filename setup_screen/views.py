@@ -44,9 +44,10 @@ def submit_groupformer(request):
             # Create a new groupformer instance
             instructor_name = payload["instructor_name"]
             instructor_email = payload["instructor_email"]
+            user_username = payload["username"]
             custom_name = payload["custom_name"]
             people_per_group = payload["people_per_group"]  # TODO: people_per_group
-            gf = addGroupFormer(instructor_name, instructor_email, custom_name)
+            gf = addGroupFormer(user_username, instructor_name, instructor_email, custom_name)
 
             # add participants to the groupformer
             addRoster(gf, payload["participant_roster"])

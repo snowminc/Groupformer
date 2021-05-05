@@ -268,7 +268,8 @@
                     people_per_group: people_per_group,
                     participant_roster: participant_roster,
                     projects: local_projects,
-                    attributes: local_attributes
+                    attributes: local_attributes,
+                    username: '{{ user.username }}'
                 }
 
                 $.ajax({
