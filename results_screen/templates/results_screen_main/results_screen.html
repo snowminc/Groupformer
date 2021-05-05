@@ -43,11 +43,13 @@
 
                                 <!-- Example: <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">Home</a> -->
                                 {% for gf in groupformers %}
+                                {% if gf.prof_email == user.email %}
                                 <a class="nav-link {% if forloop.counter == 1 %}active show{% endif %}" 
                                         id="tab-{{ gf.pk }}" data-toggle="pill" href="#content-{{ gf.pk }}" role="tab" 
                                         aria-controls="content-{{ gf.pk }}" aria-selected="{% if forloop.counter == 1 %}}true{% else %}false{% endif %}">
                                     {{ gf.class_section }}
                                 </a>
+                                {% endif %}
                                 {% endfor %}
                             </div>
 
