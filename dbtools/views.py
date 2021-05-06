@@ -1,9 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-<<<<<<< HEAD
-from django.http import JsonResponse, HttpResponseRedirect, Http404
-=======
 from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
->>>>>>> 9ad77221ca726b74b5b725d0401bcc24b8aae85e
 from django.urls import reverse
 
 from .models import *
