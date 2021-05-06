@@ -14,6 +14,7 @@ class GroupFormer(models.Model):
     prof_email = models.CharField(max_length=200)
     class_section = models.CharField(max_length=100)
     associated_user_id = models.ForeignKey(User, on_delete = models.CASCADE)
+    max_participants_per_group = models.IntegerField(blank = True, null = True)
     
     def __str__(self):
         return self.prof_name + ' : ' + self.class_section 
