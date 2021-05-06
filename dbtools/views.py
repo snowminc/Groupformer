@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, Http404
+from django.http import JsonResponse, HttpResponseRedirect, Http404
 from django.urls import reverse
 
 from .models import *
@@ -104,7 +104,7 @@ def record_response(request, group_former_id):
                 part_obj.desires(part)
 
         # redirecting to the root directory, if the request method is POST
-        return HttpResponseRedirect("/")
+        return JsonResponse({})
 
     #returns a 404 if not the appropriate request method
     else:
