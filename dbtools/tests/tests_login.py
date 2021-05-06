@@ -65,14 +65,14 @@ class DBToolsModelTest(TestCase):
     #check that redirects to the permission denied html since no email is provided to the url
     def test_no_email_given(self):
         gfobj = GroupFormer.objects.all()[0]
-        response = self.client.get(reverse('verify_participant', kwargs={"group_former_id":gfobj.pk}))
+        response = self.client.get(reverse('dbtools:verify_participant', kwargs={"group_former_id":gfobj.pk}))
         # response code for rendering directly is 200
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Permission Denied")
 
     def test_email_passed_in(self):
         gfobj = GroupFormer.objects.all()[0]
-        response = self.client.get(reverse('verify_participant', kwargs={"group_former_id": gfobj.pk}) + "?email=sarah@umbc.edu")
+        response = self.client.get(reverse('dbtools:verify_participant', kwargs={"group_former_id": gfobj.pk}) + "?email=sarah@umbc.edu")
         self.assertEqual(response.status_code, 302)
         #since it is a redirect, a 302 response code just sends the full url that want to redirect too,
         #so need to ask server to redirect to that url if get a response code of 302
@@ -88,13 +88,13 @@ class DBToolsModelTest(TestCase):
     #test to get an invalid email that is not part of the groupformer
     def test_invalid_email(self):
         gfobj = GroupFormer.objects.all()[0]
-        response = self.client.get(reverse('verify_participant', kwargs={"group_former_id": gfobj.pk}) + "?email=invalidemail@umbc.edu")
+        response = self.client.get(reverse('dbtools:verify_participant', kwargs={"group_former_id": gfobj.pk}) + "?email=invalidemail@umbc.edu")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Permission Denied")
 
     #test to make sure a 404 is raised for an invalid group former id
     def test_invalid_groupformer(self):
-        response = self.client.get(reverse('verify_participant', kwargs={"group_former_id": 2000}))
+        response = self.client.get(reverse('dbtools:verify_participant', kwargs={"group_former_id": 2000}))
         self.assertEqual(response.status_code, 404)
 
     def tearDown(self):
