@@ -16,7 +16,9 @@ def create_sample_groupformer():
     gfs[1] = {}
     gfs[1]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "34")
     gfs[2] = {}
-    gfs[2]['gf'] = addGroupFormer("Ben Johnson", "ben.johnson@umbc.edu", "24")
+    gfs[2]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "24")
+    gfs[3] = {}
+    gfs[3]['gf'] = addGroupFormer("Ben Johnson","ben.johnson@umbc.edu","14")
     return gfs
 
 
@@ -117,6 +119,12 @@ class SeleniumGroupformerList(LiveServerTestCase):
         self.assertTrue("Q, A, Z" not in page_none)
         self.assertTrue("G, M, E" not in page_none)
         self.assertTrue("A, S, D, F" not in page_none)
+        
+        # Make sure that the logged in group can see their GroupFormer, but not the others
+        section_pane = self.selenium.find_element_by_id('vert-tabs').text
+        self.assertIn("34",section_pane)
+        self.assertIn("24",section_pane)
+        self.assertNotIn("14",section_pane)
 
         # Select the first groupformer tab and create groups
         self.selenium.find_element_by_id("tab-{}".format(gfs1)).click()
