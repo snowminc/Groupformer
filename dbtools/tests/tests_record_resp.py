@@ -157,9 +157,12 @@ class DBToolsRecordResponseTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_update_response(self):
+        '''
+        :return: added a test to ensure that a users responses are updated
+        '''
         response_dict = {
             "participantNameForm": self.p5.part_name,
-            "participantEmailForm": self.p3.part_email,
+            "participantEmailForm": self.p5.part_email,
             f"projForm{self.proj1.id}_preference": 3,
             f"projForm{self.proj2.id}_preference": 3,
             f"projForm{self.proj3.id}_preference": 3,
@@ -176,18 +179,18 @@ class DBToolsRecordResponseTest(TestCase):
         self.assertEqual(len(project_selection.objects.all()), 4)
         self.assertEqual(len(attribute_selection.objects.all()), 2)
 
-        self.assertEqual(self.p3.getProjectChoice(self.proj1).value, 3)
-        self.assertEqual(self.p3.getProjectChoice(self.proj2).value, 3)
-        self.assertEqual(self.p3.getProjectChoice(self.proj3).value, 3)
-        self.assertEqual(self.p3.getProjectChoice(self.proj4).value, 3)
-        self.assertEqual(self.p3.getAttributeChoice(self.attr1).value, 3)
-        self.assertEqual(self.p3.getAttributeChoice(self.attr2).value, 3)
+        self.assertEqual(self.p5.getProjectChoice(self.proj1).value, 3)
+        self.assertEqual(self.p5.getProjectChoice(self.proj2).value, 3)
+        self.assertEqual(self.p5.getProjectChoice(self.proj3).value, 3)
+        self.assertEqual(self.p5.getProjectChoice(self.proj4).value, 3)
+        self.assertEqual(self.p5.getAttributeChoice(self.attr1).value, 3)
+        self.assertEqual(self.p5.getAttributeChoice(self.attr2).value, 3)
         self.assertSetEqual(set(response_dict["participantForm_preference"]),
-                            {x.part_name for x in self.p3.desired_partner.all()})
+                            {x.part_name for x in self.p5.desired_partner.all()})
 
         response_dict = {
             "participantNameForm": self.p5.part_name,
-            "participantEmailForm": self.p3.part_email,
+            "participantEmailForm": self.p5.part_email,
             f"projForm{self.proj1.id}_preference": 2,
             f"projForm{self.proj2.id}_preference": 2,
             f"projForm{self.proj3.id}_preference": 2,
@@ -204,14 +207,14 @@ class DBToolsRecordResponseTest(TestCase):
         self.assertEqual(len(project_selection.objects.all()), 4)
         self.assertEqual(len(attribute_selection.objects.all()), 2)
 
-        self.assertEqual(self.p3.getProjectChoice(self.proj1).value, 2)
-        self.assertEqual(self.p3.getProjectChoice(self.proj2).value, 2)
-        self.assertEqual(self.p3.getProjectChoice(self.proj3).value, 2)
-        self.assertEqual(self.p3.getProjectChoice(self.proj4).value, 2)
-        self.assertEqual(self.p3.getAttributeChoice(self.attr1).value, 2)
-        self.assertEqual(self.p3.getAttributeChoice(self.attr2).value, 2)
+        self.assertEqual(self.p5.getProjectChoice(self.proj1).value, 2)
+        self.assertEqual(self.p5.getProjectChoice(self.proj2).value, 2)
+        self.assertEqual(self.p5.getProjectChoice(self.proj3).value, 2)
+        self.assertEqual(self.p5.getProjectChoice(self.proj4).value, 2)
+        self.assertEqual(self.p5.getAttributeChoice(self.attr1).value, 2)
+        self.assertEqual(self.p5.getAttributeChoice(self.attr2).value, 2)
         self.assertSetEqual(set(response_dict["participantForm_preference"]),
-                            {x.part_name for x in self.p3.desired_partner.all()})
+                            {x.part_name for x in self.p5.desired_partner.all()})
 
 
 
