@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.urls import reverse
 
 from .models import *
@@ -66,7 +66,7 @@ def record_response(request, group_former_id):
         email = request.POST.get("participantEmailForm")
 
         #using the email, get the participant
-        part_obj = gf.getParticipantByEmail(email)
+        part_obj:Participant = gf.getParticipantByEmail(email)
 
         #get all the projects associated with the specific groupformer ID
         projects = Project.objects.filter(group_former=gf)
@@ -80,7 +80,14 @@ def record_response(request, group_former_id):
             proj_pref_keys[proj.id]["value"] = int(request.POST.get(proj_pref_keys[proj.id]["param_key"]))
             proj_pref_keys[proj.id]["object"] = proj
             #add the participants project choice
-            part_obj.projectChoice(proj_pref_keys[proj.id]["object"], proj_pref_keys[proj.id]["value"])
+            exists: project_selection = part_obj.getProjectChoice(proj)
+            if(exists is None):
+                part_obj.projectChoice(proj_pref_keys[proj.id]["object"], proj_pref_keys[proj.id]["value"])
+            else:
+                exists.value = proj_pref_keys[proj.id]["value"]
+                exists.save()
+
+
 
         #get all the attributes associated with the groupformer
         attributes = Attribute.objects.filter(group_former=gf)
@@ -94,17 +101,25 @@ def record_response(request, group_former_id):
             attr_pref_keys[attr.id]["value"] = int(request.POST.get(attr_pref_keys[attr.id]["param_key"]))
             attr_pref_keys[attr.id]["object"] = attr
             #add the participants attribute choice
-            part_obj.attributeChoice(attr_pref_keys[attr.id]["object"], attr_pref_keys[attr.id]["value"])
+            exists: attribute_selection = part_obj.getAttributeChoice(attr)
+            if (exists is None):
+                part_obj.attributeChoice(attr_pref_keys[attr.id]["object"], attr_pref_keys[attr.id]["value"])
+            else:
+                exists.value = attr_pref_keys[attr.id]["value"]
+                exists.save()
+
 
         #get the list of the partners desired partners to work with
         partners = request.POST.getlist("participantForm_preference")
+        #clears the particpants objects list before adding new ones or if the particpants desires to work with no one
+        part_obj.desired_partner.clear()
         if(partners is not None):
             for des_name in partners:
                 part = gf.getParticipantByName(des_name)
                 part_obj.desires(part)
 
         # redirecting to the root directory, if the request method is POST
-        return HttpResponseRedirect("/")
+        return HttpResponse("OK")
 
     #returns a 404 if not the appropriate request method
     else:
