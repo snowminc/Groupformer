@@ -37,6 +37,8 @@
                         <div class="custom-form-box">
                             <div class="form-row align-items-center">
                                 <div class="form-group col-5 my-1">
+                                    <input type="hidden" name="participantNameForm" value="{{ participant_name }}">
+                                    <input type="hidden" name="participantEmailForm" value="{{ participant_email }}">
                                     <h2>Response for {{ participant_name }} ({{ participant_email }})</h2>
                                     <p>not {{ participant_name }}? <a id="logout-link" href="{% url 'response_screen:logout' groupformer_id=gf_id %}">logout!</a></p>
                                 </div>
@@ -196,7 +198,7 @@
                 var form_values = $(this).serializeArray();
                 // Eventually, replace the url with: "/dbtools/{{gf_id}}/record_response"
                 $.ajax({
-                    url: 'submit',
+                    url: "{% url 'dbtools:record_response' group_former_id=gf_id %}",
                     type: 'post',
                     data: form_values,
                     dataType: 'json',
