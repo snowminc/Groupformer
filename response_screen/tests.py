@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.staticfiles.testing import LiveServerTestCase
+from time import sleep
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from dbtools.models import *
@@ -443,7 +444,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Ben']").click()
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
-
+        sleep(1)
         # Check the Modal
         # .text only grabs VISIBLE text
         modal_content = self.selenium.find_element_by_xpath("//div[@id='submitSuccessModalContent']").text
