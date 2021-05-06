@@ -6,6 +6,10 @@ from dbtools.models import *
 
 
 def create_sample_groupformer():
+    '''
+    function to create a two sample GroupFormers
+    :return:
+    '''
     gfs = {}
     gfs[1] = {}
     gfs[1]['gf'] = GroupFormer.objects.create(prof_name="Min Chon", prof_email="minc1@umbc.edu", class_section="34")
@@ -16,6 +20,11 @@ def create_sample_groupformer():
 
 
 def create_sample_projects(gfs):
+    '''
+
+    :param gfs: takes a set of groupformer objects
+    :return: creates some projects for each groupformer
+    '''
     gfs[1]['p1'] = Project.objects.create(group_former=gfs[1]['gf'], project_name="Groupformer Tool",
                                           project_description="Create a tool that creates groups!")
     gfs[1]['p2'] = Project.objects.create(group_former=gfs[1]['gf'], project_name="Robot that pees beer",
@@ -28,6 +37,10 @@ def create_sample_projects(gfs):
 
 
 def create_sample_attributes(gfs):
+    '''
+    :param gfs: create some attributes for the first groupformer objects that is passed in
+    :return:
+    '''
     # Intentionally do not create attributes for second groupformer
     gfs[1]['a1'] = Attribute.objects.create(group_former=gfs[1]['gf'], attr_name="Back-End", is_homogenous=False,
                                             is_continuous=True)
@@ -38,6 +51,11 @@ def create_sample_attributes(gfs):
 
 
 def create_sample_participants(gfs):
+    '''
+
+    :param gfs: takes in a groupformer object, gfs and creates some participants for each one
+    :return: it returns the list of names of those part of the groupformer
+    '''
     names = ["Min", "Kristian", "Sarah", "Morgan", "Kyle", "Ben", "Eric", "Andrew"]
     for i in range(len(names)):
         gfs[1]['part' + str(i + 1)] = Participant.objects.create(group_former=gfs[1]['gf'], part_name=names[i],
@@ -48,12 +66,17 @@ def create_sample_participants(gfs):
 
 
 def create_all_samples():
+    '''
+    :return: function that creates all the groupformers, sample_projects, attributes and participants and returns
+    the groupformer object
+    '''
     gfs = create_sample_groupformer()
     create_sample_projects(gfs)
     create_sample_attributes(gfs)
     create_sample_participants(gfs)
     return gfs
 
+# class that tests out the front end to get a users response
 class SeleniumResponseScreen(LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
@@ -111,9 +134,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
 
-
-        # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
-        # Check if those attributes carried over the correct values for those model objects.
+        #testing that the users responses actually are in the database
 
         self.assertEqual(len(project_selection.objects.all()), 2)
         self.assertEqual(len(attribute_selection.objects.all()), 3)
