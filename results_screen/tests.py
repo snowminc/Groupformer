@@ -91,34 +91,40 @@ class SeleniumGroupformerList(LiveServerTestCase):
 
         self.selenium.find_element_by_id('login-submit').click()
 
-    def sign_in(self):
+    def sign_in(self, username="minc", password="pass1234567"):
         self.selenium.get(self.live_server_url + reverse('setup_screen:login_screen'))
 
-        self.selenium.find_element_by_id('username').send_keys('minc')
-        self.selenium.find_element_by_id('password').send_keys('pass1234567')
+        self.selenium.find_element_by_id('username').send_keys(username)
+        self.selenium.find_element_by_id('password').send_keys(password)
 
         self.selenium.find_element_by_id('login-submit').click()
 
-    def test_get_group(self):
-        """
-        Test that the now non-arbitrary groups still display on the list.
-        """
+    def test_show_only_owned(self):
         self.try_create_account()
         self.sign_in()
         
         create_all_samples()
-        test_obj = RealWorldTest()
-        test_obj.setUp()
-
-        gf_id = test_obj.gf.id
 
         self.selenium.get(self.live_server_url + reverse('results_screen:results_screen'))
-
+        
         # Make sure that the logged in group can see their GroupFormer, but not the others
         section_pane = self.selenium.find_element_by_id('vert-tabs').text
         self.assertIn("34",section_pane)
         self.assertIn("24",section_pane)
         self.assertNotIn("14",section_pane)
+
+    def test_get_group(self):
+        """
+        Test that the now non-arbitrary groups still display on the list.
+        """
+        
+        test_obj = RealWorldTest()
+        test_obj.setUp()
+        self.sign_in("bjohn", "UkEHMkqV")
+
+        gf_id = test_obj.gf.id
+
+        self.selenium.get(self.live_server_url + reverse('results_screen:results_screen'))
         
         # Check that there's nothing on the page first
         page_none = self.selenium.find_element_by_tag_name("body").text

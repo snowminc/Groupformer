@@ -58,7 +58,7 @@
 
                                 <!-- Example: <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">...</div> -->
                                 {% for gf in groupformers %}
-                                <div class="tab-pane fade {% if forloop.counter == 1 %}active show{% endif %}" 
+                                <div class="tab-pane fade {% if forloop.counter == 1 and gf.prof_email == user.email %}active show{% endif %}" 
                                         id="content-{{ gf.pk }}" role="tabpanel" aria-labelledby="tab-{{ gf.pk }}">
 
                                     <div class="custom-form-box">
@@ -105,7 +105,7 @@
                 $.each(data, function (key, value) {
                     list_of_participants = value.join(", ");
                     project_name = key;
-                    var row = $('<li/>').html(project_name + ": " + list_of_participants);
+                    var row = $('<li/>').html("<b>" + project_name + "</b>: " + list_of_participants);
                     row.addClass('list-group-item');
                     ul.append(row);
                 });
