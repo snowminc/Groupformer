@@ -100,7 +100,7 @@ class DBToolsRecordResponseTest(TestCase):
                         f"attrForm{self.attr2.id}_preference": 2,
         }
 
-        response = self.client.post(reverse('record_response', kwargs={"group_former_id": self.groupform1.pk}), response_dict)
+        response = self.client.post(reverse('dbtools:record_response', kwargs={"group_former_id": self.groupform1.pk}), response_dict)
         # response code for redirecting is 302
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/")
@@ -135,7 +135,7 @@ class DBToolsRecordResponseTest(TestCase):
             "participantForm_preference": [self.p1.part_name, self.p2.part_name]
         }
 
-        response = self.client.post(reverse('record_response', kwargs={"group_former_id": self.groupform1.pk}),  response_dict)
+        response = self.client.post(reverse('dbtools:record_response', kwargs={"group_former_id": self.groupform1.pk}),  response_dict)
         # response code for redirecting is 302
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/")
@@ -156,7 +156,7 @@ class DBToolsRecordResponseTest(TestCase):
         test that the view only works with a POST
         :return:
         '''
-        response = self.client.get(reverse('record_response', kwargs={"group_former_id": self.groupform1.pk}))
+        response = self.client.get(reverse('dbtools:record_response', kwargs={"group_former_id": self.groupform1.pk}))
         self.assertEqual(response.status_code, 404)
 
 
