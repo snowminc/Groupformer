@@ -58,6 +58,10 @@ class DatabaseTests(TestCase):
         with self.assertRaises(ValueError):
             part12.projectChoice(proj,2)
             
+        #Test max participants
+        gf.max_participants_per_group = 100
+        self.assertEqual(gf.max_participants_per_group,100)
+            
         gf2.addParticipant("Morrison Person","np@person.com")
         gf2.addRoster([["Morrison Person","np@person.com"],["Eve Person","jp@upl.edu"]])
             #WARNING - until logging system is added, failure to add Morrison again is silent
