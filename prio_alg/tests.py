@@ -10,6 +10,7 @@ class GroupFormerTest(TestCase):
 
 
     def setUp(self):
+        User.objects.create_user("petra","pnadir@umbc.edu","cmW4NpNh")
         self.gf = addGroupFormer("Petra", "pnadir@umbc.edu", "Petra's Project Tests")
         self.att1 = self.gf.addAttribute("Like salad", True, False)
         self.att2 = self.gf.addAttribute("Backend dev", False, False)
@@ -146,6 +147,7 @@ class GroupFormerTest(TestCase):
 class OptimalGroupsTest(TestCase):
     def setUp(self):
         #groupformer creation
+        User.objects.create_user("bjohn","bjohnson@umbc.edu","UkEHMkqV")
         self.gf = addGroupFormer("Ben Johnson", "bjohnson@umbc.edu", "Johnson's project tests")
 
         #participant creation
@@ -219,6 +221,7 @@ class OptimalGroupsTest(TestCase):
 class RealWorldTest(TestCase):
 
     def setUp(self):
+        User.objects.create_user("bjohn","benj@umbc.edu","UkEHMkqV")
         self.gf = addGroupFormer("Ben Johnson", "benj@umbc.edu", "CMSC-447-Section 2")
 
         self.proj1 = self.gf.addProject("Data privacy visualization", "This app will allow technological "

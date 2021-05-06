@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 from time import sleep
@@ -13,12 +14,15 @@ from prio_alg.priority import calc_optimal_groups
 
 
 def create_sample_groupformer():
+    # No creation of a Min User since that is done in the code (try_create_account)
+    User.objects.create_user("bjohn", "ben.johnson@umbc.edu", "MnbHtgUr")
     gfs = {}
     gfs[1] = {}
-    gfs[1]['gf'] = GroupFormer.objects.create(prof_name="Min Chon", prof_email="minc1@umbc.edu", class_section="34")
+    gfs[1]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "34")
     gfs[2] = {}
-    gfs[2]['gf'] = GroupFormer.objects.create(prof_name="Ben Johnson", prof_email="ben.johnson@umbc.edu",
-                                              class_section="24")
+    gfs[2]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "24")
+    gfs[3] = {}
+    gfs[3]['gf'] = addGroupFormer("Ben Johnson","ben.johnson@umbc.edu","14")
     return gfs
 
 
@@ -101,7 +105,8 @@ class SeleniumGroupformerList(LiveServerTestCase):
         """
         self.try_create_account()
         self.sign_in()
-
+        
+        create_all_samples()
         test_obj = RealWorldTest()
         test_obj.setUp()
 
@@ -109,6 +114,12 @@ class SeleniumGroupformerList(LiveServerTestCase):
 
         self.selenium.get(self.live_server_url + reverse('results_screen:results_screen'))
 
+        # Make sure that the logged in group can see their GroupFormer, but not the others
+        section_pane = self.selenium.find_element_by_id('vert-tabs').text
+        self.assertIn("34",section_pane)
+        self.assertIn("24",section_pane)
+        self.assertNotIn("14",section_pane)
+        
         # Check that there's nothing on the page first
         page_none = self.selenium.find_element_by_tag_name("body").text
         
