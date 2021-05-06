@@ -81,9 +81,9 @@ class GroupFormerTest(TestCase):
 
     def test_get_global_score(self):
         groups = create_random_candidate_groups(self.gf, 1)
-        print(groups)
-        print(str(calc_global_score(groups, self.gf.getAttributeList())))
-        #self.assertEqual()
+        score = calc_global_score(groups, self.gf.getAttributeList())
+        
+        self.assertGreater(score, 0, 'Did not find appropriate score')
         #print(calc_global_score)
         #print(calc_optimal_groups(self.gf))
     
@@ -644,8 +644,6 @@ class RealWorldTest(TestCase):
     
     def test_optimal_groupings(self):
         best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, 100)
-
-        print(best_group[1], second_best[1], third_best[1])
         self.assertGreater(best_group[1], second_best[1])
     
     def test_get_proj_score_after_initial_groupings(self):
