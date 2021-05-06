@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.shortcuts import redirect
 
 from dbtools.models import *
+from prio_alg.priority import calc_optimal_groups
 
 """
 Possible DetailView idea for creating a response for a specific GroupFormer setup.
@@ -30,29 +31,33 @@ def results_screen(request):
     return render(request, 'results_screen_main/results_screen.html', context)
 
 
-def sample_groups(request, groupformer_id):
-    # Temporary "API endpoint" for retrieving groups
-    # Create arbitrary sample groups for testing the front-end
-    sections = {}
+def get_groups(request, groupformer_id):
+    groupformer = GroupFormer.objects.get(pk=groupformer_id)
+    best_groups, second_groups, third_groups = calc_optimal_groups(groupformer, max_parts=3, epoch=400)
+    
+    payload = {}
+    for group in best_groups[0]:
+        project_name = group[0].project_name
+        participants = group[1]
 
-    # Even ids
-    groups = []
-    groups.append(["A", "B", "C"])
-    groups.append(["1", "2", "3"])
-    groups.append(["X", "Y", "Z"])
+        payload[project_name] = []
+        for p in participants:
+            payload[project_name].append(p.part_name)
 
-    sections[0] = groups
+    """
+    Format:
+        {
+            "name1": [
+                "pname1",
+                "pname2",
+                "pname3"
+            ],
+            "name2"; [
+                "pname4",
+                "pname5",
+                "pname6"
+            ]
+        }
+    """
 
-    # Odd ids
-    groups = []
-    groups.append(["Q", "A", "Z"])
-    groups.append(["G", "M", "E"])
-    groups.append(["A", "S", "D", "F"])
-
-    sections[1] = groups
-
-    # Subtract 1 to group former ID because ABC is on even ids, and PKs count from 1
-    if (groupformer_id - 1) % 2 in sections:
-        return JsonResponse({"data": sections[(groupformer_id - 1) % 2]})
-    else:
-        return JsonResponse({"data": []}, status=404)
+    return JsonResponse({"data": payload})
