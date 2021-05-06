@@ -98,8 +98,10 @@
                 var label = $('<h6/>').html("Groups:");
                 var ul = $('<ul/>');
                 ul.addClass('list-group list-group-flush');
-                $.each(data, function (index, value) {
-                    var row = $('<li/>').html(value.join(", "));
+                $.each(data, function (key, value) {
+                    list_of_participants = value.join(", ");
+                    project_name = key;
+                    var row = $('<li/>').html(project_name + ": " + list_of_participants);
                     row.addClass('list-group-item');
                     ul.append(row);
                 });
@@ -121,7 +123,7 @@
 
                 // Retrieve the created Groups (EXAMPLE FOR PROOF OF CONCEPT)
                 $.ajax({
-                    url: 'sample_groups/' + id,
+                    url: 'get_groups/' + id,
                     type: 'get',
                     dataType: 'json',
                     success: function (response) {
