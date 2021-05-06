@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'setup_screen.apps.FormConfig',
     'results_screen.apps.ResultsScreenConfig',
     'response_screen.apps.ResponseScreenConfig',
+    'homepage.apps.HomepageConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
