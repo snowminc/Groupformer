@@ -45,7 +45,7 @@ def project_create_view(request, group_former_id):
     #reverse takes the name and looks in urls for the full urls
     #sending them back to the form -> project_index to stay on the same page to ask for another
     # project name and description
-    return HttpResponseRedirect(reverse("project_index"))
+    return HttpResponseRedirect(reverse("dbtools:project_index"))
 
 
 def record_response(request, group_former_id):
