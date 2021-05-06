@@ -4,9 +4,17 @@ specific questions"""
 import random
 import math
 from dbtools.models import *
+from joblib import Parallel, delayed
+import multiprocessing as mp
+from multiprocessing import Pool, cpu_count
+from itertools import repeat
+import concurrent.futures
+from pprint import pprint
+
 
 MAX_PRIO = 5
 MIN_PRIO = 0
+
 #PERCENTAGE_THRESHOLD = .15
 
 
@@ -166,6 +174,8 @@ def calc_optimal_groups(gf, max_parts=4, epoch=0):
         groups is [(project,participant_list), ...] where each candidate_list has participants
         to match to the project and val is the master priority of all of the groups in groups list
         returns top three groupings in tuples (group, value)"""
+    
+    #pool = multiprocessing.Pool(multiprocessing.cpu_count())
     if epoch == 0:
         epoch = int(combination_num(len(gf.getProjectList()), max_parts))
     
@@ -180,26 +190,63 @@ def calc_optimal_groups(gf, max_parts=4, epoch=0):
 
     # do shuffle for amount of epochs or if we reached
     # the maximum total combinations possible
-    for i in range(epoch):
-        # if i >= total_combinations:
-        # break
-        group_list = create_random_candidate_groups(gf, max_parts)
 
-        temp = calc_global_score(group_list, gf.getAttributeList())
-        # print(temp)
-        if temp >= best_group_value:
-            best_group_list = group_list.copy()
-            best_group_value = temp
-        elif temp >= second_best_value:
-            second_best_group_list = group_list.copy()
-            second_best_value = temp
-        elif temp >= third_best_value:
-            third_best_group_list = group_list.copy()
-            third_best_value = temp
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        results = [executor.submit(say_hi, [1,2,3])]
+    #with Pool() as pool:
+        #l = pool.map(say_hi, [1,2,3])
+        
+        #print(l)
+        #list comprehension to get a list of random candidate groups
+        #group_list = [executor.submit(create_random_candidate_groups, gf, max_parts) for _ in range(epoch)]
+
+        #as the tasks in group_list complete, do another multiprocessing
+        #statement to calculate the global score for each one
+        #for f in concurrent.futures.as_completed(group_list):
+            #pprint(f)
+            #results = executor.map(calc_global_score, f, gf.getAttributeList)
+            #temp_list = executor.submit(f.result(), gf.getAttributeList())
+
+    #         for temp in results:
+    #             if temp >= best_group_value:
+    #                 best_group_list = f.copy()
+    #                 best_group_value = temp
+    #             elif temp >= second_best_value:
+    #                 second_best_group_list = f.copy()
+    #                 second_best_value = temp
+    #             elif temp >= third_best_value:
+    #                 third_best_group_list = f.copy()
+    #                 third_best_value = temp
+        
+    # return (best_group_list, best_group_value), (second_best_group_list, second_best_value), (
+    # third_best_group_list, third_best_value)
+
+    # for i in range(epoch):
+    #     # if i >= total_combinations:
+    #     # break
+    #     group_list = create_random_candidate_groups(gf, max_parts)
+
+    #     temp = calc_global_score(group_list, gf.getAttributeList())
+    #     # print(temp)
+    #     if temp >= best_group_value:
+    #         best_group_list = group_list.copy()
+    #         best_group_value = temp
+    #     elif temp >= second_best_value:
+    #         second_best_group_list = group_list.copy()
+    #         second_best_value = temp
+    #     elif temp >= third_best_value:
+    #         third_best_group_list = group_list.copy()
+    #         third_best_value = temp
 
     # returns a list of tupled project, with the participant roster
-    return (best_group_list, best_group_value), (second_best_group_list, second_best_value), (
-    third_best_group_list, third_best_value)
+    # return (best_group_list, best_group_value), (second_best_group_list, second_best_value), (
+    # third_best_group_list, third_best_value)
+
+def say_hi(gf, max_parts, attList):
+    return 'hi'
+
+def get_best_groups_async(gf, max_parts):
+    pass
 
 
 def save_group(project, candidate_list):

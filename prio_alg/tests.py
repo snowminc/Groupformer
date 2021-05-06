@@ -188,7 +188,7 @@ class OptimalGroupsTest(TestCase):
         self.assertEqual(calc_project_priority(self.proj1, roster, self.gf.getAttributeList()), 10)
         self.assertEqual(calc_project_priority(self.proj2, roster2, self.gf.getAttributeList()), 9)
     def test_get_optimal_group(self):
-        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2)
+        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2, 50)
         #self.assert that the particpants are jim / alice in proj1, bob / jill in proj2
         self.assertEqual(best_group[1], 28, 'The best group value is indeed 28!')
 
@@ -669,4 +669,6 @@ class RealWorldTest(TestCase):
 
             pp.pprint(str(i) + ' : ' + str(best_group[1]))
 
+    def test_multiprocessing(self):
+        calc_optimal_groups(self.gf, 5, 1)
     
