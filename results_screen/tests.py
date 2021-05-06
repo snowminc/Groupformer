@@ -147,7 +147,7 @@ class SeleniumGroupformerList(LiveServerTestCase):
         self.selenium.find_element_by_id("groupformer{}_groups".format(gf_id))
 
         import time
-        time.sleep(10)
+        time.sleep(20)  # Give time for the algorithm to load the groups
 
         page_text = self.selenium.find_element_by_tag_name("body").text
 

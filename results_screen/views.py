@@ -33,7 +33,7 @@ def results_screen(request):
 
 def get_groups(request, groupformer_id):
     groupformer = GroupFormer.objects.get(pk=groupformer_id)
-    best_groups, second_groups, third_groups = calc_optimal_groups(groupformer)
+    best_groups, second_groups, third_groups = calc_optimal_groups(groupformer, max_parts=3, epoch=400)
     
     payload = {}
     for group in best_groups[0]:

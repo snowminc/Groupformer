@@ -94,6 +94,8 @@
         <script>
             
             function updateGroupDisplay(display, data) {
+                display.html("");  // Clears the "Loading" message
+
                 // Create an unordered list of student groups and add them to the display div.
                 var label = $('<h6/>').html("Groups:");
                 var ul = $('<ul/>');
@@ -120,6 +122,8 @@
                 // Save the GroupFormer section ID and select the group display div.
                 var id = this.id.value;
                 var group_display = $("#groupformer" + id + "_groups");
+
+                group_display.html("Loading...");
 
                 // Retrieve the created Groups (EXAMPLE FOR PROOF OF CONCEPT)
                 $.ajax({
