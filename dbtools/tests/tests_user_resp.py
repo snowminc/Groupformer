@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
+from django.contrib.auth.models import User
 from dbtools.models import *
 
 
@@ -10,12 +11,13 @@ def create_sample_groupformer():
     function to create a two sample GroupFormers
     :return:
     '''
+    User.objects.create_user("bjohn", "ben.johnson@umbc.edu", "MnbHtgUr")
+    User.objects.create_user("mchon", "minc1@umbc.edu", "LALALA")
     gfs = {}
     gfs[1] = {}
-    gfs[1]['gf'] = GroupFormer.objects.create(prof_name="Min Chon", prof_email="minc1@umbc.edu", class_section="34")
+    gfs[1]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "34")
     gfs[2] = {}
-    gfs[2]['gf'] = GroupFormer.objects.create(prof_name="Ben Johnson", prof_email="ben.johnson@umbc.edu",
-                                              class_section="24")
+    gfs[2]['gf'] = addGroupFormer("Ben Johnson", "ben.johnson@umbc.edu", "24")
     return gfs
 
 

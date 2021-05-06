@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 from dbtools.models import *
 
 class DBToolsRecordResponseTest(TestCase):
@@ -10,8 +11,8 @@ class DBToolsRecordResponseTest(TestCase):
         function that sets up the test database with participants, attributes and projects
         :return:
         '''
-        self.groupform1 = GroupFormer.objects.create(prof_name="Dr. B", prof_email="b@umbc.edu",
-                                                     class_section="CMSC3")
+        User.objects.create_user("ben", "b@umbc.edu", "MnbHtgUr")
+        self.groupform1 = addGroupFormer("ben", "b@umbc.edu", "24")
         self.groupform1.save()
 
         #add participants
@@ -50,7 +51,7 @@ class DBToolsRecordResponseTest(TestCase):
         :return:
         '''
         gfobj = GroupFormer.objects.all()[0]
-        self.assertEqual(gfobj.prof_name, "Dr. B")
+        self.assertEqual(gfobj.prof_name, "ben")
 
 
     def test_participant_added(self):
