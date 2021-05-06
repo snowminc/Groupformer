@@ -188,15 +188,15 @@ class OptimalGroupsTest(TestCase):
         self.assertEqual(calc_project_priority(self.proj1, roster, self.gf.getAttributeList()), 10)
         self.assertEqual(calc_project_priority(self.proj2, roster2, self.gf.getAttributeList()), 9)
     def test_get_optimal_group(self):
-        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2)
+        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2, 100)
         #self.assert that the particpants are jim / alice in proj1, bob / jill in proj2
-        self.assertEqual(best_group[1], 28, 'The best group value is indeed 28!')
+        self.assertEqual(best_group[1], 100, 'The best group value is indeed 28!')
 
     def test_get_multiple_optimal_groups(self):
-        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2)
-        self.assertEqual(best_group[1], 28, 'The best group value is indeed 28!')
-        self.assertEqual(second_group[1], 21, 'The second best value is 21!')
-        self.assertEqual(third_group[1], 20, 'The third best value is 20!')
+        best_group, second_group, third_group = calc_optimal_groups(self.gf, 2, 100)
+        self.assertEqual(best_group[1], 100, 'The best group value is indeed 100!')
+        self.assertGreater(best_group[1], second_group[1], 'The second best value is not less than best_group')
+        self.assertGreater(second_group[1], third_group[1], 'The third best value is not less than second_best')
 
     def test_get_priority_for_participant_for_project(self):
         val = calc_project_priority(self.proj1, self.gf.getRoster(), None)
@@ -650,23 +650,33 @@ class RealWorldTest(TestCase):
     
     def test_get_proj_score_after_initial_groupings(self):
         best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, 100)
+        group_test = get_individual_proj_scores(best_group[0], self.gf.getAttributeList())
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(best_group)
-        pp.pprint(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()))
+        pp.pprint(group_test)
         #print(best_group)
         #print(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()))
-        self.assertEqual(get_individual_proj_scores(best_group[0], self.gf.getAttributeList()), best_group[1])
+        proj_sum = 0
+        min_proj = 99999
+        for proj in group_test:
+            proj_sum += proj[1]
+            if min_proj > proj[1] and proj[1] != 0:
+                min_proj = proj[1]
+
+        proj_sum += min_proj**2
+
+        self.assertEqual(proj_sum, best_group[1])
     
     def test_combination_calculation(self):
         self.assertEqual(combination_num(12, 4), 495)
         self.assertEqual(combination_num(20, 7), 77520)
 
-    def test_different_epochs(self):
-        pp = pprint.PrettyPrinter(indent=4)
+    # def test_different_epochs(self):
+    #     pp = pprint.PrettyPrinter(indent=4)
 
-        for i in range(200,500,25):
-            best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, i)
+    #     for i in range(200,500,25):
+    #         best_group, second_best, third_best = calc_optimal_groups(self.gf, 5, i)
 
-            pp.pprint(str(i) + ' : ' + str(best_group[1]))
+    #         pp.pprint(str(i) + ' : ' + str(best_group[1]))
 
     

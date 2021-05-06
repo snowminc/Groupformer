@@ -168,6 +168,9 @@ def calc_optimal_groups(gf, max_parts=4, epoch=0):
         returns top three groupings in tuples (group, value)"""
     if epoch == 0:
         epoch = int(combination_num(len(gf.getProjectList()), max_parts))
+
+        if epoch < 100:
+            epoch = 100
     
     best_group_value = 0
     best_group_list = []
