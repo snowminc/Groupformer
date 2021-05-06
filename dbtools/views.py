@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 from .models import *
@@ -87,8 +87,6 @@ def record_response(request, group_former_id):
                 exists.value = proj_pref_keys[proj.id]["value"]
                 exists.save()
 
-
-
         #get all the attributes associated with the groupformer
         attributes = Attribute.objects.filter(group_former=gf)
         # template key from the response screen
@@ -100,11 +98,14 @@ def record_response(request, group_former_id):
             attr_pref_keys[attr.id]["param_key"] = key_template.replace("#", str(attr.id))
             attr_pref_keys[attr.id]["value"] = int(request.POST.get(attr_pref_keys[attr.id]["param_key"]))
             attr_pref_keys[attr.id]["object"] = attr
-            #add the participants attribute choice
+
+            #check to see if the attribute choice was already added
             exists: attribute_selection = part_obj.getAttributeChoice(attr)
             if (exists is None):
+                #if it was not added, create and add it
                 part_obj.attributeChoice(attr_pref_keys[attr.id]["object"], attr_pref_keys[attr.id]["value"])
             else:
+                #if it was already added update the value and save it
                 exists.value = attr_pref_keys[attr.id]["value"]
                 exists.save()
 
@@ -119,7 +120,7 @@ def record_response(request, group_former_id):
                 part_obj.desires(part)
 
         # redirecting to the root directory, if the request method is POST
-        return HttpResponse("OK")
+        return JsonResponse({})
 
     #returns a 404 if not the appropriate request method
     else:
