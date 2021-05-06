@@ -1,5 +1,9 @@
 from django.shortcuts import render, get_object_or_404
+<<<<<<< HEAD
 from django.http import JsonResponse, HttpResponseRedirect, Http404
+=======
+from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
+>>>>>>> 9ad77221ca726b74b5b725d0401bcc24b8aae85e
 from django.urls import reverse
 
 from .models import *
@@ -45,7 +49,7 @@ def project_create_view(request, group_former_id):
     #reverse takes the name and looks in urls for the full urls
     #sending them back to the form -> project_index to stay on the same page to ask for another
     # project name and description
-    return HttpResponseRedirect(reverse("project_index"))
+    return HttpResponseRedirect(reverse("dbtools:project_index"))
 
 
 def record_response(request, group_former_id):
@@ -66,7 +70,7 @@ def record_response(request, group_former_id):
         email = request.POST.get("participantEmailForm")
 
         #using the email, get the participant
-        part_obj = gf.getParticipantByEmail(email)
+        part_obj:Participant = gf.getParticipantByEmail(email)
 
         #get all the projects associated with the specific groupformer ID
         projects = Project.objects.filter(group_former=gf)
@@ -80,7 +84,12 @@ def record_response(request, group_former_id):
             proj_pref_keys[proj.id]["value"] = int(request.POST.get(proj_pref_keys[proj.id]["param_key"]))
             proj_pref_keys[proj.id]["object"] = proj
             #add the participants project choice
-            part_obj.projectChoice(proj_pref_keys[proj.id]["object"], proj_pref_keys[proj.id]["value"])
+            exists: project_selection = part_obj.getProjectChoice(proj)
+            if(exists is None):
+                part_obj.projectChoice(proj_pref_keys[proj.id]["object"], proj_pref_keys[proj.id]["value"])
+            else:
+                exists.value = proj_pref_keys[proj.id]["value"]
+                exists.save()
 
         #get all the attributes associated with the groupformer
         attributes = Attribute.objects.filter(group_former=gf)
@@ -93,11 +102,22 @@ def record_response(request, group_former_id):
             attr_pref_keys[attr.id]["param_key"] = key_template.replace("#", str(attr.id))
             attr_pref_keys[attr.id]["value"] = int(request.POST.get(attr_pref_keys[attr.id]["param_key"]))
             attr_pref_keys[attr.id]["object"] = attr
-            #add the participants attribute choice
-            part_obj.attributeChoice(attr_pref_keys[attr.id]["object"], attr_pref_keys[attr.id]["value"])
+
+            #check to see if the attribute choice was already added
+            exists: attribute_selection = part_obj.getAttributeChoice(attr)
+            if (exists is None):
+                #if it was not added, create and add it
+                part_obj.attributeChoice(attr_pref_keys[attr.id]["object"], attr_pref_keys[attr.id]["value"])
+            else:
+                #if it was already added update the value and save it
+                exists.value = attr_pref_keys[attr.id]["value"]
+                exists.save()
+
 
         #get the list of the partners desired partners to work with
         partners = request.POST.getlist("participantForm_preference")
+        #clears the particpants objects list before adding new ones or if the particpants desires to work with no one
+        part_obj.desired_partner.clear()
         if(partners is not None):
             for des_name in partners:
                 part = gf.getParticipantByName(des_name)
