@@ -101,9 +101,7 @@ class DBToolsRecordResponseTest(TestCase):
         }
 
         response = self.client.post(reverse('dbtools:record_response', kwargs={"group_former_id": self.groupform1.pk}), response_dict)
-        # response code for redirecting is 302
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/")
+        self.assertEqual(response.status_code, 200)
 
         #correct amount of project and attribute selections are in the database
         self.assertEqual(len(project_selection.objects.all()), 4)
@@ -136,9 +134,8 @@ class DBToolsRecordResponseTest(TestCase):
         }
 
         response = self.client.post(reverse('dbtools:record_response', kwargs={"group_former_id": self.groupform1.pk}),  response_dict)
-        # response code for redirecting is 302
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/")
+        self.assertEqual(response.status_code, 200)
+
 
         self.assertEqual(len(project_selection.objects.all()), 4)
         self.assertEqual(len(attribute_selection.objects.all()), 2)
@@ -158,6 +155,64 @@ class DBToolsRecordResponseTest(TestCase):
         '''
         response = self.client.get(reverse('dbtools:record_response', kwargs={"group_former_id": self.groupform1.pk}))
         self.assertEqual(response.status_code, 404)
+
+    def test_update_response(self):
+        response_dict = {
+            "participantNameForm": self.p5.part_name,
+            "participantEmailForm": self.p3.part_email,
+            f"projForm{self.proj1.id}_preference": 3,
+            f"projForm{self.proj2.id}_preference": 3,
+            f"projForm{self.proj3.id}_preference": 3,
+            f"projForm{self.proj4.id}_preference": 3,
+            f"attrForm{self.attr1.id}_preference": 3,
+            f"attrForm{self.attr2.id}_preference": 3,
+            "participantForm_preference": [self.p1.part_name, self.p2.part_name]
+        }
+
+        response = self.client.post(reverse('dbtools:record_response', kwargs={"group_former_id": self.groupform1.pk}),
+                                    response_dict)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(len(project_selection.objects.all()), 4)
+        self.assertEqual(len(attribute_selection.objects.all()), 2)
+
+        self.assertEqual(self.p3.getProjectChoice(self.proj1).value, 3)
+        self.assertEqual(self.p3.getProjectChoice(self.proj2).value, 3)
+        self.assertEqual(self.p3.getProjectChoice(self.proj3).value, 3)
+        self.assertEqual(self.p3.getProjectChoice(self.proj4).value, 3)
+        self.assertEqual(self.p3.getAttributeChoice(self.attr1).value, 3)
+        self.assertEqual(self.p3.getAttributeChoice(self.attr2).value, 3)
+        self.assertSetEqual(set(response_dict["participantForm_preference"]),
+                            {x.part_name for x in self.p3.desired_partner.all()})
+
+        response_dict = {
+            "participantNameForm": self.p5.part_name,
+            "participantEmailForm": self.p3.part_email,
+            f"projForm{self.proj1.id}_preference": 2,
+            f"projForm{self.proj2.id}_preference": 2,
+            f"projForm{self.proj3.id}_preference": 2,
+            f"projForm{self.proj4.id}_preference": 2,
+            f"attrForm{self.attr1.id}_preference": 2,
+            f"attrForm{self.attr2.id}_preference": 2,
+            "participantForm_preference": [self.p3.part_name, self.p4.part_name]
+        }
+        response = self.client.post(reverse('dbtools:record_response', kwargs={"group_former_id": self.groupform1.pk}),
+                                    response_dict)
+        self.assertEqual(response.status_code, 200)
+
+
+        self.assertEqual(len(project_selection.objects.all()), 4)
+        self.assertEqual(len(attribute_selection.objects.all()), 2)
+
+        self.assertEqual(self.p3.getProjectChoice(self.proj1).value, 2)
+        self.assertEqual(self.p3.getProjectChoice(self.proj2).value, 2)
+        self.assertEqual(self.p3.getProjectChoice(self.proj3).value, 2)
+        self.assertEqual(self.p3.getProjectChoice(self.proj4).value, 2)
+        self.assertEqual(self.p3.getAttributeChoice(self.attr1).value, 2)
+        self.assertEqual(self.p3.getAttributeChoice(self.attr2).value, 2)
+        self.assertSetEqual(set(response_dict["participantForm_preference"]),
+                            {x.part_name for x in self.p3.desired_partner.all()})
+
 
 
 
