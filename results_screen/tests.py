@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 from time import sleep
@@ -9,12 +10,13 @@ from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 def create_sample_groupformer():
+    # No creation of a Min User since that is done in the code (try_create_account)
+    User.objects.create_user("bjohn", "ben.johnson@umbc.edu", "MnbHtgUr")
     gfs = {}
     gfs[1] = {}
-    gfs[1]['gf'] = GroupFormer.objects.create(prof_name="Min Chon", prof_email="minc1@umbc.edu", class_section="34")
+    gfs[1]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "34")
     gfs[2] = {}
-    gfs[2]['gf'] = GroupFormer.objects.create(prof_name="Min Chon", prof_email="minc1@umbc.edu",
-                                              class_section="24")
+    gfs[2]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "24")
     gfs[3] = {}
     gfs[3]['gf'] = addGroupFormer("Ben Johnson","ben.johnson@umbc.edu","14")
     return gfs

@@ -5,16 +5,28 @@ from dbtools.models import *
 class DBToolsModelTest(TestCase):
     #test to set up the test functions by adding GroupFormer and Participant objects into the "test" database
     def setUp(self):
-        groupform1 = GroupFormer.objects.create(prof_name = "Dr. Benjamin Johnson", prof_email = "bj@umbc.edu",
-                                                 class_section = "CMSC341")
+        user1 = User.objects.create_user("Benjo", "bj@umbc.edu","9YzFnrrK")
+        user1.save()
+        groupform1 = GroupFormer.objects.create(associated_user_id=user1,
+                                                prof_name = "Dr. Benjamin Johnson",
+                                                prof_email = "bj@umbc.edu",
+                                                class_section = "CMSC341")
         groupform1.save()
 
-        groupform2 = GroupFormer.objects.create(prof_name="Dr. Jeremy Dixon", prof_email="jd@umbc.edu",
-                                                 class_section="CMSC202")
+        user2 = User.objects.create_user("Jdix", "jd@umbc.edu","9YzFnrrK")
+        user2.save()
+        groupform2 = GroupFormer.objects.create(associated_user_id=user2,
+                                                prof_name="Dr. Jeremy Dixon",
+                                                prof_email="jd@umbc.edu",
+                                                class_section="CMSC202")
         groupform2.save()
 
-        groupform3 = GroupFormer.objects.create(prof_name="Dr. Richard Chang", prof_email="rc@umbc.edu",
-                                                 class_section="CMSC441")
+        user3 = User.objects.create_user("Rchang", "rc@umbc.edu","9YzFnrrK")
+        user3.save()
+        groupform3 = GroupFormer.objects.create(associated_user_id=user3,
+                                                prof_name="Dr. Richard Chang",
+                                                prof_email="rc@umbc.edu",
+                                                class_section="CMSC441")
         groupform3.save()
         #Adding a group of participants to the ONLY ONE group former
         p1 = addParticipant(groupform1, "Sarah", "sarah@umbc.edu")
@@ -53,14 +65,14 @@ class DBToolsModelTest(TestCase):
     #check that redirects to the permission denied html since no email is provided to the url
     def test_no_email_given(self):
         gfobj = GroupFormer.objects.all()[0]
-        response = self.client.get(reverse('verify_participant', kwargs={"group_former_id":gfobj.pk}))
+        response = self.client.get(reverse('dbtools:verify_participant', kwargs={"group_former_id":gfobj.pk}))
         # response code for rendering directly is 200
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Permission Denied")
 
     def test_email_passed_in(self):
         gfobj = GroupFormer.objects.all()[0]
-        response = self.client.get(reverse('verify_participant', kwargs={"group_former_id": gfobj.pk}) + "?email=sarah@umbc.edu")
+        response = self.client.get(reverse('dbtools:verify_participant', kwargs={"group_former_id": gfobj.pk}) + "?email=sarah@umbc.edu")
         self.assertEqual(response.status_code, 302)
         #since it is a redirect, a 302 response code just sends the full url that want to redirect too,
         #so need to ask server to redirect to that url if get a response code of 302
@@ -76,13 +88,13 @@ class DBToolsModelTest(TestCase):
     #test to get an invalid email that is not part of the groupformer
     def test_invalid_email(self):
         gfobj = GroupFormer.objects.all()[0]
-        response = self.client.get(reverse('verify_participant', kwargs={"group_former_id": gfobj.pk}) + "?email=invalidemail@umbc.edu")
+        response = self.client.get(reverse('dbtools:verify_participant', kwargs={"group_former_id": gfobj.pk}) + "?email=invalidemail@umbc.edu")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Permission Denied")
 
     #test to make sure a 404 is raised for an invalid group former id
     def test_invalid_groupformer(self):
-        response = self.client.get(reverse('verify_participant', kwargs={"group_former_id": 2000}))
+        response = self.client.get(reverse('dbtools:verify_participant', kwargs={"group_former_id": 2000}))
         self.assertEqual(response.status_code, 404)
 
     def tearDown(self):

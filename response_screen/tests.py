@@ -1,17 +1,21 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import LiveServerTestCase
+from time import sleep
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from dbtools.models import *
 
 
 def create_sample_groupformer():
+    User.objects.create_user("mchon", "minc1@umbc.edu", "pahKygvg")
+    User.objects.create_user("bjohn", "ben.johnson@umbc.edu", "MnbHtgUr")
     gfs = {}
     gfs[1] = {}
-    gfs[1]['gf'] = GroupFormer.objects.create(prof_name="Min Chon", prof_email="minc1@umbc.edu", class_section="34")
+    gfs[1]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "34")
     gfs[2] = {}
-    gfs[2]['gf'] = GroupFormer.objects.create(prof_name="Ben Johnson", prof_email="ben.johnson@umbc.edu", class_section="24")
+    gfs[2]['gf'] = addGroupFormer("Ben Johnson", "ben.johnson@umbc.edu", "24")
     return gfs
 
 
@@ -303,27 +307,37 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        # Currently, the form is set to post parameters in the URL.
-        url = self.selenium.current_url
-        # Isolate the parameters of the POSTed form
-        param_url = url.rsplit('?', 1)[1]
-        params = param_url.split("&")
-        for i in range(len(params)):
-            # Replace symbol placeholders with correct character
-            params[i] = params[i].replace("%20", " ")
-            params[i] = params[i].replace("+", " ")
-            params[i] = params[i].replace("%40", "@")
-            # Create name, value pairs
-            params[i] = tuple(params[i].split("="))
+        # # Currently, the form is set to post parameters in the URL.
+        # url = self.selenium.current_url
+        # # Isolate the parameters of the POSTed form
+        # param_url = url.rsplit('?', 1)[1]
+        # params = param_url.split("&")
+        # for i in range(len(params)):
+        #     # Replace symbol placeholders with correct character
+        #     params[i] = params[i].replace("%20", " ")
+        #     params[i] = params[i].replace("+", " ")
+        #     params[i] = params[i].replace("%40", "@")
+        #     # Create name, value pairs
+        #     params[i] = tuple(params[i].split("="))
+        #
+        # # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
+        # # Check if those attributes carried over the correct values for those model objects.
+        # self.assertEqual(len(params), 6)  # Check that only the following 5 tuples exist (plus CSRF token)
+        # self.assertTrue(('projForm{}_preference'.format(gfs[1]['p1'].pk), '5') in params)
+        # self.assertTrue(('projForm{}_preference'.format(gfs[1]['p2'].pk), '1') in params)
+        # self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a1'].pk), '4') in params)
+        # self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a2'].pk), '2') in params)
+        # self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a3'].pk), '5') in params)
 
-        # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
-        # Check if those attributes carried over the correct values for those model objects.
-        self.assertEqual(len(params), 6)  # Check that only the following 5 tuples exist (plus CSRF token)
-        self.assertTrue(('projForm{}_preference'.format(gfs[1]['p1'].pk), '5') in params)
-        self.assertTrue(('projForm{}_preference'.format(gfs[1]['p2'].pk), '1') in params)
-        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a1'].pk), '4') in params)
-        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a2'].pk), '2') in params)
-        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a3'].pk), '5') in params)
+        self.assertEqual(len(project_selection.objects.all()), 2)
+        self.assertEqual(len(attribute_selection.objects.all()), 3)
+
+        self.assertEqual(gfs[1]['part2'].getProjectChoice(gfs[1]['p1']).value, 5)
+        self.assertEqual(gfs[1]['part2'].getProjectChoice(gfs[1]['p2']).value, 1)
+        self.assertEqual(gfs[1]['part2'].getAttributeChoice(gfs[1]['a1']).value, 4)
+        self.assertEqual(gfs[1]['part2'].getAttributeChoice(gfs[1]['a2']).value, 2)
+        self.assertEqual(gfs[1]['part2'].getAttributeChoice(gfs[1]['a3']).value, 5)
+
 
     def test_fill_response_screen(self):
         """
@@ -354,29 +368,15 @@ class SeleniumResponseScreen(LiveServerTestCase):
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
         # Currently, the form is set to post parameters in the URL.
-        url = self.selenium.current_url
-        # Isolate the parameters of the POSTed form
-        param_url = url.rsplit('?', 1)[1]
-        params = param_url.split("&")
-        for i in range(len(params)):
-            # Replace symbol placeholders with correct character
-            params[i] = params[i].replace("%20", " ")
-            params[i] = params[i].replace("+", " ")
-            params[i] = params[i].replace("%40", "@")
-            # Create name, value pairs
-            params[i] = tuple(params[i].split("="))
+        self.assertEqual(len(project_selection.objects.all()), 2)
+        self.assertEqual(len(attribute_selection.objects.all()), 3)
 
-        # For each attribute form, the homogenous/continuous values are a hidden form retrieved from the model.
-        # Check if those attributes carried over the correct values for those model objects.
-        self.assertEqual(len(params), 9)  # Check that only the following 8 tuples exist (plus CSRF token)
-        self.assertTrue(('projForm{}_preference'.format(gfs[1]['p1'].pk), '5') in params)
-        self.assertTrue(('projForm{}_preference'.format(gfs[1]['p2'].pk), '1') in params)
-        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a1'].pk), '4') in params)
-        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a2'].pk), '2') in params)
-        self.assertTrue(('attrForm{}_preference'.format(gfs[1]['a3'].pk), '5') in params)
-        self.assertTrue(('participantForm_preference', 'Min') in params)
-        self.assertTrue(('participantForm_preference', 'Kristian') in params)
-        self.assertTrue(('participantForm_preference', 'Ben') in params)
+        self.assertEqual(gfs[1]['part2'].getProjectChoice(gfs[1]['p1']).value, 5)
+        self.assertEqual(gfs[1]['part2'].getProjectChoice(gfs[1]['p2']).value, 1)
+        self.assertEqual(gfs[1]['part2'].getAttributeChoice(gfs[1]['a1']).value, 4)
+        self.assertEqual(gfs[1]['part2'].getAttributeChoice(gfs[1]['a2']).value, 2)
+        self.assertEqual(gfs[1]['part2'].getAttributeChoice(gfs[1]['a3']).value, 5)
+        self.assertSetEqual({'Min', 'Kristian', 'Ben'}, {x.part_name for x in gfs[1]['part2'].desired_partner.all()})
 
         ##########################################
         # Test for the second groupformer object #
@@ -393,26 +393,32 @@ class SeleniumResponseScreen(LiveServerTestCase):
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
 
-        # Currently, the form is set to post parameters in the URL.
-        url = self.selenium.current_url
-        # Isolate the parameters of the POSTed form
-        param_url = url.rsplit('?', 1)[1]
-        params = param_url.split("&")
-        for i in range(len(params)):
-            # Replace symbol placeholders with correct character
-            params[i] = params[i].replace("%20", " ")
-            params[i] = params[i].replace("+", " ")
-            params[i] = params[i].replace("%40", "@")
-            # Create name, value pairs
-            params[i] = tuple(params[i].split("="))
+        # # Currently, the form is set to post parameters in the URL.
+        # url = self.selenium.current_url
+        # # Isolate the parameters of the POSTed form
+        # param_url = url.rsplit('?', 1)[1]
+        # params = param_url.split("&")
+        # for i in range(len(params)):
+        #     # Replace symbol placeholders with correct character
+        #     params[i] = params[i].replace("%20", " ")
+        #     params[i] = params[i].replace("+", " ")
+        #     params[i] = params[i].replace("%40", "@")
+        #     # Create name, value pairs
+        #     params[i] = tuple(params[i].split("="))
+        #
+        # # Attributes do not exist on this Groupformer instance, do not check for them
+        # self.assertEqual(len(params), 6)  # Check that only the following 5 tuples exist (plus CSRF token)
+        # self.assertTrue(('projForm{}_preference'.format(gfs[2]['p1'].pk), '3') in params)
+        # self.assertTrue(('projForm{}_preference'.format(gfs[2]['p2'].pk), '4') in params)
+        # self.assertTrue(('participantForm_preference', 'Sarah') in params)
+        # self.assertTrue(('participantForm_preference', 'Kyle') in params)
+        # self.assertTrue(('participantForm_preference', 'Morgan') in params)
+        self.assertEqual(len(project_selection.objects.all()), 4)
+        self.assertEqual(len(attribute_selection.objects.all()), 3)
 
-        # Attributes do not exist on this Groupformer instance, do not check for them
-        self.assertEqual(len(params), 6)  # Check that only the following 5 tuples exist (plus CSRF token)
-        self.assertTrue(('projForm{}_preference'.format(gfs[2]['p1'].pk), '3') in params)
-        self.assertTrue(('projForm{}_preference'.format(gfs[2]['p2'].pk), '4') in params)
-        self.assertTrue(('participantForm_preference', 'Sarah') in params)
-        self.assertTrue(('participantForm_preference', 'Kyle') in params)
-        self.assertTrue(('participantForm_preference', 'Morgan') in params)
+        self.assertEqual(gfs[2]['part2'].getProjectChoice(gfs[2]['p1']).value, 3)
+        self.assertEqual(gfs[2]['part2'].getProjectChoice(gfs[2]['p2']).value, 4)
+        self.assertSetEqual({'Sarah', 'Kyle', 'Morgan'}, {x.part_name for x in gfs[2]['part2'].desired_partner.all()})
 
 
     def test_modal_shows_success(self):
@@ -441,7 +447,7 @@ class SeleniumResponseScreen(LiveServerTestCase):
         self.selenium.find_element_by_xpath("//select[@id='participantForm']/option[text()='Ben']").click()
         # Submit
         self.selenium.find_element_by_xpath("//button[@id='submitForm']").click()
-
+        sleep(1)
         # Check the Modal
         # .text only grabs VISIBLE text
         modal_content = self.selenium.find_element_by_xpath("//div[@id='submitSuccessModalContent']").text
@@ -519,6 +525,7 @@ class LoginScreenTest(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def setUp(self):
+        User.objects.create_user("bjohn","bjohn@umbc.edu","eYnNtTBH")
         self.gf = addGroupFormer("Ben Johnson", "bjohn@umbc.edu", "CMSC 447-01")
         self.gf.addParticipant("John Beachy", "johnny@niu.edu")
 
