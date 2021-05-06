@@ -198,7 +198,7 @@
                 var form_values = $(this).serializeArray();
                 // Eventually, replace the url with: "/dbtools/{{gf_id}}/record_response"
                 $.ajax({
-                    url: '/dbtools/{{gf_id}}/record_response',
+                    url: "{% url 'dbtools:record_response' gf_id %}",
                     type: 'post',
                     data: form_values,
                     dataType: 'json',
