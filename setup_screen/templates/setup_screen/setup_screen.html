@@ -284,7 +284,10 @@
                             "X-CSRFToken": csrftoken
                         },
                         success: function (result) {
-                            alert(result);
+                            //TODO: this redirect isn't working!
+                            console.log("test")
+                            console.log("{{ request.META.HTTP_HOST }}{% url 'results_screen:results_screen' %}")
+                            window.location.assign("{{ request.META.HTTP_HOST }}{% url 'results_screen:results_screen' %}");
                         },
                         error: function (e) {
                             console.log(e);
@@ -302,7 +305,7 @@
 
     <body>
         <div id="page-container">
-            <div class="container-fluid">
+            <div class="container container-fluid">
                 <!-- Page Header -->
                 <div class="row">
                     <div class="col-6 mx-auto">
@@ -326,16 +329,6 @@
                             <br>
                             <h2>Info</h2>
                             <div class="custom-form-box">
-                                <div class="form-group"><!--TODO: remove name and email in light of authentication-->
-                                    <label for="instructor-name">Your Name</label>
-                                    <input id="instructor-name" type="text" class="form-control" placeholder="Jules Johnson" required>
-                                    <div id="instructor-name-error" class="hide text-danger invalid-feedback">ERROR.</div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="instructor-email">Your Email</label>
-                                    <input id="instructor-email" type="text" class="form-control" placeholder="jules@jules.jules" required>
-                                    <div id="instructor-email-error" class="hide text-danger invalid-feedback">Please enter your email.</div>
-                                </div>
                                 <div class="form-group">
                                     <label for="custom-name">Class/Section or Custom Name</label>
                                     <input id="custom-name" type="text" class="form-control" placeholder="CMSC 447 - Section 03" required>

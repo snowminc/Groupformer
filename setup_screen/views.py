@@ -8,20 +8,6 @@ from django.contrib.auth.models import User
 from dbtools.models import *
 
 
-def dropdown_test(request):
-    context = {}
-
-    context["participants"] = [
-        {"name": "Sarah Nakhon"},
-        {"name": "Morgan Vanderhei"},
-        {"name": "Kyle Morgan"},
-        {"name": "Min Chon"},
-        {"name": "Kristian Mischke"}
-    ]
-
-    return render(request, "setup_screen/dropdown_test.html", context=context)
-
-
 def index(request):
     """
     Setup screen index page. Passes the session data to the html template
@@ -36,17 +22,19 @@ def index(request):
 
 
 def submit_groupformer(request):
-    if request.is_ajax():
+    if request.is_ajax() and request.user.is_authenticated:
         if request.method == 'POST':
             print('Raw Data: "%s"' % request.body)
             payload = json.loads(request.body)
 
             # Create a new groupformer instance
-            instructor_name = payload["instructor_name"]
-            instructor_email = payload["instructor_email"]
+            instructor_name = request.user.first_name + " " + request.user.last_name
+            instructor_email = request.user.email
             custom_name = payload["custom_name"]
-            people_per_group = payload["people_per_group"]  # TODO: people_per_group
-            gf = addGroupFormer(instructor_name, instructor_email, custom_name)
+            people_per_group = payload["people_per_group"]
+            gf: GroupFormer = addGroupFormer(instructor_name, instructor_email, custom_name)
+            gf.max_participants_per_group = people_per_group
+            gf.save()
 
             # add participants to the groupformer
             addRoster(gf, payload["participant_roster"])
