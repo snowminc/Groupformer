@@ -299,7 +299,7 @@ def create_random_candidate_groups(gf, max_parts):
 
             # when the project list count meets candidate list
             if len(project_list) == len(candidate_lists):
-                for j in range(roster):
+                for j in range(len(roster)):
                     candidate_lists[j % len(project_list)].append(roster.pop())
 
     # case where projects will have 0 or more people
