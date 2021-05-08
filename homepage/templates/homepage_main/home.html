@@ -13,7 +13,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
-        <title>Groupformer - Home Page</title>
+        <title>GroupFormer - Home</title>
     </head>
 
     <body>
@@ -21,7 +21,10 @@
             <div id="container-fluid">
                 <!-- Page Header -->
                 <div class="row">
-                    <h1 class="display-4 text-center mx-auto d-block">Home</h1>
+                    <h1 class="display-4 text-center mx-auto d-block">GroupFormer</h1>
+                </div>
+                <div class="row">
+                    <p class="text-center mx-auto d-block"><i>Where groups are formed.</i></p>
                 </div>
 
                 <!-- Page Spacer -->
@@ -31,12 +34,12 @@
                 <div class="row">
                     <main role="main" class="col-8 mx-auto px-4">
                         <div class="custom-box">
-                            <p>
-                                To set up a Groupformer, click this
-                                <a href="{% url 'setup_screen:index' %}">Setup Screen</a>
-                                link and log in if you have not logged in.
-                            </p>
-                            <p>If you are a participant, please ask your instructor to provide you with the link to the response screen.</p>
+                            <h2>What is GroupFormer?</h2>
+                            <p>A web-app designed to help instructors, managers, and anyone else sort people into optimal groups while trying to take everyone's preferences into account.</p>
+                            <h2>Get Started!</h2>
+                            <p>If you are the one organizing the groups, click the button below and log in if you haven't already.</p>
+                            <p>If you are joining someone else's group, please ask them to provide you with the link to create your response.</p>
+                            <a class="btn-primary btn" href="{% url 'setup_screen:index' %}">Start Creating Groups</a>
                         </div>
 
                     </main>
