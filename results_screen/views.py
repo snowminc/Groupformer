@@ -25,9 +25,6 @@ def results_screen(request):
     groupformers = GroupFormer.objects.all()
     context = {"groupformers": groupformers}
 
-    #TODO: filter groupformers by user email
-    #TODO: probably will want to associate groupformers to the actual user object (not just email)
-
     return render(request, 'results_screen_main/results_screen.html', context)
 
 
