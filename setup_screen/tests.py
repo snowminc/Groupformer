@@ -343,7 +343,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
     def fill_complete_form_helper_method(self):
         """
         Helper method for navigating filling out the entire setup_screen form with:
-        - Instructor / Groupformer info
+        - Groupformer info
         - roster
         - two projects
         - two attributes
@@ -351,8 +351,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         """
         self.goto_index()
 
-        instructor_name = "Ben Johnson"
-        instructor_email = "morgan@freeman.com"
         custom_name = "CMSC 447 Section 3"
         people_per_group = "5"
         roster_input = "Min Chon,minc1@umbc.edu\n" \
@@ -618,6 +616,8 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.driver.find_element_by_id('submit-btn').click()
         sleep(1)
 
+        self.assertTrue('results_screen' in self.driver.current_url)
+
         # simple: assert by counting
         self.assertEqual(1, len(GroupFormer.objects.all()))
         self.assertEqual(2, len(Project.objects.all()))
@@ -627,11 +627,11 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertEqual(0, len(project_selection.objects.all()))
 
         # ensure groupformer was properly added
-        gf = GroupFormer.objects.all()[0]
-        self.assertEqual("Ben Johnson", gf.prof_name)
+        gf: GroupFormer = GroupFormer.objects.all()[0]
+        self.assertEqual("Morgan Freeman", gf.prof_name)
         self.assertEqual("morgan@freeman.com", gf.prof_email)
         self.assertEqual("CMSC 447 Section 3", gf.class_section)
-        # TODO: self.assertEqual(5, gf.people_per_group)
+        self.assertEqual(5, gf.max_participants_per_group)
 
         # ensure participants were properly added to the groupformer
         part_min = gf.getParticipantByEmail("minc1@umbc.edu")

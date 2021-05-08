@@ -1,5 +1,5 @@
-{% load static %}
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -158,8 +158,6 @@
                 $("form").submit(function (e) {
                     e.preventDefault();
 
-                    let instructor_name = $("#instructor-name").val();
-                    let instructor_email = $("#instructor-email").val();
                     let custom_name = $("#custom-name").val();
                     let people_per_group = $("#people-per-group").val();
                     let roster_input = $("#roster-input").val();
@@ -172,28 +170,12 @@
                     let is_valid = true;
 
                     // validate basic inputs have content
-                    if (instructor_name === null || instructor_name === '') {
-                        $("#instructor-name-error").removeClass("hide");
-                        $("#instructor-name-error").html("Please enter your name");
-                        is_valid = false;
-                    }
-                    if (instructor_email === null || instructor_email === '') {
-                        $("#instructor-email-error").removeClass("hide");
-                        is_valid = false;
-                    }
                     if (custom_name === null || custom_name === '') {
                         $("#custom-name-error").removeClass("hide");
                         is_valid = false;
                     }
                     if (people_per_group === null || people_per_group === '') {
                         $("#people-per-group-error").removeClass("hide");
-                        is_valid = false;
-                    }
-
-                    // validate instructor email valid
-                    if (!validateEmail(instructor_email)) {
-                        $("#instructor-email-error").removeClass("hide");
-                        $("#instructor-email-error").html("Invalid email address!");
                         is_valid = false;
                     }
 
@@ -265,8 +247,6 @@
                     }
 
                     let payload = {
-                        instructor_name: instructor_name,
-                        instructor_email: instructor_email,
                         custom_name: custom_name,
                         people_per_group: people_per_group,
                         participant_roster: participant_roster,
@@ -284,10 +264,8 @@
                             "X-CSRFToken": csrftoken
                         },
                         success: function (result) {
-                            //TODO: this redirect isn't working!
                             console.log("test")
-                            console.log("{{ request.META.HTTP_HOST }}{% url 'results_screen:results_screen' %}")
-                            window.location.assign("{{ request.META.HTTP_HOST }}{% url 'results_screen:results_screen' %}");
+                            window.location.assign("http://{{ request.META.HTTP_HOST }}{% url 'results_screen:results_screen' %}");
                         },
                         error: function (e) {
                             console.log(e);
@@ -321,7 +299,7 @@
                 <!-- Main Content -->
                 <div class="row">
                     <main role="main" class="col-8 mx-auto px-4">
-                        <form action="" novalidate>
+                        <form onsubmit="sun" novalidate>
                             <div class="custom-form-box">
                                 <h3>Welcome {{ user.first_name }} ({{ user.email }}). <a class="btn btn-danger" id="logout-btn" href="{% url 'setup_screen:logout_endpoint' %}">logout</a> </h3>
                             </div>

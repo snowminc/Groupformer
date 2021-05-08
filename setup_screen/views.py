@@ -1,6 +1,6 @@
 import json
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -34,7 +34,6 @@ def submit_groupformer(request):
             people_per_group = payload["people_per_group"]
             gf: GroupFormer = addGroupFormer(instructor_name, instructor_email, custom_name)
             gf.max_participants_per_group = people_per_group
-            gf.save()
 
             # add participants to the groupformer
             addRoster(gf, payload["participant_roster"])
@@ -50,6 +49,9 @@ def submit_groupformer(request):
                 attribute_name = attribute_data["name"]
                 attribute_homogenous = attribute_data["is_homogenous"]
                 addAttribute(gf, attribute_name, attribute_homogenous, False)
+
+            gf.save()
+        return JsonResponse({})
 
     return HttpResponse("OK")
 
