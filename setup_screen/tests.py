@@ -13,18 +13,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
 
-class ParticipantDropdownViewTests(TestCase):
-
-    def test_participant_dropdown(self):
-        """
-        Ensure the participant dropdown exists
-        NOTE: this test will break and will need to be changed once we have actual data from the models
-        """
-        response = self.client.get(reverse('setup_screen:dropdown_test'))
-        self.assertContains(response, '<select name="participants"')
-        self.assertContains(response, 'Min Chon')
-
-
 class SetupScreenIntegrationTests(LiveServerTestCase):
     """
     NOTE for running tests:
@@ -355,7 +343,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
     def fill_complete_form_helper_method(self):
         """
         Helper method for navigating filling out the entire setup_screen form with:
-        - Instructor / Groupformer info
+        - Groupformer info
         - roster
         - two projects
         - two attributes
@@ -363,8 +351,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         """
         self.goto_index()
 
-        instructor_name = "Ben Johnson"
-        instructor_email = "morgan@freeman.com"
         custom_name = "CMSC 447 Section 3"
         people_per_group = "5"
         roster_input = "Min Chon,minc1@umbc.edu\n" \
@@ -373,8 +359,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
                        "Sarah Nakhon,snakhon1@umbc.edu\n" \
                        "Morgan Vanderhei,morganv2@umbc.edu\n"
 
-        self.driver.find_element_by_id(f'instructor-name').send_keys(instructor_name)
-        self.driver.find_element_by_id(f'instructor-email').send_keys(instructor_email)
         self.driver.find_element_by_id(f'custom-name').send_keys(custom_name)
         self.driver.find_element_by_id(f'people-per-group').send_keys(people_per_group)
         self.driver.find_element_by_id(f'roster-input').send_keys(roster_input)
@@ -448,38 +432,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # ensure contents generated before proceeding
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-desc0-error')))
         self.assertTrue(self.driver.find_element_by_id('project-desc0-error').is_displayed())  # error displayed
-
-        # submit shouldn't have gone through, so nothing should remain in DB
-        self.check_nothing_in_databse_helper()
-
-    def test_invalid_email_format_instructor(self):
-        """
-        Test that nothing is entered in the database when the instructor email field is invalid
-        Also test that invalid message is not hidden in the view
-        :return:
-        """
-        # check nothing in DB & fill the form
-        self.check_nothing_in_databse_helper()
-        self.fill_complete_form_helper_method()
-
-        # set instructor email to invalid
-        instructor_email_input = self.driver.find_element_by_id(f'instructor-email')
-        instructor_email_input.clear()
-        instructor_email_input.send_keys("invalidemail")
-        self.assertEqual("invalidemail", instructor_email_input.get_attribute("value"))
-
-        # check error not displayed
-        self.assertFalse(self.driver.find_element_by_id('instructor-email-error').is_displayed())
-
-        # submit form
-        self.driver.find_element_by_id('submit-btn').click()
-
-        sleep(1)
-
-        # ensure contents generated before proceeding
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#instructor-email-error')))
-        self.assertTrue(self.driver.find_element_by_id('instructor-email-error').is_displayed())  # error displayed
-        self.assertTrue("Invalid email address" in self.driver.find_element_by_id('instructor-email-error').get_attribute("innerHTML"))
 
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
@@ -662,10 +614,9 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
 
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
+        sleep(1)
 
-        # click OK on the alert that pops up. NOTE: in the future we will probably remove this default alert
-        WebDriverWait(self.driver, 10).until(EC.alert_is_present())
-        self.driver.switch_to.alert.accept()
+        self.assertTrue('results_screen' in self.driver.current_url)
 
         # simple: assert by counting
         self.assertEqual(1, len(GroupFormer.objects.all()))
@@ -676,11 +627,11 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertEqual(0, len(project_selection.objects.all()))
 
         # ensure groupformer was properly added
-        gf = GroupFormer.objects.all()[0]
-        self.assertEqual("Ben Johnson", gf.prof_name)
+        gf: GroupFormer = GroupFormer.objects.all()[0]
+        self.assertEqual("Morgan Freeman", gf.prof_name)
         self.assertEqual("morgan@freeman.com", gf.prof_email)
         self.assertEqual("CMSC 447 Section 3", gf.class_section)
-        # TODO: self.assertEqual(5, gf.people_per_group)
+        self.assertEqual(5, gf.max_participants_per_group)
 
         # ensure participants were properly added to the groupformer
         part_min = gf.getParticipantByEmail("minc1@umbc.edu")

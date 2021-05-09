@@ -222,7 +222,9 @@ class RealWorldTest(TestCase):
 
     def setUp(self):
         User.objects.create_user("bjohn","benj@umbc.edu","UkEHMkqV")
-        self.gf = addGroupFormer("Ben Johnson", "benj@umbc.edu", "CMSC-447-Section 2")
+        self.gf: GroupFormer = addGroupFormer("Ben Johnson", "benj@umbc.edu", "CMSC-447-Section 2")
+        self.gf.max_participants_per_group = 3
+        self.gf.save()
 
         self.proj1 = self.gf.addProject("Data privacy visualization", "This app will allow technological "
                                                                       "laypeople to log in to their various "
@@ -671,6 +673,10 @@ class RealWorldTest(TestCase):
     def test_combination_calculation(self):
         self.assertEqual(combination_num(12, 4), 495)
         self.assertEqual(combination_num(20, 7), 77520)
+
+    def test_max_parts_exception(self):
+        self.assertRaises(Exception, calc_optimal_groups, self.gf, 0)
+        self.assertRaises(Exception, calc_optimal_groups, self.gf, -3)
 
     # def test_different_epochs(self):
     #     pp = pprint.PrettyPrinter(indent=4)
