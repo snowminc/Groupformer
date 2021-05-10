@@ -1,11 +1,11 @@
-{% load static %}
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
     <head>
         <meta charset="utf-8">
         
         <!-- Custom CSS file -->
-        <link rel="stylesheet" type="text/css" href="{% static 'main/style.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'results_screen_static/style.css' %}">
         <!-- Bootstrap CDN -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
         
@@ -13,7 +13,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
-        <title>Sample List Of Groupformer Instances</title>
+        <title>GroupFormer - All Sections</title>
     </head>
 
     <body>
@@ -31,6 +31,9 @@
                 <div class="row">
                     <main role="main" class="col-8 mx-auto px-4">
 
+                        <h4>Welcome {{ user.first_name }} ({{ user.email }}). <a class="btn btn-danger" id="logout-btn" href="{% url 'setup_screen:logout_endpoint' %}">logout</a> </h4>
+                        <div class="spacer"></div>
+
                         <!-- Project Listings -->
                         {% if groupformers %}
                         <div class="row">
@@ -40,11 +43,13 @@
 
                                 <!-- Example: <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">Home</a> -->
                                 {% for gf in groupformers %}
+                                {% if gf.prof_email == user.email %}
                                 <a class="nav-link {% if forloop.counter == 1 %}active show{% endif %}" 
                                         id="tab-{{ gf.pk }}" data-toggle="pill" href="#content-{{ gf.pk }}" role="tab" 
                                         aria-controls="content-{{ gf.pk }}" aria-selected="{% if forloop.counter == 1 %}}true{% else %}false{% endif %}">
                                     {{ gf.class_section }}
                                 </a>
+                                {% endif %}
                                 {% endfor %}
                             </div>
 
@@ -53,7 +58,7 @@
 
                                 <!-- Example: <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">...</div> -->
                                 {% for gf in groupformers %}
-                                <div class="tab-pane fade {% if forloop.counter == 1 %}active show{% endif %}" 
+                                <div class="tab-pane fade {% if forloop.counter == 1 and gf.prof_email == user.email %}active show{% endif %}" 
                                         id="content-{{ gf.pk }}" role="tabpanel" aria-labelledby="tab-{{ gf.pk }}">
 
                                     <div class="custom-form-box">
@@ -91,12 +96,16 @@
         <script>
             
             function updateGroupDisplay(display, data) {
+                display.html("");  // Clears the "Loading" message
+
                 // Create an unordered list of student groups and add them to the display div.
                 var label = $('<h6/>').html("Groups:");
                 var ul = $('<ul/>');
                 ul.addClass('list-group list-group-flush');
-                $.each(data, function (index, value) {
-                    var row = $('<li/>').html(value.join(", "));
+                $.each(data, function (key, value) {
+                    list_of_participants = value.join(", ");
+                    project_name = key;
+                    var row = $('<li/>').html("<b>" + project_name + "</b>: " + list_of_participants);
                     row.addClass('list-group-item');
                     ul.append(row);
                 });
@@ -116,9 +125,11 @@
                 var id = this.id.value;
                 var group_display = $("#groupformer" + id + "_groups");
 
+                group_display.html("Loading...");
+
                 // Retrieve the created Groups (EXAMPLE FOR PROOF OF CONCEPT)
                 $.ajax({
-                    url: 'sample_groups/' + id,
+                    url: 'get_groups/' + id,
                     type: 'get',
                     dataType: 'json',
                     success: function (response) {

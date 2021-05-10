@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Use 
 # from dbtools.models import *
@@ -12,6 +13,8 @@ class GroupFormer(models.Model):
     prof_name = models.CharField(max_length=200)
     prof_email = models.CharField(max_length=200)
     class_section = models.CharField(max_length=100)
+    associated_user_id = models.ForeignKey(User, on_delete = models.CASCADE)
+    max_participants_per_group = models.IntegerField(blank = True, null = True)
     
     def __str__(self):
         return self.prof_name + ' : ' + self.class_section 
@@ -75,7 +78,18 @@ class GroupFormer(models.Model):
             return recieved[0]
         else:
             return None
+    
+    def getRoster(self):
+        recieved = Participant.objects.filter(group_former=self.pk)
+        return recieved
+    
+    def getProjectList(self):
+        recieved = Project.objects.filter(group_former=self.pk)
+        return recieved
 
+    def getAttributeList(self):
+        recieved = Attribute.objects.filter(group_former=self.pk)
+        return recieved
 class Project(models.Model):
     group_former = models.ForeignKey(GroupFormer, on_delete = models.CASCADE)
     project_name = models.CharField(max_length=240, blank=False, null=False)
@@ -128,7 +142,9 @@ class Participant(models.Model):
     """
         Helper functions to get selections
     """
-    
+    def getDesiredPartnerList(self):
+        recieved = self.desired_partner.filter(participant=self.pk)
+        return recieved
     def getAttributeChoice(self, attribute):
         recieved = attribute_selection.objects.filter(participant=self,attribute=attribute)
         if len(recieved) > 1:
@@ -152,7 +168,7 @@ class Participant(models.Model):
 class attribute_selection(models.Model):
     participant = models.ForeignKey(Participant, on_delete = models.CASCADE)
     attribute = models.ForeignKey(Attribute, on_delete = models.CASCADE)
-    value = models.IntegerField()
+    value = models.FloatField()
     
     def __str__(self):
         return str(self.participant) + '-' + str(self.attribute)
@@ -160,7 +176,7 @@ class attribute_selection(models.Model):
 class project_selection(models.Model):
     participant = models.ForeignKey(Participant, on_delete = models.CASCADE)
     project = models.ForeignKey(Project, on_delete = models.CASCADE)
-    value = models.FloatField()
+    value = models.IntegerField()
     def __str__(self):
         return str(self.participant) + '-' + str(self.project)
 
@@ -191,7 +207,13 @@ def addRoster(gf, roster):
 def addGroupFormer(name,email,section):
     if getGroupFormer(name,section) != None:
         raise ValueError("GroupFormer with name "+name+" and section "+section+" already exists")
-    p = GroupFormer.objects.create(prof_name=name,
+    associated_users = User.objects.filter(email=email)
+    if len(associated_users) == 0:
+        raise ValueError("No User exists with email "+email)
+    if len(associated_users) > 1:
+        raise ValueError("Multiple Users exist with email "+email)
+    p = GroupFormer.objects.create(associated_user_id=associated_users[0],
+                                   prof_name=name,
                                    prof_email=email,
                                    class_section=section)
     return p

@@ -13,18 +13,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
 
-class ParticipantDropdownViewTests(TestCase):
-
-    def test_participant_dropdown(self):
-        """
-        Ensure the participant dropdown exists
-        NOTE: this test will break and will need to be changed once we have actual data from the models
-        """
-        response = self.client.get(reverse('setup_screen:dropdown_test'))
-        self.assertContains(response, '<select name="participants"')
-        self.assertContains(response, 'Min Chon')
-
-
 class SetupScreenIntegrationTests(LiveServerTestCase):
     """
     NOTE for running tests:
@@ -42,10 +30,38 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         cls.driver.quit()
         super().tearDownClass()
 
-    def goto_index(self):
+    def setUp(self):
+        self.driver.get(self.live_server_url + reverse('setup_screen:logout_endpoint'))
+
+    def try_create_account(self):
+        self.driver.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.driver.find_element_by_id('first_name').send_keys('Morgan')
+        self.driver.find_element_by_id('last_name').send_keys('Freeman')
+        self.driver.find_element_by_id('username').send_keys('mfreeman')
+        self.driver.find_element_by_id('email').send_keys('morgan@freeman.com')
+        self.driver.find_element_by_id('password').send_keys('pass1234567')
+        self.driver.find_element_by_id('confirm_password').send_keys('pass1234567')
+
+        self.driver.find_element_by_id('login-submit').click()
+
+    def sign_in(self):
+        self.driver.get(self.live_server_url + reverse('setup_screen:login_screen'))
+
+        if 'login_screen' in self.driver.current_url:
+            self.driver.find_element_by_id('username').send_keys('mfreeman')
+            self.driver.find_element_by_id('password').send_keys('pass1234567')
+
+            self.driver.find_element_by_id('login-submit').click()
+
+    def goto_index(self, login=True):
         """
         Helper function to go to the index page
         """
+        if login:
+            self.try_create_account()
+            self.sign_in()
+
         self.driver.get(self.live_server_url + reverse('setup_screen:index'))
 
     def click_add_project(self):
@@ -109,7 +125,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertRaises(NoSuchElementException, self.driver.find_element_by_id, f'project-desc2')
 
         # reload page
-        self.goto_index()
+        self.goto_index(login=False)
 
         # only project input 0 should exist
         self.assertIsNotNone(self.driver.find_element_by_id(f'project-name0'))
@@ -327,7 +343,7 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
     def fill_complete_form_helper_method(self):
         """
         Helper method for navigating filling out the entire setup_screen form with:
-        - Instructor / Groupformer info
+        - Groupformer info
         - roster
         - two projects
         - two attributes
@@ -335,8 +351,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         """
         self.goto_index()
 
-        instructor_name = "Ben Johnson"
-        instructor_email = "benj1@umbc.edu"
         custom_name = "CMSC 447 Section 3"
         people_per_group = "5"
         roster_input = "Min Chon,minc1@umbc.edu\n" \
@@ -345,8 +359,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
                        "Sarah Nakhon,snakhon1@umbc.edu\n" \
                        "Morgan Vanderhei,morganv2@umbc.edu\n"
 
-        self.driver.find_element_by_id(f'instructor-name').send_keys(instructor_name)
-        self.driver.find_element_by_id(f'instructor-email').send_keys(instructor_email)
         self.driver.find_element_by_id(f'custom-name').send_keys(custom_name)
         self.driver.find_element_by_id(f'people-per-group').send_keys(people_per_group)
         self.driver.find_element_by_id(f'roster-input').send_keys(roster_input)
@@ -420,38 +432,6 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         # ensure contents generated before proceeding
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#project-desc0-error')))
         self.assertTrue(self.driver.find_element_by_id('project-desc0-error').is_displayed())  # error displayed
-
-        # submit shouldn't have gone through, so nothing should remain in DB
-        self.check_nothing_in_databse_helper()
-
-    def test_invalid_email_format_instructor(self):
-        """
-        Test that nothing is entered in the database when the instructor email field is invalid
-        Also test that invalid message is not hidden in the view
-        :return:
-        """
-        # check nothing in DB & fill the form
-        self.check_nothing_in_databse_helper()
-        self.fill_complete_form_helper_method()
-
-        # set instructor email to invalid
-        instructor_email_input = self.driver.find_element_by_id(f'instructor-email')
-        instructor_email_input.clear()
-        instructor_email_input.send_keys("invalidemail")
-        self.assertEqual("invalidemail", instructor_email_input.get_attribute("value"))
-
-        # check error not displayed
-        self.assertFalse(self.driver.find_element_by_id('instructor-email-error').is_displayed())
-
-        # submit form
-        self.driver.find_element_by_id('submit-btn').click()
-
-        sleep(1)
-
-        # ensure contents generated before proceeding
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, f'#instructor-email-error')))
-        self.assertTrue(self.driver.find_element_by_id('instructor-email-error').is_displayed())  # error displayed
-        self.assertTrue("Invalid email address" in self.driver.find_element_by_id('instructor-email-error').get_attribute("innerHTML"))
 
         # submit shouldn't have gone through, so nothing should remain in DB
         self.check_nothing_in_databse_helper()
@@ -634,10 +614,9 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
 
         # submit form
         self.driver.find_element_by_id('submit-btn').click()
+        sleep(1)
 
-        # click OK on the alert that pops up. NOTE: in the future we will probably remove this default alert
-        WebDriverWait(self.driver, 10).until(EC.alert_is_present())
-        self.driver.switch_to.alert.accept()
+        self.assertTrue('results_screen' in self.driver.current_url)
 
         # simple: assert by counting
         self.assertEqual(1, len(GroupFormer.objects.all()))
@@ -648,11 +627,11 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertEqual(0, len(project_selection.objects.all()))
 
         # ensure groupformer was properly added
-        gf = GroupFormer.objects.all()[0]
-        self.assertEqual("Ben Johnson", gf.prof_name)
-        self.assertEqual("benj1@umbc.edu", gf.prof_email)
+        gf: GroupFormer = GroupFormer.objects.all()[0]
+        self.assertEqual("Morgan Freeman", gf.prof_name)
+        self.assertEqual("morgan@freeman.com", gf.prof_email)
         self.assertEqual("CMSC 447 Section 3", gf.class_section)
-        # TODO: self.assertEqual(5, gf.people_per_group)
+        self.assertEqual(5, gf.max_participants_per_group)
 
         # ensure participants were properly added to the groupformer
         part_min = gf.getParticipantByEmail("minc1@umbc.edu")
@@ -693,3 +672,161 @@ class SetupScreenIntegrationTests(LiveServerTestCase):
         self.assertIsNotNone(attr_front_end)
         self.assertFalse(attr_front_end.is_homogenous)
 
+class LoginTests(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.driver = webdriver.Firefox()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+        super().tearDownClass()
+
+    def setUp(self):
+        self.driver.get(self.live_server_url + reverse('setup_screen:logout_endpoint'))
+
+    def try_create_account(self):
+        self.driver.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.driver.find_element_by_id('first_name').send_keys('Morgan')
+        self.driver.find_element_by_id('last_name').send_keys('Freeman')
+        self.driver.find_element_by_id('username').send_keys('mfreeman')
+        self.driver.find_element_by_id('email').send_keys('morgan@freeman.com')
+        self.driver.find_element_by_id('password').send_keys('pass1234567')
+        self.driver.find_element_by_id('confirm_password').send_keys('pass1234567')
+
+        self.driver.find_element_by_id('login-submit').click()
+
+    def sign_in(self, username, password, redirect=""):
+        self.driver.get(self.live_server_url + reverse('setup_screen:login_screen') + f'?redirect={redirect}')
+
+        if 'login_screen' in self.driver.current_url:
+            self.driver.find_element_by_id('username').send_keys(username)
+            self.driver.find_element_by_id('password').send_keys(password)
+
+            self.driver.find_element_by_id('login-submit').click()
+
+    def goto_index(self, login=True):
+        """
+        Helper function to go to the index page
+        """
+        if login:
+            self.try_create_account()
+            self.sign_in('mfreeman', 'pass1234567')
+
+        self.driver.get(self.live_server_url + reverse('setup_screen:index'))
+
+    def test_no_account(self):
+        """
+            Test error when using incorrect username
+        """
+
+        self.sign_in('no_account', 'oh_no_thats_no_good')
+
+        self.assertEqual('Could not authenticate user', self.driver.find_element_by_id('error-message').text)
+
+    def test_setup_then_redirect(self):
+        """
+            Test redirecting to response screen from login page after already signed in
+        """
+
+        # create account and sign in
+        self.goto_index()
+
+        # navigate to login screen should auto-redirect to setup index because we're logged in already
+        self.driver.get(self.live_server_url + reverse('setup_screen:login_screen'))
+        self.assertTrue(self.driver.current_url.endswith('setup_screen/'))
+
+        # navigate to login screen with redirect=results_screen, should auto-redirect there because already logged in
+        self.driver.get(self.live_server_url + reverse('setup_screen:login_screen') + "?redirect=results_screen")
+        self.assertTrue(self.driver.current_url.endswith('results_screen/'))
+
+    def test_setup_then_redirect_logged_out(self):
+        """
+            Test redirecting to response screen from login page after account is created, but logged out
+        """
+
+        # create account and sign in
+        self.goto_index()
+
+        # logout and login with redirect to results_screen
+        self.driver.find_element_by_id('logout-btn').click()
+        self.sign_in('mfreeman', 'pass1234567', 'results_screen')
+        self.assertTrue(self.driver.current_url.endswith('results_screen/'))
+
+        # logout and login without redirect
+        self.driver.find_element_by_id('logout-btn').click()
+        self.sign_in('mfreeman', 'pass1234567')
+        self.assertTrue(self.driver.current_url.endswith('setup_screen/'))
+
+    def test_create_account_pass_too_short(self):
+        """
+            Test that creating an account with short password fails
+        """
+
+        self.driver.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.driver.find_element_by_id('first_name').send_keys('Morgan')
+        self.driver.find_element_by_id('last_name').send_keys('Freeman')
+        self.driver.find_element_by_id('username').send_keys('mfreeman')
+        self.driver.find_element_by_id('email').send_keys('morgan@freeman.com')
+        self.driver.find_element_by_id('password').send_keys('xx')
+        self.driver.find_element_by_id('confirm_password').send_keys('xx')
+
+        self.driver.find_element_by_id('login-submit').click()
+        self.assertEqual('Password must be 6 or more characters!', self.driver.find_element_by_id('error-message').text)
+
+    def test_create_account_pass_dont_match(self):
+        """
+            Test that creating an account with mismatch confirmed password fails
+        """
+
+        self.driver.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.driver.find_element_by_id('first_name').send_keys('Morgan')
+        self.driver.find_element_by_id('last_name').send_keys('Freeman')
+        self.driver.find_element_by_id('username').send_keys('mfreeman')
+        self.driver.find_element_by_id('email').send_keys('morgan@freeman.com')
+        self.driver.find_element_by_id('password').send_keys('helloDarknessMyOldFriend')
+        self.driver.find_element_by_id('confirm_password').send_keys('password1234567')
+
+        self.driver.find_element_by_id('login-submit').click()
+        self.assertEqual('Passwords do not match!', self.driver.find_element_by_id('error-message').text)
+
+    def test_create_account_username_taken(self):
+        """
+            Test that creating an account with an existing username fails
+        """
+        self.try_create_account()
+
+        self.driver.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.driver.find_element_by_id('first_name').send_keys('Morgan')
+        self.driver.find_element_by_id('last_name').send_keys('Freeman')
+        self.driver.find_element_by_id('username').send_keys('mfreeman')
+        self.driver.find_element_by_id('email').send_keys('morgan@freeman123.com')
+        self.driver.find_element_by_id('password').send_keys('helloDarknessMyOldFriend')
+        self.driver.find_element_by_id('confirm_password').send_keys('helloDarknessMyOldFriend')
+
+        self.driver.find_element_by_id('login-submit').click()
+        self.assertEqual('Username already taken!', self.driver.find_element_by_id('error-message').text)
+
+    def test_create_account_email_taken(self):
+        """
+            Test that creating an account with existing email fails
+        """
+        self.try_create_account()
+
+        self.driver.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.driver.find_element_by_id('first_name').send_keys('Morgan')
+        self.driver.find_element_by_id('last_name').send_keys('Freeman')
+        self.driver.find_element_by_id('username').send_keys('mfreeman2')
+        self.driver.find_element_by_id('email').send_keys('morgan@freeman.com')
+        self.driver.find_element_by_id('password').send_keys('helloDarknessMyOldFriend')
+        self.driver.find_element_by_id('confirm_password').send_keys('helloDarknessMyOldFriend')
+
+        self.driver.find_element_by_id('login-submit').click()
+        self.assertEqual('Email already taken!', self.driver.find_element_by_id('error-message').text)

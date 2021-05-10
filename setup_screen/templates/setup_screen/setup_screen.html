@@ -1,410 +1,412 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>GroupFormer - Setup Screen</title>
+    <head>
+        <meta charset="UTF-8">
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <!-- Custom CSS file -->
+        <link rel="stylesheet" type="text/css" href="{% static 'setup_screen_static/style.css' %}">
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
-    <script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-        local_projects = [];
-        local_attributes = [];
+        <script>
 
-        $(document).ready(function()
-        {
-            add_project();
-            add_attribute();
-        })
+            local_projects = [];
+            local_attributes = [];
 
-        function new_local_project_object()
-        {
-            return {name: "", description: ""};
-        }
-        function new_local_attribute_object()
-        {
-            return {name: "", is_homogenous: false};
-        }
-
-        function add_project()
-        {
-            local_projects.push(new_local_project_object());
-            update_projects_container();
-        }
-        function remove_project(index)
-        {
-            if(local_projects.length > 1)
+            $(document).ready(function()
             {
-                local_projects.splice(index, 1);
+                add_project();
+                add_attribute();
+            })
+
+            function new_local_project_object()
+            {
+                return {name: "", description: ""};
+            }
+            function new_local_attribute_object()
+            {
+                return {name: "", is_homogenous: false};
+            }
+
+            function add_project()
+            {
+                local_projects.push(new_local_project_object());
                 update_projects_container();
             }
-        }
-
-        function add_attribute()
-        {
-            local_attributes.push(new_local_attribute_object());
-            update_attributes_container();
-        }
-        function remove_attribute(index)
-        {
-            if(local_attributes.length > 1)
+            function remove_project(index)
             {
-                local_attributes.splice(index, 1);
+                if(local_projects.length > 1)
+                {
+                    local_projects.splice(index, 1);
+                    update_projects_container();
+                }
+            }
+
+            function add_attribute()
+            {
+                local_attributes.push(new_local_attribute_object());
                 update_attributes_container();
             }
-        }
-
-        function update_projects_container()
-        {
-            // clear the container
-            let projects_container = $('#projects-container');
-            projects_container.children().remove();
-
-            // add each of the project items to the container
-            for(let i = 0; i < local_projects.length; i++)
+            function remove_attribute(index)
             {
-                // get the values from the local list
-                let project_name = local_projects[i].name;
-                let project_desc = local_projects[i].description;
-
-                // clone the template element
-                let project_elem = $("#dom-templates #project-template").clone();
-                projects_container.append(project_elem);
-                project_elem.attr("id", `project-${i}`);
-
-                // assign close callback
-                project_elem.find(".close").on("click", () => remove_project(i));
-
-                // init project name input value and change callback
-                project_elem.find("#project-name label").attr("for", `project-name${i}`);
-                let name_input = project_elem.find("#project-name input");
-                name_input.val(project_name);
-                name_input.change(() => local_projects[i].name = $(`#project-name${i}`).val());
-                name_input.attr("id", `project-name${i}`);
-                project_elem.find("#project-name .invalid-feedback").attr("id", `project-name${i}-error`);
-                project_elem.find("#project-name").removeAttr("id");
-
-                // init project description input value and change callback
-                project_elem.find("#project-desc label").attr("for", `project-desc${i}`);
-                let desc_textarea = project_elem.find("#project-desc textarea");
-                desc_textarea.val(project_desc);
-                desc_textarea.change(() => local_projects[i].description = $(`#project-desc${i}`).val());
-                desc_textarea.attr("id", `project-desc${i}`);
-                project_elem.find("#project-desc .invalid-feedback").attr("id", `project-desc${i}-error`);
-                project_elem.find("#project-desc").removeAttr("id");
+                if(local_attributes.length > 1)
+                {
+                    local_attributes.splice(index, 1);
+                    update_attributes_container();
+                }
             }
-        }
 
-        function update_attributes_container()
-        {
-            // clear the container
-            let attributes_container = $('#attributes-container');
-            attributes_container.children().remove();
-
-            // add each of the attribute items to the container
-            for(let i = 0; i < local_attributes.length; i++)
+            function update_projects_container()
             {
-                // get the values from the local list
-                let attribute_name = local_attributes[i].name;
-                let attribute_homogenous = local_attributes[i].is_homogenous;
+                // clear the container
+                let projects_container = $('#projects-container');
+                projects_container.children().remove();
 
-                // clone the template element
-                let attribute_elem = $("#dom-templates #attribute-template").clone();
-                attributes_container.append(attribute_elem);
-                attribute_elem.attr("id", `attribute-${i}`);
+                // add each of the project items to the container
+                for(let i = 0; i < local_projects.length; i++)
+                {
+                    // get the values from the local list
+                    let project_name = local_projects[i].name;
+                    let project_desc = local_projects[i].description;
 
-                // assign close callback
-                attribute_elem.find(".close").on("click", () => remove_attribute(i));
+                    // clone the template element
+                    let project_elem = $("#dom-templates #project-template").clone();
+                    projects_container.append(project_elem);
+                    project_elem.attr("id", `project-${i}`);
 
-                // init attribute name input value and change callback
-                attribute_elem.find("#attribute-name label").attr("for", `attribute-name${i}`);
-                let name_input = attribute_elem.find("#attribute-name input");
-                name_input.val(attribute_name);
-                name_input.change(() => local_attributes[i].name = $(`#attribute-name${i}`).val());
-                name_input.attr("id", `attribute-name${i}`);
-                attribute_elem.find("#attribute-name .invalid-feedback").attr("id", `attribute-name${i}-error`);
-                attribute_elem.find("#attribute-name").removeAttr("id");
+                    // assign close callback
+                    project_elem.find(".close").on("click", () => remove_project(i));
 
-                // init attribute homogenous input value and change callback
-                attribute_elem.find("#attribute-homogenous label").attr("for", `attribute-homogenous${i}`);
-                let homogenous_checkbox = attribute_elem.find("#attribute-homogenous input");
-                homogenous_checkbox.prop("checked", attribute_homogenous);
-                homogenous_checkbox.change(() => local_attributes[i].is_homogenous = $(`#attribute-homogenous${i}`).is(":checked"));
-                homogenous_checkbox.attr("id", `attribute-homogenous${i}`);
-                attribute_elem.find("#attribute-homogenous").removeAttr("id");
+                    // init project name input value and change callback
+                    project_elem.find("#project-name label").attr("for", `project-name${i}`);
+                    let name_input = project_elem.find("#project-name input");
+                    name_input.val(project_name);
+                    name_input.change(() => local_projects[i].name = $(`#project-name${i}`).val());
+                    name_input.attr("id", `project-name${i}`);
+                    project_elem.find("#project-name .invalid-feedback").attr("id", `project-name${i}-error`);
+                    project_elem.find("#project-name").removeAttr("id");
+
+                    // init project description input value and change callback
+                    project_elem.find("#project-desc label").attr("for", `project-desc${i}`);
+                    let desc_textarea = project_elem.find("#project-desc textarea");
+                    desc_textarea.val(project_desc);
+                    desc_textarea.change(() => local_projects[i].description = $(`#project-desc${i}`).val());
+                    desc_textarea.attr("id", `project-desc${i}`);
+                    project_elem.find("#project-desc .invalid-feedback").attr("id", `project-desc${i}-error`);
+                    project_elem.find("#project-desc").removeAttr("id");
+                }
             }
-        }
 
-        //
-        // Helper function for validating emails. Thanks to
-        // https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
-        //
-        function validateEmail(email) {
-            const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return re.test(String(email).toLowerCase());
-        }
+            function update_attributes_container()
+            {
+                // clear the container
+                let attributes_container = $('#attributes-container');
+                attributes_container.children().remove();
 
-        $(document).ready(function () {
-            $("form").submit(function (e) {
-                e.preventDefault();
+                // add each of the attribute items to the container
+                for(let i = 0; i < local_attributes.length; i++)
+                {
+                    // get the values from the local list
+                    let attribute_name = local_attributes[i].name;
+                    let attribute_homogenous = local_attributes[i].is_homogenous;
 
-                let instructor_name = $("#instructor-name").val();
-                let instructor_email = $("#instructor-email").val();
-                let custom_name = $("#custom-name").val();
-                let people_per_group = $("#people-per-group").val();
-                let roster_input = $("#roster-input").val();
+                    // clone the template element
+                    let attribute_elem = $("#dom-templates #attribute-template").clone();
+                    attributes_container.append(attribute_elem);
+                    attribute_elem.attr("id", `attribute-${i}`);
 
-                $(".invalid-feedback").addClass("hide"); // hide errors
+                    // assign close callback
+                    attribute_elem.find(".close").on("click", () => remove_attribute(i));
 
-                //
-                // Validate the input
-                //
-                let is_valid = true;
+                    // init attribute name input value and change callback
+                    attribute_elem.find("#attribute-name label").attr("for", `attribute-name${i}`);
+                    let name_input = attribute_elem.find("#attribute-name input");
+                    name_input.val(attribute_name);
+                    name_input.change(() => local_attributes[i].name = $(`#attribute-name${i}`).val());
+                    name_input.attr("id", `attribute-name${i}`);
+                    attribute_elem.find("#attribute-name .invalid-feedback").attr("id", `attribute-name${i}-error`);
+                    attribute_elem.find("#attribute-name").removeAttr("id");
 
-                // validate basic inputs have content
-                if (instructor_name === null || instructor_name === '') {
-                    $("#instructor-name-error").removeClass("hide");
-                    $("#instructor-name-error").html("Please enter your name");
-                    is_valid = false;
+                    // init attribute homogenous input value and change callback
+                    attribute_elem.find("#attribute-homogenous label").attr("for", `attribute-homogenous${i}`);
+                    let homogenous_checkbox = attribute_elem.find("#attribute-homogenous input");
+                    homogenous_checkbox.prop("checked", attribute_homogenous);
+                    homogenous_checkbox.change(() => local_attributes[i].is_homogenous = $(`#attribute-homogenous${i}`).is(":checked"));
+                    homogenous_checkbox.attr("id", `attribute-homogenous${i}`);
+                    attribute_elem.find("#attribute-homogenous").removeAttr("id");
                 }
-                if (instructor_email === null || instructor_email === '') {
-                    $("#instructor-email-error").removeClass("hide");
-                    is_valid = false;
-                }
-                if (custom_name === null || custom_name === '') {
-                    $("#custom-name-error").removeClass("hide");
-                    is_valid = false;
-                }
-                if (people_per_group === null || people_per_group === '') {
-                    $("#people-per-group-error").removeClass("hide");
-                    is_valid = false;
-                }
+            }
 
-                // validate instructor email valid
-                if (!validateEmail(instructor_email)) {
-                    $("#instructor-email-error").removeClass("hide");
-                    $("#instructor-email-error").html("Invalid email address!");
-                    is_valid = false;
-                }
+            //
+            // Helper function for validating emails. Thanks to
+            // https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
+            //
+            function validateEmail(email) {
+                const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return re.test(String(email).toLowerCase());
+            }
 
-                // validate projects and attributes have required content
-                for (let i = 0; i < local_projects.length; i++) {
-                    if (local_projects[i].name === null || local_projects[i].name === "") {
-                        $(`#project-name${i}-error`).removeClass("hide");
+            $(document).ready(function () {
+                $("form").submit(function (e) {
+                    e.preventDefault();
+
+                    let custom_name = $("#custom-name").val();
+                    let people_per_group = $("#people-per-group").val();
+                    let roster_input = $("#roster-input").val();
+                    
+                    $(".invalid-feedback").addClass("hide"); // hide errors
+
+                    //
+                    // Validate the input
+                    //
+                    let is_valid = true;
+
+                    // validate basic inputs have content
+                    if (custom_name === null || custom_name === '') {
+                        $("#custom-name-error").removeClass("hide");
                         is_valid = false;
                     }
-                    if (local_projects[i].description === null || local_projects[i].description === "") {
-                        $(`#project-desc${i}-error`).removeClass("hide");
+                    if (people_per_group === null || people_per_group === '') {
+                        $("#people-per-group-error").removeClass("hide");
                         is_valid = false;
                     }
-                }
-                for (let i = 0; i < local_attributes.length; i++) {
-                    if (local_attributes[i].name === null || local_attributes[i].name === "") {
-                        $(`#attribute-name${i}-error`).removeClass("hide");
-                        is_valid = false;
+
+                    // validate projects and attributes have required content
+                    for (let i = 0; i < local_projects.length; i++) {
+                        if (local_projects[i].name === null || local_projects[i].name === "") {
+                            $(`#project-name${i}-error`).removeClass("hide");
+                            is_valid = false;
+                        }
+                        if (local_projects[i].description === null || local_projects[i].description === "") {
+                            $(`#project-desc${i}-error`).removeClass("hide");
+                            is_valid = false;
+                        }
                     }
-                }
-
-                // validate roster format
-                let participant_roster = [];
-                let rows = roster_input.split('\n');
-                for (let i = 0; i < rows.length; i++) {
-                    let cols = rows[i].split(',');
-
-                    // empty row, so continue
-                    if (cols.length === 0) continue;
-                    if (cols.length === 1 && cols[0].trim() === '') continue;
-
-                    if (cols.length !== 2) {
-                        $("#roster-input-error").removeClass("hide");
-                        $("#roster-input-error").html(`Row ${i + 1} has wrong number of columns (found ${cols.length}, expected 2): <br> ${rows[i]}`);
-                        is_valid = false;
-                        break;
+                    for (let i = 0; i < local_attributes.length; i++) {
+                        if (local_attributes[i].name === null || local_attributes[i].name === "") {
+                            $(`#attribute-name${i}-error`).removeClass("hide");
+                            is_valid = false;
+                        }
                     }
 
-                    let name = cols[0].trim();
-                    let email = cols[1].trim();
+                    // validate roster format
+                    let participant_roster = [];
+                    let rows = roster_input.split('\n');
+                    for (let i = 0; i < rows.length; i++) {
+                        let cols = rows[i].split(',');
 
-                    if(name === null || name === '')
+                        // empty row, so continue
+                        if (cols.length === 0) continue;
+                        if (cols.length === 1 && cols[0].trim() === '') continue;
+
+                        if (cols.length !== 2) {
+                            $("#roster-input-error").removeClass("hide");
+                            $("#roster-input-error").html(`Row ${i + 1} has wrong number of columns (found ${cols.length}, expected 2): <br> ${rows[i]}`);
+                            is_valid = false;
+                            break;
+                        }
+
+                        let name = cols[0].trim();
+                        let email = cols[1].trim();
+
+                        if(name === null || name === '')
+                        {
+                            $("#roster-input-error").removeClass("hide");
+                            $("#roster-input-error").html(`Row ${i + 1} contains has empty name`);
+                            is_valid = false;
+                            break;
+                        }
+
+                        if (!validateEmail(email)) {
+                            $("#roster-input-error").removeClass("hide");
+                            $("#roster-input-error").html(`Row ${i + 1} contains invalid email address: <br> ${email}`);
+                            is_valid = false;
+                            break;
+                        }
+
+                        participant_roster.push([name, email]);
+                    }
+
+                    if(participant_roster.length === 0)
                     {
                         $("#roster-input-error").removeClass("hide");
-                        $("#roster-input-error").html(`Row ${i + 1} contains has empty name`);
+                        $("#roster-input-error").html(`Please enter a roster of participants`);
                         is_valid = false;
-                        break;
                     }
 
-                    if (!validateEmail(email)) {
-                        $("#roster-input-error").removeClass("hide");
-                        $("#roster-input-error").html(`Row ${i + 1} contains invalid email address: <br> ${email}`);
-                        is_valid = false;
-                        break;
+                    if (!is_valid) {
+                        return false;
                     }
 
-                    participant_roster.push([name, email]);
-                }
+                    let payload = {
+                        custom_name: custom_name,
+                        people_per_group: people_per_group,
+                        participant_roster: participant_roster,
+                        projects: local_projects,
+                        attributes: local_attributes
+                    }
 
-                if(participant_roster.length === 0)
-                {
-                    $("#roster-input-error").removeClass("hide");
-                    $("#roster-input-error").html(`Please enter a roster of participants`);
-                    is_valid = false;
-                }
+                    $.ajax({
+                        url: '{% url "setup_screen:submit_groupformer" %}',
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(payload),
+                        dataType: 'text',
+                        headers: {
+                            "X-CSRFToken": csrftoken
+                        },
+                        success: function (result) {
+                            console.log("test")
+                            window.location.assign("http://{{ request.META.HTTP_HOST }}{% url 'results_screen:results_screen' %}");
+                        },
+                        error: function (e) {
+                            console.log(e);
+                            alert("Error: " + e);
+                        },
+                    });
 
-                if (!is_valid) {
                     return false;
-                }
-
-                let payload = {
-                    instructor_name: instructor_name,
-                    instructor_email: instructor_email,
-                    custom_name: custom_name,
-                    people_per_group: people_per_group,
-                    participant_roster: participant_roster,
-                    projects: local_projects,
-                    attributes: local_attributes
-                }
-
-                $.ajax({
-                    url: '{% url "setup_screen:submit_groupformer" %}',
-                    type: 'POST',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(payload),
-                    dataType: 'text',
-                    headers: {
-                        "X-CSRFToken": csrftoken
-                    },
-                    success: function (result) {
-                        alert(result);
-                    },
-                    error: function (e) {
-                        console.log(e);
-                        alert("Error: " + e);
-                    },
                 });
-
-                return false;
             });
-        });
-    </script>
-</head>
-<body>
+        </script>
 
-    <form action="" novalidate>
-        <div class="container">
-            <h1>Welcome to GroupFormer!</h1>
-            <p>This is the Setup Screen, where you as an instructor/facilitator will be able to set up a form for participants to fill out and be assigned to groups</p>
+        <title>GroupFormer - Setup Screen</title>
+    </head>
 
-            <h2>Info</h2>
-            <div class="container">
-                <div class="form-group">
-                    <label for="instructor-name">Your Name</label>
-                    <input id="instructor-name" type="text" class="form-control col-md-2" placeholder="Jules Johnson" required>
-                    <div id="instructor-name-error" class="hide text-danger invalid-feedback">ERROR.</div>
+    <body>
+        <div id="page-container">
+            <div class="container container-fluid">
+                <!-- Page Header -->
+                <div class="row">
+                    <div class="col-6 mx-auto">
+                        <h1 class="display-4 text-center mx-auto d-block">Welcome to GroupFormer!</h1>
+                        <br>
+                        <p class="text-center mx-auto d-block">This is the Setup Screen, where you as an instructor/facilitator will be able to set up a form for participants to fill out and be assigned to groups</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="instructor-email">Your Email</label>
-                    <input id="instructor-email" type="text" class="form-control col-md-2" placeholder="jules@jules.jules" required>
-                    <div id="instructor-email-error" class="hide text-danger invalid-feedback">Please enter your email.</div>
+
+                <!-- Page Spacer -->
+                <div class="spacer"></div>
+
+                <!-- Main Content -->
+                <div class="row">
+                    <main role="main" class="col-8 mx-auto px-4">
+                        <form onsubmit="sun" novalidate>
+                            <div class="custom-form-box">
+                                <h3>Welcome {{ user.first_name }} ({{ user.email }}). <a class="btn btn-danger" id="logout-btn" href="{% url 'setup_screen:logout_endpoint' %}">logout</a> </h3>
+                            </div>
+                            
+                            <br>
+                            <h2>Info</h2>
+                            <div class="custom-form-box">
+                                <div class="form-group">
+                                    <label for="custom-name">Class/Section or Custom Name</label>
+                                    <input id="custom-name" type="text" class="form-control" placeholder="CMSC 447 - Section 03" required>
+                                    <div id="custom-name-error" class="hide text-danger invalid-feedback">Please give this "GroupFormer" a name.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="people-per-group">People Per Group</label>
+                                    <input id="people-per-group" type="number" class="form-control" required>
+                                    <div id="people-per-group-error" class="hide text-danger invalid-feedback">Please enter how many people you'd like to have in each group.</div>
+                                </div>
+                            </div>
+
+                            <br>
+                            <h2>Roster</h2>
+                            <div class="custom-form-box">
+                                <div class="form-group">
+                                    <label for="roster-input">Comma-Separated Participant Roster & Email</label>
+                                    <textarea id="roster-input" class="form-control" rows="4" placeholder="Jules Johnson,jules@jules.jules&#10;Jane Doe,jane@doe.person&#10;Would You Rather,wyr@yes.com" required></textarea>
+                                    <div id="roster-input-error" class="hide text-danger invalid-feedback">ERROR.</div>
+                                </div>
+                            </div>
+
+                            <br>
+                            <h2>Projects</h2>
+                            <div class="custom-form-box">
+                                <div id="projects-container"></div>
+                                <a onclick="add_project()" class="btn btn-primary" id="add-project-btn">Add Project</a>
+                            </div>
+
+                            <br>
+                            <h2>Attributes</h2>
+                            <div class="custom-form-box">
+                                <div id="attributes-container"></div>
+                                <a onclick="add_attribute()" class="btn btn-primary" id="add-attribute-btn">Add Attribute</a>
+                            </div>
+
+                            <br>
+                            <input type="submit" class="btn btn-success" id="submit-btn" value="Create GroupFormer"/>
+                        </form>
+                    </main>
                 </div>
-                <div class="form-group">
-                    <label for="custom-name">Class/Section or Custom Name</label>
-                    <input id="custom-name" type="text" class="form-control col-md-2" placeholder="CMSC 447 - Section 03" required>
-                    <div id="custom-name-error" class="hide text-danger invalid-feedback">Please give this "GroupFormer" a name.</div>
-                </div>
-                <div class="form-group">
-                    <label for="people-per-group">People Per Group</label>
-                    <input id="people-per-group" type="number" class="form-control col-md-2" required>
-                    <div id="people-per-group-error" class="hide text-danger invalid-feedback">Please enter how many people you'd like to have in each group.</div>
+
+                <!-- Templates -->
+                <div id="dom-templates" style="display: none;">
+
+                    <!-- Project Template -->
+                    <div class="card" id="project-template">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <a class="close" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="form-group" id="project-name">
+                                        <label>Project Name</label>
+                                        <input type="text" class="form-control" placeholder="Name" required>
+                                        <div class="hide text-danger invalid-feedback">Please give this project a name.</div>
+                                    </div>
+                                    <div class="form-group" id="project-desc">
+                                        <label>Project Description</label>
+                                        <textarea class="form-control" rows="3" placeholder="Description" required></textarea>
+                                        <div class="hide text-danger invalid-feedback">Please give this project a description.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attribute Template -->
+                    <div class="card" id="attribute-template">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <a class="close" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="form-group" id="attribute-name">
+                                        <label>Attribute</label>
+                                        <input type="text" class="form-control" placeholder="Enter Attribute/Question" required>
+                                        <div class="hide text-danger invalid-feedback">Please label this attribute/question.</div>
+                                    </div>
+                                    <div class="form-group" id="attribute-homogenous">
+                                        <label>Group Similar Responses Together</label>
+                                        <input type="checkbox">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <h2>Roster</h2>
-            <div class="container">
-                <div class="form-group">
-                    <label for="roster-input">Comma-Separated Participant Roster & Email</label>
-                    <textarea id="roster-input" class="form-control col-md-2" rows="4" placeholder="Jules Johnson,jules@jules.jules
-Jane Doe,jane@doe.person
-Would You Rather,wyr@yes.com" required></textarea>
-                    <div id="roster-input-error" class="hide text-danger invalid-feedback">ERROR.</div>
-                </div>
-            </div>
-
-            <h2>Projects</h2>
-            <div class="container">
-                <div class="container" id="projects-container"></div>
-                <a onclick="add_project()" class="btn btn-primary" id="add-project-btn">Add Project</a>
-            </div>
-
-            <h2>Attributes</h2>
-            <div class="container">
-                <div class="container" id="attributes-container"></div>
-                <a onclick="add_attribute()" class="btn btn-primary" id="add-attribute-btn">Add Attribute</a>
-            </div>
-
-            <br>
-            <input type="submit" class="btn btn-success" id="submit-btn" value="Create GroupFormer"/>
         </div>
-    </form>
 
-    <div id="dom-templates" style="display: none;">
-
-        <!-- Project Template -->
-        <div class="card row" id="project-template">
-            <div class="card-body">
-                <div class="col-md-1">
-                    <a class="close" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </a>
-                </div>
-                <div class="col-md-11">
-                    <div class="form-group" id="project-name">
-                        <label>Project Name</label>
-                        <input type="text" class="form-control col-md-2" placeholder="Name" required>
-                        <div class="hide text-danger invalid-feedback">Please give this project a name.</div>
-                    </div>
-                    <div class="form-group" id="project-desc">
-                        <label>Project Description</label>
-                        <textarea class="form-control" rows="3" placeholder="Description" required></textarea>
-                        <div class="hide text-danger invalid-feedback">Please give this project a description.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Attribute Template -->
-        <div class="card row" id="attribute-template">
-            <div class="card-body">
-                <div class="col-md-1">
-                    <a class="close" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </a>
-                </div>
-                <div class="col-md-11">
-                    <div class="form-group" id="attribute-name">
-                        <label>Attribute</label>
-                        <input type="text" class="form-control col-md-2" placeholder="Enter Attribute/Question" required>
-                        <div class="hide text-danger invalid-feedback">Please label this attribute/question.</div>
-                    </div>
-                    <div class="form-group" id="attribute-homogenous">
-                        <label>Group Similar Responses Together</label>
-                        <input type="checkbox">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    {% csrf_token %}
-    <script>
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    </script>
-</body>
+        {% csrf_token %}
+        <script>
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        </script>
+    </body>
 </html>

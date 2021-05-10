@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 from time import sleep
@@ -8,14 +9,20 @@ from dbtools.models import *
 from django.contrib.staticfiles.testing import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 
+from prio_alg.tests import RealWorldTest
+from prio_alg.priority import calc_optimal_groups
+
 
 def create_sample_groupformer():
+    # No creation of a Min User since that is done in the code (try_create_account)
+    User.objects.create_user("bjohn", "ben.johnson@umbc.edu", "MnbHtgUr")
     gfs = {}
     gfs[1] = {}
-    gfs[1]['gf'] = GroupFormer.objects.create(prof_name="Min Chon", prof_email="minc1@umbc.edu", class_section="34")
+    gfs[1]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "34")
     gfs[2] = {}
-    gfs[2]['gf'] = GroupFormer.objects.create(prof_name="Ben Johnson", prof_email="ben.johnson@umbc.edu",
-                                              class_section="24")
+    gfs[2]['gf'] = addGroupFormer("Min Chon", "minc1@umbc.edu", "24")
+    gfs[3] = {}
+    gfs[3]['gf'] = addGroupFormer("Ben Johnson","ben.johnson@umbc.edu","14")
     return gfs
 
 
@@ -45,9 +52,9 @@ def create_sample_participants(gfs):
     names = ["Min", "Kristian", "Sarah", "Morgan", "Kyle", "Ben", "Eric", "Andrew"]
     for i in range(len(names)):
         gfs[1]['part' + str(i + 1)] = Participant.objects.create(group_former=gfs[1]['gf'], part_name=names[i],
-                                                                 part_email="example@email.com")
+                                                                 part_email=names[i] + "@email.com")
         gfs[2]['part' + str(i + 1)] = Participant.objects.create(group_former=gfs[2]['gf'], part_name=names[i],
-                                                                 part_email="example@email.com")
+                                                                 part_email=names[i] + "@email.com")
     return names
 
 
@@ -72,55 +79,118 @@ class SeleniumGroupformerList(LiveServerTestCase):
         cls.selenium.quit()
         super().tearDownClass()
 
+    def try_create_account(self):
+        self.selenium.get(self.live_server_url + reverse('setup_screen:create_account_screen'))
+
+        self.selenium.find_element_by_id('first_name').send_keys('Min')
+        self.selenium.find_element_by_id('last_name').send_keys('CHon')
+        self.selenium.find_element_by_id('username').send_keys('minc')
+        self.selenium.find_element_by_id('email').send_keys('minc1@umbc.edu')
+        self.selenium.find_element_by_id('password').send_keys('pass1234567')
+        self.selenium.find_element_by_id('confirm_password').send_keys('pass1234567')
+
+        self.selenium.find_element_by_id('login-submit').click()
+
+    def sign_in(self, username="minc", password="pass1234567"):
+        self.selenium.get(self.live_server_url + reverse('setup_screen:login_screen'))
+
+        self.selenium.find_element_by_id('username').send_keys(username)
+        self.selenium.find_element_by_id('password').send_keys(password)
+
+        self.selenium.find_element_by_id('login-submit').click()
+
+    def test_show_only_owned(self):
+        self.try_create_account()
+        self.sign_in()
+        
+        create_all_samples()
+
+        self.selenium.get(self.live_server_url + reverse('results_screen:results_screen'))
+        
+        # Make sure that the logged in group can see their GroupFormer, but not the others
+        section_pane = self.selenium.find_element_by_id('vert-tabs').text
+        self.assertIn("34",section_pane)
+        self.assertIn("24",section_pane)
+        self.assertNotIn("14",section_pane)
+
     def test_get_group(self):
         """
         Test that the now non-arbitrary groups still display on the list.
-        "Formed groups" are still arbitrary, and act as if retrieved from the back-end group forming algorithm
         """
-        gfs = create_all_samples()
-        # ID is necessary because each Selenium test does not create its own isolated DB for models
-        gfs1 = gfs[1]['gf'].id
-        gfs2 = gfs[2]['gf'].id
+        
+        test_obj = RealWorldTest()
+        test_obj.setUp()
+        self.sign_in("bjohn", "UkEHMkqV")
+
+        gf_id = test_obj.gf.id
 
         self.selenium.get(self.live_server_url + reverse('results_screen:results_screen'))
-
+        
         # Check that there's nothing on the page first
         page_none = self.selenium.find_element_by_tag_name("body").text
         
-        self.assertTrue("A, B, C" not in page_none)
-        self.assertTrue("1, 2, 3" not in page_none)
-        self.assertTrue("X, Y, Z" not in page_none)
-        self.assertTrue("Q, A, Z" not in page_none)
-        self.assertTrue("G, M, E" not in page_none)
-        self.assertTrue("A, S, D, F" not in page_none)
+        # Check that the groupformer instance exists on page
+        self.assertTrue("CMSC-447-Section 2" in page_none)
+        # Check that the groups weren't given yet
+        self.assertTrue("Kyle" not in page_none)
+        self.assertTrue("Colin" not in page_none)
+        self.assertTrue("Jason" not in page_none)
+        self.assertTrue("Connor" not in page_none)
+        self.assertTrue("Tony" not in page_none)
+        self.assertTrue("Faith" not in page_none)
+        self.assertTrue("Danielle" not in page_none)
+        self.assertTrue("Omar" not in page_none)
+        self.assertTrue("Cameron" not in page_none)
+        self.assertTrue("Kai" not in page_none)
+        self.assertTrue("Adam" not in page_none)
+        self.assertTrue("Luke" not in page_none)
+        self.assertTrue("Dona" not in page_none)
+        self.assertTrue("Swaithi" not in page_none)
+        self.assertTrue("Rhea" not in page_none)
+        self.assertTrue("Rhiannon" not in page_none)
+        self.assertTrue("David" not in page_none)
+        self.assertTrue("Jayce" not in page_none)
+        self.assertTrue("JoJo" not in page_none)
+        self.assertTrue("Mayor" not in page_none)
+        self.assertTrue("Kristen" not in page_none)
+        self.assertTrue("Destiny" not in page_none)
+        self.assertTrue("Megan" not in page_none)
+        self.assertTrue("Marzuq" not in page_none)
+        self.assertTrue("Baker" not in page_none)
 
-        # Select the first groupformer tab and create groups
-        self.selenium.find_element_by_id("tab-{}".format(gfs1)).click()
-        self.selenium.find_element_by_id("groupformer{}_submit".format(gfs1)).click()
-        self.selenium.find_element_by_id("groupformer{}_groups".format(gfs1))
-        page1text = self.selenium.find_element_by_tag_name("body").text
+        # Select the groupformer tab and create groups
+        self.selenium.find_element_by_id("tab-{}".format(gf_id)).click()
+        self.selenium.find_element_by_id("groupformer{}_submit".format(gf_id)).click()
+        self.selenium.find_element_by_id("groupformer{}_groups".format(gf_id))
 
-        # Select the second groupformer tab and create groups
-        self.selenium.find_element_by_id("tab-{}".format(gfs2)).click()
-        self.selenium.find_element_by_id("groupformer{}_submit".format(gfs2)).click()
-        self.selenium.find_element_by_id("groupformer{}_groups".format(gfs2))
-        page2text = self.selenium.find_element_by_tag_name("body").text
+        import time
+        time.sleep(20)  # Give time for the algorithm to load the groups
 
-        # Check both pages if they have the right groups showing currently.
-        # Using .text instead of .innerHTML to verify what is VISIBLE (.innerHTML includes hidden text as well)
-        for page in ((page1text, gfs1), (page2text, gfs2)):
-            # Odd groupformer ids will have the ABC group.
-            if page[1] % 2:
-                self.assertTrue("A, B, C" in page[0])
-                self.assertTrue("1, 2, 3" in page[0])
-                self.assertTrue("X, Y, Z" in page[0])
-                self.assertTrue("Q, A, Z" not in page[0])
-                self.assertTrue("G, M, E" not in page[0])
-                self.assertTrue("A, S, D, F" not in page[0])
-            else:
-                self.assertTrue("A, B, C" not in page[0])
-                self.assertTrue("1, 2, 3" not in page[0])
-                self.assertTrue("X, Y, Z" not in page[0])
-                self.assertTrue("Q, A, Z" in page[0])
-                self.assertTrue("G, M, E" in page[0])
-                self.assertTrue("A, S, D, F" in page[0])
+        page_text = self.selenium.find_element_by_tag_name("body").text
+
+        # Now check that every student is assigned to a group and shown on page
+        self.assertTrue("Kyle" in page_text)
+        self.assertTrue("Colin" in page_text)
+        self.assertTrue("Jason" in page_text)
+        self.assertTrue("Connor" in page_text)
+        self.assertTrue("Tony" in page_text)
+        self.assertTrue("Faith" in page_text)
+        self.assertTrue("Danielle" in page_text)
+        self.assertTrue("Omar" in page_text)
+        self.assertTrue("Cameron" in page_text)
+        self.assertTrue("Kai" in page_text)
+        self.assertTrue("Adam" in page_text)
+        self.assertTrue("Luke" in page_text)
+        self.assertTrue("Dona" in page_text)
+        self.assertTrue("Swaithi" in page_text)
+        self.assertTrue("Rhea" in page_text)
+        self.assertTrue("Rhiannon" in page_text)
+        self.assertTrue("David" in page_text)
+        self.assertTrue("Jayce" in page_text)
+        self.assertTrue("JoJo" in page_text)
+        self.assertTrue("Mayor" in page_text)
+        self.assertTrue("Kristen" in page_text)
+        self.assertTrue("Destiny" in page_text)
+        self.assertTrue("Megan" in page_text)
+        self.assertTrue("Marzuq" in page_text)
+        self.assertTrue("Baker" in page_text)

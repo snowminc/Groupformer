@@ -31,10 +31,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'prio_alg.apps.PrioAlgConfig',
     'dbtools.apps.DbtoolsConfig',
     'setup_screen.apps.FormConfig',
     'results_screen.apps.ResultsScreenConfig',
     'response_screen.apps.ResponseScreenConfig',
+    'homepage.apps.HomepageConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
