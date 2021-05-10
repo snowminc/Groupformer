@@ -17,3 +17,5 @@ A tool to make forming groups based on preference more efficient.
 
 1. After running  you can look at the output in localhost:8000 in your browser by running the following commands 
    - `python manage.py runserver` will run the server on localhost at port 8000
+1. Link for project video: https://youtu.be/6ikItt-gD0c
+2. Link for live application: https://groupformer.herokuapp.com/
