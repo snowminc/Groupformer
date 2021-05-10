@@ -166,12 +166,14 @@ def calc_optimal_groups(gf, max_parts=4, epoch=0):
         groups is [(project,participant_list), ...] where each candidate_list has participants
         to match to the project and val is the master priority of all of the groups in groups list
         returns top three groupings in tuples (group, value)"""
+    if max_parts <= 0:
+        raise Exception('max_parts must be a positive integer')
     if epoch == 0:
         epoch = int(combination_num(len(gf.getProjectList()), max_parts))
 
         if epoch < 100:
             epoch = 100
-    
+
     best_group_value = 0
     best_group_list = []
     second_best_value = 0
@@ -226,7 +228,7 @@ def combination_num(n, r):
     :return
         Returns result of combination calculation"""
     if n < r:
-        raise Exception()('n cannot be less than r')
+        raise Exception('n cannot be less than r')
     if n == 0 or r == 0:
         raise Exception('n or r cannot be 0')
     return math.factorial(n) / (math.factorial(r) * math.factorial(n - r))
@@ -297,7 +299,7 @@ def create_random_candidate_groups(gf, max_parts):
 
             # when the project list count meets candidate list
             if len(project_list) == len(candidate_lists):
-                for j in range(roster):
+                for j in range(len(roster)):
                     candidate_lists[j % len(project_list)].append(roster.pop())
 
     # case where projects will have 0 or more people

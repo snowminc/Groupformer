@@ -25,15 +25,12 @@ def results_screen(request):
     groupformers = GroupFormer.objects.all()
     context = {"groupformers": groupformers}
 
-    #TODO: filter groupformers by user email
-    #TODO: probably will want to associate groupformers to the actual user object (not just email)
-
     return render(request, 'results_screen_main/results_screen.html', context)
 
 
 def get_groups(request, groupformer_id):
     groupformer = GroupFormer.objects.get(pk=groupformer_id)
-    best_groups, second_groups, third_groups = calc_optimal_groups(groupformer, max_parts=3, epoch=400)
+    best_groups, second_groups, third_groups = calc_optimal_groups(groupformer, max_parts=groupformer.max_participants_per_group, epoch=400)
     
     payload = {}
     for group in best_groups[0]:
